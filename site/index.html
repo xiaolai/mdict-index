@@ -10,75 +10,105 @@
   <script type="module" src="app.js"></script>
 </head>
 <body>
-  <header class="top">
-    <div class="wrap">
-      <h1><a href="./" id="home" class="home" title="回到首页 Home">MDict 词典检索 <span class="sub">Dictionary Finder</span></a></h1>
-      <p class="stats" id="stats">正在加载索引… Loading index…</p>
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <h1 class="brand">
+        <a href="./" id="home" class="brand__link" title="回到首页 Home">
+          <span class="brand__title">MDict 词典检索</span>
+          <span class="brand__sub">Dictionary Finder</span>
+        </a>
+      </h1>
+      <p class="masthead__lede">
+        按英文名、缩写或中文名检索 freemdict 上的 MDict 词典，每月自动更新。
+        <span lang="en">Search the MDict dictionaries on freemdict by any name. Updated monthly.</span>
+      </p>
+      <ul class="stats" id="stats" aria-label="统计 Statistics">
+        <li class="stats__item">正在加载索引… Loading index…</li>
+      </ul>
     </div>
   </header>
 
   <div class="searchbar">
-    <div class="wrap">
+    <div class="container">
       <label class="visually-hidden" for="q">搜索词典 Search dictionaries</label>
-      <div class="search-field">
-        <svg aria-hidden="true" viewBox="0 0 24 24" class="icon"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24-1.42 1.42-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
-        <input id="q" type="search" autocomplete="off" spellcheck="false" autofocus
+      <div class="search">
+        <svg class="search__icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24-1.42 1.42-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
+        <input id="q" class="search__input" type="search" autocomplete="off" spellcheck="false" autofocus
                placeholder="名称、缩写或中文名 — OALD、牛津高阶、collins 双解…">
-        <kbd class="hint" aria-hidden="true">/</kbd>
+        <kbd class="search__hint" aria-hidden="true">/</kbd>
       </div>
     </div>
   </div>
 
-  <div class="wrap">
-    <div class="filters">
-      <div class="group" role="group" aria-label="语种 Language" id="f-lang"></div>
-      <div class="group" role="group" aria-label="类型 Kind" id="f-kind"></div>
-      <div class="group scroll" role="group" aria-label="品牌 Brand" id="f-brand"></div>
-      <div class="row">
-        <label class="toggle"><input type="checkbox" id="f-res"> 含音频/图片 With audio/images</label>
-        <label class="sort">排序 Sort
-          <select id="sort">
-            <option value="rel">相关度 Relevance</option>
-            <option value="name">名称 Name</option>
-            <option value="size">体积 Size</option>
-            <option value="date">更新日期 Updated</option>
-            <option value="new">新收录 Newly tracked</option>
-          </select>
+  <div class="container filters">
+    <div class="chips" role="group" aria-label="语种 Language" id="f-lang"></div>
+    <details class="more" id="more-filters">
+      <summary class="more__summary">
+        更多筛选 <span lang="en">More filters</span>
+        <span class="more__count" id="more-count" hidden></span>
+      </summary>
+      <div class="more__body">
+        <div class="field">
+          <span class="field__label">类型 Kind</span>
+          <div class="chips" role="group" aria-label="类型 Kind" id="f-kind"></div>
+        </div>
+        <div class="field">
+          <span class="field__label">品牌 Brand</span>
+          <div class="chips" role="group" aria-label="品牌 Brand" id="f-brand"></div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="f-res" class="toggle__input">
+          仅显示含音频/图片 <span lang="en">With audio/images only</span>
         </label>
-        <button type="button" id="reset" class="link">清除筛选 Reset</button>
       </div>
-    </div>
+    </details>
   </div>
 
-  <main class="wrap">
-    <section id="rec" class="rec" hidden aria-labelledby="rec-title">
-      <h2 id="rec-title" class="section-title">推荐词典 <span class="sub">Recommended</span></h2>
-      <p id="rec-meta" class="rec-meta"></p>
+  <main class="container main">
+    <section id="rec" class="section" hidden aria-labelledby="rec-title">
+      <header class="section__head">
+        <h2 id="rec-title" class="section__title">推荐词典 <span class="section__sub">Recommended</span></h2>
+        <p id="rec-meta" class="section__meta"></p>
+      </header>
       <div id="rec-cards"></div>
     </section>
-    <h2 id="all-title" class="section-title" hidden>全部条目 <span class="sub">All entries</span></h2>
-    <section id="rec-hits" class="rec-hits" hidden aria-label="推荐版本 Recommended picks"></section>
-    <div class="count-row">
-      <p id="count" class="count" aria-live="polite"></p>
-      <button type="button" id="to-rec" class="link" hidden>★ 推荐词典 Recommended</button>
-    </div>
-    <div id="suggest" class="suggest" hidden>
-      试试 Try:
-    </div>
-    <ol id="results" class="results"></ol>
-    <button type="button" id="more" class="more" hidden>显示更多 Show more</button>
-    <noscript><p class="error">需要启用 JavaScript。JavaScript is required.</p></noscript>
+
+    <section id="rec-hits" class="section" hidden aria-label="推荐版本 Recommended picks"></section>
+
+    <section class="section" aria-labelledby="count">
+      <h2 id="all-title" class="section__title" hidden>全部条目 <span class="section__sub">All entries</span></h2>
+      <div class="toolbar">
+        <p id="count" class="toolbar__count" aria-live="polite"></p>
+        <div class="toolbar__actions">
+          <button type="button" id="to-rec" class="link-btn" hidden>★ 推荐词典 <span lang="en">Recommended</span></button>
+          <button type="button" id="reset" class="link-btn" hidden>清除筛选 <span lang="en">Reset</span></button>
+          <label class="select">
+            <span class="visually-hidden">排序 Sort</span>
+            <select id="sort" class="select__control">
+              <option value="rel">按相关度 Relevance</option>
+              <option value="name">按名称 Name</option>
+              <option value="size">按体积 Size</option>
+              <option value="date">按更新日期 Updated</option>
+              <option value="new">按新收录 Newly tracked</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div id="suggest" class="suggest" hidden><span class="suggest__label">试试 Try</span></div>
+      <ol id="results" class="entries"></ol>
+      <button type="button" id="more" class="btn btn--ghost btn--block" hidden>显示更多 Show more</button>
+      <noscript><p class="error">需要启用 JavaScript。JavaScript is required.</p></noscript>
+    </section>
   </main>
 
-  <footer class="wrap foot">
-    <details id="changes">
-      <summary>变更记录 Change log</summary>
-      <div id="changes-body"></div>
+  <footer class="container footer">
+    <details class="changelog" id="changes">
+      <summary class="changelog__summary">变更记录 <span lang="en">Change log</span></summary>
+      <div id="changes-body" class="changelog__body"></div>
     </details>
-    <p>
-      索引来自 <a href="https://downloads.freemdict.com/" rel="noopener">downloads.freemdict.com</a> 的公开目录，本站不托管任何词典文件。
-      Index of the public listing at freemdict; this site hosts no dictionary files.
-      语种分类由文件名推断，可能有少量误差。Language labels are inferred from file names.
+    <p class="footer__note">
+      索引来自 <a href="https://downloads.freemdict.com/" rel="noopener">downloads.freemdict.com</a> 的公开目录，本站不托管任何词典文件；语种分类由文件名推断，可能有少量误差。
+      <span lang="en">An index of freemdict's public listing; this site hosts no files. Language labels are inferred from file names.</span>
     </p>
   </footer>
 </body>

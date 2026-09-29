@@ -22,11 +22,11 @@ const KINDS = [
 const SORTS = ["rel", "name", "size", "date", "new"];
 const STATUS = {
   current: ["最新", "Current"],
-  behind: ["落后一版", "One edition behind"],
-  snapshot: ["在线版快照", "Online snapshot"],
-  final: ["终版", "Final, discontinued"],
-  unclear: ["版本不明", "Edition unclear"],
-  missing: ["本站暂无", "Not on freemdict"],
+  behind: ["落后一版", "Behind"],
+  snapshot: ["在线快照", "Snapshot"],
+  final: ["终版", "Final"],
+  unclear: ["版本不明", "Unclear"],
+  missing: ["本站暂无", "Missing"],
 };
 const SUGGESTIONS = ["OALD", "牛津高阶", "LDOCE", "柯林斯 双解", "Merriam-Webster", "etymology", "发音", "英汉大词典"];
 
@@ -145,6 +145,10 @@ function update() {
   $("rec").hidden = !pristine;
   $("all-title").hidden = !pristine;
   $("to-rec").hidden = pristine;
+  $("reset").hidden = pristine && state.sort === "rel";
+  const hiddenActive = state.kind.size + (state.brand ? 1 : 0) + (state.res ? 1 : 0);
+  $("more-count").hidden = hiddenActive === 0;
+  $("more-count").textContent = String(hiddenActive);
   if (pristine) revealActiveTab(); // hidden elements have no layout, so re-center once shown
   writeUrl();
 }
@@ -170,7 +174,7 @@ function renderChips(container, table, counts, selected) {
           },
         },
         `${zh} ${en}`,
-        el("span", { class: "n", textContent: n.toLocaleString() }),
+        el("span", { class: "chip__n", textContent: n.toLocaleString() }),
       );
     }),
   );
@@ -195,7 +199,7 @@ function renderBrands(counts) {
           },
         },
         b,
-        el("span", { class: "n", textContent: n.toLocaleString() }),
+        el("span", { class: "chip__n", textContent: n.toLocaleString() }),
       );
     }),
   );
@@ -204,7 +208,7 @@ function renderBrands(counts) {
 // The last folders are what tell same-named records apart ("[英-汉]/oald4" vs "[英-英]/oald4").
 function shortFolder(folder) {
   const parts = folder.split("/").filter(Boolean);
-  return "📁 " + (parts.length > 3 ? "…/" + parts.slice(-3).join("/") : parts.join("/") || "/");
+  return parts.length > 3 ? "…/" + parts.slice(-3).join("/") : parts.join("/") || "/";
 }
 
 function daysSince(iso) {
@@ -216,46 +220,51 @@ function card(r) {
   const [mainName] = first.f[0];
   const ext = mainName.slice(mainName.lastIndexOf(".")).toLowerCase();
   const fileCount = r.loc.reduce((n, l) => n + l.f.length, 0);
+  const copies = r.loc.length > 1 ? ` · ${r.loc.length} 处副本 copies` : "";
   return el(
     "li",
-    { class: "card" },
-    el("h2", { textContent: r.n }),
-    el("p", { class: "where", title: first.p, textContent: shortFolder(first.p) + (r.loc.length > 1 ? ` · +${r.loc.length - 1} 处副本 copies` : "") }),
+    { class: "entry" },
+    el("h3", { class: "entry__title", textContent: r.n }),
+    el("p", { class: "entry__path", title: first.p, textContent: shortFolder(first.p) }),
     el(
       "div",
-      { class: "badges" },
-      recIds.has(r.id) && el("span", { class: "badge rec", textContent: "★ 推荐 Recommended" }),
-      el("span", { class: "badge lang", textContent: label(LANGS, r.l) }),
-      r.k !== "mdx" && el("span", { class: "badge", textContent: label(KINDS, r.k) }),
-      ...r.b.map((b) => el("span", { class: "badge", textContent: b })),
-      r.r === 1 && el("span", { class: "badge", textContent: "含 .mdd 音频/图片" }),
-      r.fs && daysSince(r.fs) <= NEW_DAYS && el("span", { class: "badge new", textContent: `新收录 New · ${r.fs}` }),
+      { class: "tags" },
+      recIds.has(r.id) && el("span", { class: "tag tag--rec", textContent: "★ 推荐" }),
+      el("span", { class: "tag tag--lang", textContent: label(LANGS, r.l) }),
+      r.k !== "mdx" && el("span", { class: "tag", textContent: label(KINDS, r.k) }),
+      ...r.b.map((b) => el("span", { class: "tag", textContent: b })),
+      r.r === 1 && el("span", { class: "tag", textContent: "含音频/图片" }),
+      r.fs && daysSince(r.fs) <= NEW_DAYS && el("span", { class: "tag tag--new", textContent: `新收录 ${r.fs}` }),
     ),
     el(
       "div",
-      { class: "meta" },
-      el("a", { class: "dl", href: fileUrl(first.p, mainName), rel: "noopener", textContent: `下载 Download ${ext}` }),
-      el("span", { textContent: fmtSize(r.s) }),
-      el("span", { textContent: `更新 ${r.d}` }),
+      { class: "entry__foot" },
+      el("a", {
+        class: "btn btn--primary btn--sm",
+        href: fileUrl(first.p, mainName),
+        rel: "noopener",
+        textContent: `下载 ${ext}`,
+      }),
+      el("span", { class: "entry__meta", textContent: `${fmtSize(r.s)} · ${r.d}${copies}` }),
     ),
     el(
       "details",
-      {},
-      el("summary", { textContent: `全部文件 All files (${fileCount})` }),
+      { class: "files" },
+      el("summary", { class: "files__summary", textContent: `全部文件 All files (${fileCount})` }),
       ...r.loc.map((loc) =>
         el(
           "div",
-          { class: "loc" },
-          el("a", { class: "folder", href: folderUrl(loc.p), rel: "noopener", textContent: `📁 ${loc.p || "/"}` }),
+          { class: "files__loc" },
+          el("a", { class: "files__folder", href: folderUrl(loc.p), rel: "noopener", textContent: loc.p || "/" }),
           el(
             "ul",
-            { class: "files" },
+            { class: "files__list" },
             ...loc.f.map(([name, size]) =>
               el(
                 "li",
-                {},
+                { class: "files__item" },
                 el("a", { href: fileUrl(loc.p, name), rel: "noopener", textContent: name }),
-                el("span", { class: "sz", textContent: fmtSize(size) }),
+                el("span", { class: "files__size", textContent: fmtSize(size) }),
               ),
             ),
           ),
@@ -285,68 +294,70 @@ function showInIndex(name) {
 
 // ---- recommendation rows (shared by the tabs and the in-search panel) -------------
 
-const recStatus = (s) => el("span", { class: `status st-${s}`, textContent: `${STATUS[s][0]} · ${STATUS[s][1]}` });
-const recTd = (label, child) => el("td", { "data-label": label }, child);
+const recStatus = (s) =>
+  el("span", { class: `status status--${s}`, textContent: `${STATUS[s][0]} ${STATUS[s][1]}` });
 
-function recName(it) {
-  return el(
-    "div",
-    { class: "rec-name" },
-    el("strong", { textContent: it.name }),
-    it.zh && el("span", { class: "zh", textContent: it.zh }),
-    el("span", { class: "full", textContent: it.full }),
-  );
-}
-
-function recBest(it) {
+function recRow(it) {
   const r = byId.get(it.id);
-  if (!r) return el("div", { class: "rec-note", textContent: it.note });
-  const [first] = r.loc;
+  const first = r?.loc[0];
   return el(
-    "div",
-    {},
-    el("button", {
-      type: "button",
-      class: "link rec-find",
-      title: "在索引中查看 Show in the index",
-      textContent: r.n,
-      onclick: () => showInIndex(r.n),
-    }),
+    "li",
+    { class: "rec-row" },
     el(
       "div",
-      { class: "rec-sub" },
-      el("a", { class: "dl", href: fileUrl(first.p, first.f[0][0]), rel: "noopener", textContent: "下载 Download" }),
-      ` · ${fmtSize(r.s)}`,
-      r.r === 1 ? " · 含音频/图片" : "",
+      { class: "rec-row__dict" },
+      el(
+        "div",
+        {},
+        el("span", { class: "rec-row__name", textContent: it.name }),
+        it.zh && el("span", { class: "rec-row__zh", textContent: it.zh }),
+      ),
+      el("span", { class: "rec-row__full", textContent: it.full }),
+      el(
+        "span",
+        { class: "rec-row__latest" },
+        "最新版次 ",
+        el("a", { href: it.src, rel: "noopener", title: "来源 Source", textContent: it.latest }),
+      ),
     ),
-    el("div", { class: "rec-note", textContent: it.note }),
+    el(
+      "div",
+      { class: "rec-row__best" },
+      r &&
+        el("button", {
+          type: "button",
+          class: "rec-row__find",
+          title: "在索引中查看 Show in the index",
+          textContent: r.n,
+          onclick: () => showInIndex(r.n),
+        }),
+      r &&
+        el(
+          "div",
+          { class: "rec-row__sub" },
+          el("a", {
+            class: "btn btn--primary btn--sm",
+            href: fileUrl(first.p, first.f[0][0]),
+            rel: "noopener",
+            textContent: "下载 Download",
+          }),
+          el("span", { textContent: fmtSize(r.s) + (r.r === 1 ? " · 含音频/图片" : "") }),
+        ),
+      el("span", { class: "rec-row__note", textContent: it.note }),
+    ),
+    el("div", { class: "rec-row__status" }, recStatus(it.status)),
   );
 }
 
-function recRow(it, withLatest) {
+const recList = (items) => el("ul", { class: "rec-list" }, ...items.map(recRow));
+
+function recPanel(modifier, title, sub, ...body) {
   return el(
-    "tr",
-    {},
-    recTd("词典", recName(it)),
-    withLatest &&
-      recTd("最新版次", el("a", { href: it.src, rel: "noopener", title: "来源 Source", textContent: it.latest })),
-    recTd("本站最佳版本", recBest(it)),
-    recTd("状态", recStatus(it.status)),
+    "article",
+    { class: `panel ${modifier}` },
+    el("header", { class: "panel__head" }, el("h3", { class: "panel__title" }, title, el("span", { class: "panel__sub", textContent: sub }))),
+    ...body,
   );
-}
-
-function recTable(items, withLatest) {
-  const heads = ["词典 Dictionary", withLatest && "最新版次 Latest edition", "本站最佳版本 Best on freemdict", "状态 Status"];
-  return el(
-    "table",
-    { class: "rec-table" },
-    el("thead", {}, el("tr", {}, ...heads.filter(Boolean).map((h) => el("th", { scope: "col", textContent: h })))),
-    el("tbody", {}, ...items.map((it) => recRow(it, withLatest))),
-  );
-}
-
-function recCard(cls, zh, en, ...body) {
-  return el("article", { class: `rec-card ${cls}` }, el("h3", {}, zh, el("span", { class: "sub", textContent: en })), ...body);
 }
 
 // Recommended items matching the current query, honouring the active filters.
@@ -365,7 +376,7 @@ function renderRecHits(items) {
   const box = $("rec-hits");
   box.hidden = items.length === 0;
   box.replaceChildren(
-    ...(items.length ? [recCard("hits", "★ 推荐版本", `Recommended picks · ${items.length}`, recTable(items, false))] : []),
+    ...(items.length ? [recPanel("panel--hits", "★ 推荐版本", `Recommended picks · ${items.length}`, recList(items))] : []),
   );
 }
 
@@ -395,22 +406,22 @@ function renderRecommended(rec) {
       tab: ["入门套装", "Starter set"],
       count: starters.length,
       body: () =>
-        recCard(
-          "starter",
+        recPanel(
+          "panel--starter",
           "入门套装",
           `Starter set · ${starters.length} 部 · 共 ${fmtSize(starterSize)}`,
           el("p", {
-            class: "rec-note",
+            class: "panel__note",
             textContent: "一套覆盖学习释义、母语释义、生僻词、发音、搭配、词源和中文释义。体积主要是音频。",
           }),
-          recTable(starters, false),
+          recList(starters),
         ),
     },
     ...rec.categories.map((cat) => ({
       key: cat.key,
       tab: [cat.tab_zh, cat.tab_en],
       count: cat.items.length,
-      body: () => recCard("", cat.zh, cat.en, recTable(cat.items, true)),
+      body: () => recPanel("", cat.zh, cat.en, recList(cat.items)),
     })),
   ];
   if (!panels.some((p) => p.key === state.tab)) state.tab = "starter";
@@ -423,13 +434,13 @@ function renderRecommended(rec) {
         type: "button",
         role: "tab",
         id: `tab-${p.key}`,
-        class: "rec-tab",
+        class: "tab",
         "aria-controls": `panel-${p.key}`,
         onclick: () => select(p.key),
       },
       p.tab[0],
-      el("span", { class: "en", textContent: p.tab[1] }),
-      el("span", { class: "n", textContent: String(p.count) }),
+      el("span", { class: "tab__en", textContent: p.tab[1] }),
+      el("span", { class: "tab__n", textContent: String(p.count) }),
     ),
   );
   const bodies = panels.map((p) => {
@@ -469,7 +480,7 @@ function renderRecommended(rec) {
   };
 
   $("rec-cards").replaceChildren(
-    el("div", { class: "rec-tabs", role: "tablist", "aria-label": "推荐分类 Recommendation categories", onkeydown: onKey }, ...tabs),
+    el("div", { class: "tabs", role: "tablist", "aria-label": "推荐分类 Recommendation categories", onkeydown: onKey }, ...tabs),
     ...bodies,
   );
   select(state.tab);
@@ -477,13 +488,18 @@ function renderRecommended(rec) {
 
 function renderHeader(meta) {
   const by = meta.by_lang;
-  $("stats").textContent =
-    `${meta.total.toLocaleString()} 条目 entries · 英英 ${by["en-en"] ?? 0} · 英汉 ${by["en-zh"] ?? 0} · ` +
-    `抓取于 crawled ${meta.crawled} · 自 ${meta.tracking_since} 起跟踪 tracking`;
+  const stat = (num, text) =>
+    el("li", { class: "stats__item" }, el("span", { class: "stats__num", textContent: num }), text);
+  $("stats").replaceChildren(
+    stat(meta.total.toLocaleString(), "条目 entries"),
+    stat((by["en-en"] ?? 0).toLocaleString(), "英英"),
+    stat((by["en-zh"] ?? 0).toLocaleString(), "英汉"),
+    stat(meta.crawled, "抓取 crawled"),
+  );
 
   const body = $("changes-body");
   if (meta.changes.length === 0) {
-    body.textContent = `暂无变更。自 ${meta.tracking_since} 起每月比对一次。No changes yet; checked monthly.`;
+    body.textContent = `暂无变更。自 ${meta.tracking_since} 起每月比对一次。No changes yet; checked monthly since ${meta.tracking_since}.`;
     return;
   }
   body.replaceChildren(
@@ -491,14 +507,19 @@ function renderHeader(meta) {
       el(
         "div",
         { class: "change" },
-        el("strong", { textContent: `${c.date}  +${c.added.length} / −${c.removed.length}` }),
+        el("div", { class: "change__title", textContent: `${c.date}  +${c.added.length} / −${c.removed.length}` }),
         ...[
           ["新增 Added", c.added],
           ["移除 Removed", c.removed],
         ]
           .filter(([, names]) => names.length)
           .map(([title, names]) =>
-            el("div", {}, title, el("ul", {}, ...names.slice(0, 100).map((nm) => el("li", { textContent: nm })))),
+            el(
+              "div",
+              {},
+              title,
+              el("ul", { class: "change__list" }, ...names.slice(0, 100).map((nm) => el("li", { textContent: nm }))),
+            ),
           ),
       ),
     ),
@@ -534,6 +555,8 @@ function bindInputs() {
       q.focus();
     }
   });
+
+  $("more-filters").open = state.kind.size > 0 || Boolean(state.brand) || state.res;
 
   const res = $("f-res");
   res.checked = state.res;
