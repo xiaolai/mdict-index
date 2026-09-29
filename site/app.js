@@ -37,6 +37,7 @@ let recItems = [];
 let recIndex = [];
 let recIds = new Set();
 let revealActiveTab = () => {}; // set by renderRecommended
+let selectTab = () => {}; // set by renderRecommended
 
 const $ = (id) => document.getElementById(id);
 
@@ -451,6 +452,7 @@ function renderRecommended(rec) {
     revealActiveTab();
     writeUrl();
   }
+  selectTab = select;
   // On narrow screens the strip scrolls sideways; keep the active tab in view.
   // Sets scrollLeft only: scrollIntoView would also scroll the page.
   revealActiveTab = () => {
@@ -569,6 +571,16 @@ function bindInputs() {
     clearSearch();
     update();
     $("rec").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  // The title is a real link to "./" (works in a new tab); a plain click resets in place.
+  $("home").addEventListener("click", (e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    clearSearch();
+    selectTab("starter");
+    update();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    q.focus();
   });
 
   $("suggest").append(
