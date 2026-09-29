@@ -163,7 +163,21 @@ def build_records(index_rows: list[dict]) -> dict[str, Record]:
                 merged[rid].date = min(merged[rid].date, r.date)
             else:
                 merged[rid] = r
+    for r in merged.values():
+        _settle_copies(r)
     return merged
+
+
+def _settle_copies(r: Record) -> None:
+    """Copies share the main file but not always its companions (one copy may
+    lack the .mdd). Lead with the most complete copy, since the Download
+    button and size come from it, and flag resources if any copy has them."""
+    total = lambda loc: sum(size for _, size in loc["files"])
+    r.locations.sort(key=lambda loc: (-total(loc), loc["folder"]))
+    r.size = total(r.locations[0])
+    r.has_resources = r.kind != "archive" and any(
+        name.lower().endswith(".mdd") for loc in r.locations for name, _ in loc["files"]
+    )
 
 
 def to_json(rid: str, r: Record, fold, first_seen: str | None) -> dict:

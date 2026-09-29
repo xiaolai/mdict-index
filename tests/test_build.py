@@ -63,6 +63,14 @@ class BuildRecords(unittest.TestCase):
         (rec,) = recs.values()
         self.assertEqual([loc["folder"] for loc in rec.locations], ["a", "b"])
 
+    def test_most_complete_copy_leads_and_resources_count_from_any_copy(self):
+        # Same .mdx in two folders; only the second folder has the .mdd.
+        recs = build_records([row("a/X.mdx", 7), row("b/X.mdx", 7), row("b/X.mdd", 900)])
+        (rec,) = recs.values()
+        self.assertEqual([loc["folder"] for loc in rec.locations], ["b", "a"])
+        self.assertTrue(rec.has_resources)
+        self.assertEqual(rec.size, 907)
+
     def test_same_name_different_size_stays_separate(self):
         self.assertEqual(len(build_records([row("a/X.mdx", 7), row("b/X.mdx", 8)])), 2)
 
