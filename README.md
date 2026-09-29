@@ -40,6 +40,23 @@ PYTHONPATH=scripts python3 -m unittest discover -s tests
 node --test tests/search.test.mjs
 ```
 
+## Recommendations
+
+The landing view shows recommendation cards from `data/recommended.json`,
+which is edited by hand. Each entry gives the latest real-world edition (with
+a source link) and a `pick`: the exact freemdict record name, plus a `folder`
+substring when several records share that name. The build resolves every pick
+to a record:
+
+- A malformed entry (unknown `status`, non-https `src`, duplicate `key`)
+  fails the build.
+- A pick that no longer exists on freemdict does not fail the monthly
+  update; it shows as "not on freemdict" and logs a workflow warning.
+- `test_committed_curation_resolves_every_pick_exactly` fails on typos.
+
+Statuses: `current`, `behind`, `snapshot`, `final`, `unclear`, `missing`.
+Update the `reviewed` date when rechecking editions.
+
 ## Improving results
 
 - A dictionary is missing an alias (e.g. searching its Chinese name finds nothing):

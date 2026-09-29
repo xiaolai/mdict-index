@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 # Run with scripts/ importable: PYTHONPATH=scripts python3 -m unittest discover -s tests
-from build_site import build, build_records, group_folder
+from build_site import build, build_records, group_folder, resolve_recommended
 from classify import classify
 from families import aliases_of, brands_of
 
@@ -123,6 +123,63 @@ class Tracking(unittest.TestCase):
         self.index.write_text("")
         with self.assertRaises(SystemExit):
             build(self.index, self.out, self.t2s, "2026-01-01")
+
+
+def rec(rid, name, size=10, folder="x", kind="mdx"):
+    return {"id": rid, "k": kind, "n": name, "s": size, "loc": [{"p": folder, "f": []}]}
+
+
+def curated(*items):
+    return {"reviewed": "2026-01-01", "categories": [{"key": "c", "zh": "c", "en": "c", "items": list(items)}]}
+
+
+def item(key, pick, status="current"):
+    return {"key": key, "name": key, "status": status, "pick": pick}
+
+
+class Recommended(unittest.TestCase):
+    def ids(self, out):
+        return [i["id"] for i in out["categories"][0]["items"]]
+
+    def test_folder_hint_picks_among_same_named_records(self):
+        dicts = [rec("a", "LDOCE6", folder="x/Longman/LDOCE6"), rec("b", "LDOCE6", folder="y/other")]
+        out, warnings = resolve_recommended(curated(item("l", {"name": "LDOCE6", "folder": "Longman"})), dicts)
+        self.assertEqual((self.ids(out), warnings), (["a"], []))
+
+    def test_vanished_pick_resolves_to_null_with_warning(self):
+        out, warnings = resolve_recommended(curated(item("g", {"name": "Gone"})), [rec("a", "Other")])
+        self.assertEqual(self.ids(out), [None])
+        self.assertEqual(len(warnings), 1)
+
+    def test_ambiguous_pick_takes_most_complete_and_warns(self):
+        dicts = [rec("small", "X", 10), rec("big", "X", 99)]
+        out, warnings = resolve_recommended(curated(item("x", {"name": "X"})), dicts)
+        self.assertEqual(self.ids(out), ["big"])
+        self.assertEqual(len(warnings), 1)
+
+    def test_archives_never_match(self):
+        out, _ = resolve_recommended(curated(item("x", {"name": "X"})), [rec("arc", "X", kind="archive")])
+        self.assertEqual(self.ids(out), [None])
+
+    def test_authoring_errors_raise(self):
+        for bad in [
+            curated(item("x", {"name": "X"}, status="great")),
+            curated(item("x", None, status="current")),
+            curated(item("x", {"name": "X"}), item("x", {"name": "X"})),
+            curated({**item("x", {"name": "X"}), "src": "javascript:alert(1)"}),
+        ]:
+            with self.assertRaises(ValueError):
+                resolve_recommended(bad, [rec("a", "X")])
+
+    def test_committed_curation_resolves_every_pick_exactly(self):
+        # Catches typos in data/recommended.json against the committed index.
+        dicts = json.loads((ROOT / "site" / "data" / "dicts.json").read_text())
+        cur = json.loads((ROOT / "data" / "recommended.json").read_text())
+        out, warnings = resolve_recommended(cur, dicts)
+        self.assertEqual(warnings, [])
+        for cat in out["categories"]:
+            for i in cat["items"]:
+                self.assertEqual(i["id"] is None, i["status"] == "missing", i["key"])
 
 
 class Classify(unittest.TestCase):

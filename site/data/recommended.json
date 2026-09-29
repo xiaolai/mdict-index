@@ -1,0 +1,329 @@
+{
+ "reviewed": "2026-09-29",
+ "categories": [
+  {
+   "key": "learners",
+   "zh": "英英 · 学习型词典",
+   "en": "English learner's dictionaries",
+   "items": [
+    {
+     "key": "oald",
+     "name": "OALD",
+     "full": "Oxford Advanced Learner's Dictionary",
+     "zh": "牛津高阶",
+     "latest": "11th (2026)",
+     "src": "https://india.oup.com/product/oxford-advanced-learners-dictionary-11th-edition-9780194286206/",
+     "status": "behind",
+     "note": "第10版，含完整音频图片；第11版尚无 MDict 版。",
+     "starter": true,
+     "id": "c5f00b8a533f"
+    },
+    {
+     "key": "ldoce",
+     "name": "LDOCE",
+     "full": "Longman Dictionary of Contemporary English",
+     "zh": "朗文当代",
+     "latest": "6th (2014)",
+     "src": "https://www.ldoceonline.com/",
+     "status": "current",
+     "note": "第6版至今仍是最新版。",
+     "starter": true,
+     "id": "a6a4dd4cd44f"
+    },
+    {
+     "key": "cobuild",
+     "name": "COBUILD Advanced",
+     "full": "Collins COBUILD Advanced Learner's Dictionary",
+     "zh": "柯林斯高阶",
+     "latest": "10th (2023)",
+     "src": "https://collins.co.uk/products/9780008444907",
+     "status": "behind",
+     "note": "由在线版整理，整句释义，含音频；非第10版。",
+     "starter": true,
+     "id": "d592a9cd4293"
+    },
+    {
+     "key": "cald",
+     "name": "CALD",
+     "full": "Cambridge Advanced Learner's Dictionary",
+     "zh": "剑桥高阶",
+     "latest": "4th (2013)",
+     "src": "https://en.wikipedia.org/wiki/Cambridge_Advanced_Learner%27s_Dictionary",
+     "status": "current",
+     "note": "第4版后只有在线更新。",
+     "id": "2d34ce70d8a1"
+    },
+    {
+     "key": "med",
+     "name": "Macmillan",
+     "full": "Macmillan English Dictionary for Advanced Learners",
+     "zh": "麦克米伦高阶",
+     "latest": "2nd (2007) · 网站已于 2023 关闭",
+     "src": "https://en.wikipedia.org/wiki/Macmillan_English_Dictionary_for_Advanced_Learners",
+     "status": "final",
+     "note": "2019 在线数据，已无后续版本，值得保存。",
+     "id": "751f91b30753"
+    },
+    {
+     "key": "mwaled",
+     "name": "MW Learner's",
+     "full": "Merriam-Webster's Advanced Learner's English Dictionary",
+     "zh": "韦氏高阶",
+     "latest": "2008 · 网站已并入 Britannica",
+     "src": "https://www.learnersdictionary.com/",
+     "status": "current",
+     "note": "美式英语学习词典。",
+     "id": "3d4549a7cb13"
+    }
+   ]
+  },
+  {
+   "key": "native",
+   "zh": "英英 · 母语与参考词典",
+   "en": "Native-speaker and reference dictionaries",
+   "items": [
+    {
+     "key": "mwc",
+     "name": "MW Collegiate",
+     "full": "Merriam-Webster's Collegiate Dictionary",
+     "zh": "韦氏大学",
+     "latest": "12th (2025)",
+     "src": "https://www.globenewswire.com/news-release/2025/09/25/3156051/0/en/Merriam-Webster-Announces-Twelfth-Edition-of-its-Iconic-Collegiate-Dictionary.html",
+     "status": "behind",
+     "note": "第11版，含图片与发音。",
+     "id": "2cd79fd4ad1f"
+    },
+    {
+     "key": "mwu",
+     "name": "MW Unabridged",
+     "full": "Merriam-Webster Unabridged",
+     "zh": "韦氏足本",
+     "latest": "仅在线版 · online only",
+     "src": "https://unabridged.merriam-webster.com/",
+     "status": "snapshot",
+     "note": "2020 在线数据；收词最全，查生僻词。",
+     "starter": true,
+     "id": "c0758e8a46cb"
+    },
+    {
+     "key": "ode",
+     "name": "ODE",
+     "full": "Oxford Dictionary of English",
+     "zh": "牛津英语词典（新牛津英英）",
+     "latest": "3rd (2010)",
+     "src": "https://global.oup.com/academic/product/oxford-dictionary-of-english-9780199571123",
+     "status": "current",
+     "note": "2019 年底的在线数据，含音频。",
+     "starter": true,
+     "id": "71e02995b170"
+    },
+    {
+     "key": "noad",
+     "name": "NOAD",
+     "full": "New Oxford American Dictionary",
+     "zh": "新牛津美语",
+     "latest": "3rd (2010)",
+     "src": "https://en.wikipedia.org/wiki/New_Oxford_American_Dictionary",
+     "status": "current",
+     "note": "macOS 自带词典的同源版本。",
+     "id": "9e8cf09c15c9"
+    },
+    {
+     "key": "ahd",
+     "name": "AHD",
+     "full": "American Heritage Dictionary of the English Language",
+     "zh": "美国传统",
+     "latest": "5th (50th Anniversary printing)",
+     "src": "https://www.barnesandnoble.com/w/the-american-heritage-dictionary-of-the-english-language-fifth-edition-editors-of-the-american-heritage-di/1140825620",
+     "status": "current",
+     "note": "用法说明与词源出色，含音频。",
+     "id": "380290f2632b"
+    },
+    {
+     "key": "ced",
+     "name": "Collins English",
+     "full": "Collins English Dictionary",
+     "zh": "柯林斯英语词典",
+     "latest": "14th (2023)",
+     "src": "https://collins.co.uk/products/9780008511340",
+     "status": "unclear",
+     "note": "2022 年上传，版本号未标明。",
+     "id": "3cb21d55eb01"
+    },
+    {
+     "key": "chambers",
+     "name": "Chambers",
+     "full": "The Chambers Dictionary",
+     "zh": "钱伯斯",
+     "latest": "13th (2014)",
+     "src": "https://chambers.co.uk/book/the-chambers-dictionary/",
+     "status": "current",
+     "note": "英式英语，收词广。",
+     "id": "9fe4f32eb490"
+    },
+    {
+     "key": "oed",
+     "name": "OED",
+     "full": "Oxford English Dictionary",
+     "zh": "牛津英语大词典",
+     "latest": "OED3 在线版，每季更新",
+     "src": "https://www.oed.com/information/updates/september-2026",
+     "status": "snapshot",
+     "note": "2020-08 在线数据，纯文本；历史词义与书证。",
+     "id": "5702919afc70"
+    }
+   ]
+  },
+  {
+   "key": "usage",
+   "zh": "发音 · 搭配 · 用法 · 词源",
+   "en": "Pronunciation, usage and word origins",
+   "items": [
+    {
+     "key": "lpd",
+     "name": "LPD",
+     "full": "Longman Pronunciation Dictionary",
+     "zh": "朗文发音",
+     "latest": "3rd (2008)",
+     "src": "https://www.phon.ucl.ac.uk/home/wells/lpd3.htm",
+     "status": "current",
+     "note": "英美两式发音与变体，含音频。",
+     "starter": true,
+     "id": "d3ab7b37f43b"
+    },
+    {
+     "key": "cepd",
+     "name": "CEPD",
+     "full": "Cambridge English Pronouncing Dictionary",
+     "zh": "剑桥发音",
+     "latest": "18th (2011)",
+     "src": "https://en.wikipedia.org/wiki/English_Pronouncing_Dictionary",
+     "status": "current",
+     "note": "含音频。",
+     "id": "ab4df10364e8"
+    },
+    {
+     "key": "ocd",
+     "name": "Oxford Collocations",
+     "full": "Oxford Collocations Dictionary for Students of English",
+     "zh": "牛津搭配",
+     "latest": "2nd (2009)",
+     "src": "https://elt.oup.com/catalogue/items/global/dictionaries/9780194840767",
+     "status": "current",
+     "note": "写作时查词语搭配。",
+     "starter": true,
+     "id": "723cfd67f471"
+    },
+    {
+     "key": "peu",
+     "name": "PEU",
+     "full": "Practical English Usage (Swan)",
+     "zh": "英语用法指南",
+     "latest": "4th (2016)",
+     "src": "https://elt.oup.com/catalogue/items/global/grammar_vocabulary/practical_english_usage_4th_edition/",
+     "status": "current",
+     "note": "常见用法疑难。",
+     "id": "455e8b46f4c9"
+    },
+    {
+     "key": "garner",
+     "name": "Garner's",
+     "full": "Garner's Modern English Usage",
+     "zh": "加纳现代英语用法",
+     "latest": "5th (2022)",
+     "src": "https://lawprose.org/bryan-garner/books-by-bryan-garner/garners-modern-english-usage-5th-edition-2022/",
+     "status": "missing",
+     "note": "freemdict 上没有任何版本。",
+     "id": null
+    },
+    {
+     "key": "etym",
+     "name": "Etymonline",
+     "full": "Online Etymology Dictionary",
+     "zh": "词源在线",
+     "latest": "网站持续更新 · continuously updated",
+     "src": "https://www.etymonline.com/",
+     "status": "snapshot",
+     "note": "2020 年数据。",
+     "starter": true,
+     "id": "6890526709fa"
+    }
+   ]
+  },
+  {
+   "key": "enzh",
+   "zh": "英汉",
+   "en": "English–Chinese",
+   "items": [
+    {
+     "key": "oalecd",
+     "name": "牛津高阶双解",
+     "full": "牛津高阶英汉双解词典",
+     "zh": "",
+     "latest": "第10版 (2023)",
+     "src": "https://book.douban.com/subject/36428018/",
+     "status": "behind",
+     "note": "第9版 V3.1.2，含音频图片。",
+     "starter": true,
+     "id": "cd36d5a698ca"
+    },
+    {
+     "key": "ldoce-ec",
+     "name": "朗文双解",
+     "full": "朗文当代高级英语辞典（英英·英汉双解）",
+     "zh": "",
+     "latest": "第6版 (2019)",
+     "src": "https://www.fltrp.com/c/2020-05-11/496989.shtml",
+     "status": "current",
+     "note": "含音频。",
+     "starter": true,
+     "id": "bdea79ffb5bb"
+    },
+    {
+     "key": "cobuild-ec",
+     "name": "柯林斯双解",
+     "full": "柯林斯COBUILD高阶英汉双解学习词典",
+     "zh": "",
+     "latest": "第9版 (2023)",
+     "src": "https://book.douban.com/subject/36348750/",
+     "status": "behind",
+     "note": "第8版。",
+     "id": "1d5e9ae90649"
+    },
+    {
+     "key": "yhdcd",
+     "name": "英汉大词典",
+     "full": "英汉大词典（陆谷孙 / 朱绩崧 主编）",
+     "zh": "",
+     "latest": "第3版 (2025)",
+     "src": "https://www.chinawriter.com.cn/n1/2025/0429/c403994-40470426.html",
+     "status": "behind",
+     "note": "第2版，纯文本。",
+     "id": "7a11b869b84f"
+    },
+    {
+     "key": "odecn",
+     "name": "新牛津英汉双解",
+     "full": "新牛津英汉双解大词典",
+     "zh": "",
+     "latest": "第2版 (2013)",
+     "src": "https://book.douban.com/subject/24384116/",
+     "status": "current",
+     "note": "基于 ODE 第3版，含音频。",
+     "id": "712676faed8e"
+    },
+    {
+     "key": "ncecd",
+     "name": "新世纪英汉",
+     "full": "新世纪英汉大词典",
+     "zh": "",
+     "latest": "2016",
+     "src": "https://item.jd.com/11842875.html",
+     "status": "current",
+     "note": "带图片版 6 GB；另有 24 MB 轻量版可搜索。",
+     "id": "86a64289342b"
+    }
+   ]
+  }
+ ]
+}

@@ -5,8 +5,10 @@
 Reads   data/index.jsonl                 (crawl output, one file per line)
         site/t2s.json                    (Traditional -> Simplified map)
         site/data/dicts.json, meta.json  (previous build, if any)
+        data/recommended.json            (hand-curated recommendations)
 Writes  site/data/dicts.json             (one record per distinct dictionary)
         site/data/meta.json              (counts, crawl date, change log)
+        site/data/recommended.json       (recommendations resolved to record ids)
 
 A record is one dictionary: an .mdx with its same-named .mdd/.css/.js files,
 a standalone .mdd resource pack, or an archive whose contents are unknown.
@@ -21,6 +23,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -39,6 +42,7 @@ ASSET_EXT = (".css", ".js", ".ttf", ".otf", ".woff", ".woff2")
 SKIP_PREFIXES = ("Language_Learning_Videos/",)
 MAX_SHRINK = 0.2  # refuse to publish if the record count drops more than this
 MAX_CHANGES = 60  # change-log entries kept in meta.json
+STATUSES = {"current", "behind", "snapshot", "final", "unclear", "missing"}
 
 
 @dataclass
@@ -200,11 +204,58 @@ def to_json(rid: str, r: Record, fold, first_seen: str | None) -> dict:
     return out
 
 
+def resolve_recommended(curated: dict, dicts: list[dict]) -> tuple[dict, list[str]]:
+    """Point each curated pick at a record id.
+
+    A malformed curation file is an authoring error and raises. A pick that
+    matches no record (the file left freemdict) resolves to null with a
+    warning: one vanished file must not block the monthly update.
+    """
+    by_name: dict[str, list[dict]] = defaultdict(list)
+    for d in dicts:
+        if d["k"] == "mdx":
+            by_name[unicodedata.normalize("NFC", d["n"])].append(d)
+
+    warnings: list[str] = []
+    seen: set[str] = set()
+    categories = []
+    for cat in curated["categories"]:
+        items = []
+        for item in cat["items"]:
+            key = item["key"]
+            if key in seen:
+                raise ValueError(f"recommended: duplicate key {key!r}")
+            seen.add(key)
+            if item["status"] not in STATUSES:
+                raise ValueError(f"recommended {key!r}: unknown status {item['status']!r}")
+            if not str(item.get("src", "https://")).startswith("https://"):
+                raise ValueError(f"recommended {key!r}: src must be an https:// URL")
+            pick = item.get("pick")
+            if pick is None and item["status"] != "missing":
+                raise ValueError(f"recommended {key!r}: no pick, so status must be 'missing'")
+            rid = None
+            if pick:
+                folder = pick.get("folder")
+                matches = [
+                    d for d in by_name.get(unicodedata.normalize("NFC", pick["name"]), [])
+                    if folder is None or any(folder in loc["p"] for loc in d["loc"])
+                ]
+                if not matches:
+                    warnings.append(f"recommended {key!r}: no record named {pick['name']!r} is on freemdict any more")
+                else:
+                    if len(matches) > 1:
+                        warnings.append(f"recommended {key!r}: {len(matches)} records match; using the most complete")
+                    rid = max(matches, key=lambda d: d["s"])["id"]
+            items.append({**{k: v for k, v in item.items() if k != "pick"}, "id": rid})
+        categories.append({**{k: v for k, v in cat.items() if k != "items"}, "items": items})
+    return {"reviewed": curated["reviewed"], "categories": categories}, warnings
+
+
 def load_json(path: Path):
     return json.loads(path.read_text()) if path.exists() else None
 
 
-def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str) -> dict:
+def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str, recommended_path: Path | None = None) -> dict:
     rows = [json.loads(line) for line in index_path.read_text().splitlines() if line]
     if not rows:
         raise SystemExit(f"{index_path} is empty; refusing to build")
@@ -246,9 +297,18 @@ def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str) -> dict:
         "changes": changes[:MAX_CHANGES],
     }
 
+    recommended = None
+    if recommended_path is not None:
+        recommended, warnings = resolve_recommended(json.loads(recommended_path.read_text()), dicts)
+        prefix = "::warning::" if os.environ.get("GITHUB_ACTIONS") else "WARNING: "
+        for w in warnings:
+            print(prefix + w, file=sys.stderr)
+
     out_dir.mkdir(parents=True, exist_ok=True)
     _write_atomic(out_dir / "dicts.json", json.dumps(dicts, ensure_ascii=False, separators=(",", ":")))
     _write_atomic(out_dir / "meta.json", json.dumps(meta, ensure_ascii=False, indent=1))
+    if recommended is not None:
+        _write_atomic(out_dir / "recommended.json", json.dumps(recommended, ensure_ascii=False, indent=1))
     return meta
 
 
@@ -271,7 +331,7 @@ def main() -> None:
     ap.add_argument("--index", type=Path, default=ROOT / "data" / "index.jsonl")
     ap.add_argument("--out", type=Path, default=ROOT / "site" / "data")
     args = ap.parse_args()
-    meta = build(args.index, args.out, ROOT / "site" / "t2s.json", args.date)
+    meta = build(args.index, args.out, ROOT / "site" / "t2s.json", args.date, ROOT / "data" / "recommended.json")
     print(json.dumps({k: meta[k] for k in ("total", "by_lang", "by_kind")}, ensure_ascii=False))
 
 

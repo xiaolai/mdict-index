@@ -20,6 +20,14 @@ const KINDS = [
   ["archive", "压缩包", "Archive"],
 ];
 const SORTS = ["rel", "name", "size", "date", "new"];
+const STATUS = {
+  current: ["最新", "Current"],
+  behind: ["落后一版", "One edition behind"],
+  snapshot: ["在线版快照", "Online snapshot"],
+  final: ["终版", "Final, discontinued"],
+  unclear: ["版本不明", "Edition unclear"],
+  missing: ["本站暂无", "Not on freemdict"],
+};
 const SUGGESTIONS = ["OALD", "牛津高阶", "LDOCE", "柯林斯 双解", "Merriam-Webster", "etymology", "发音", "英汉大词典"];
 
 const state = { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE };
@@ -123,6 +131,10 @@ function update() {
   const results = sortResults(pool.filter((i) => passes(dicts[i])), Boolean(hits));
   renderResults(results);
   $("suggest").hidden = Boolean(state.q);
+  // Recommendations are the landing view: shown until the user searches or filters.
+  const pristine = !state.q && !state.lang.size && !state.kind.size && !state.brand && !state.res;
+  $("rec").hidden = !pristine;
+  $("all-title").hidden = !pristine;
   writeUrl();
 }
 
@@ -251,6 +263,105 @@ function renderResults(results) {
   $("more").textContent = `显示更多 Show more (${(n - state.shown).toLocaleString()})`;
 }
 
+// Put an exact dictionary name in the search box and bring its results into view.
+function showInIndex(name) {
+  const q = $("q");
+  q.value = name;
+  q.dispatchEvent(new Event("input"));
+  $("count").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderRecommended(rec, byId) {
+  $("rec-meta").textContent =
+    `最新版次核对于 ${rec.reviewed}；本站版本按版次、音频图片是否完整、更新时间挑选，未逐一打开验证。` +
+    ` Editions checked ${rec.reviewed}; picks judged from file metadata.`;
+
+  const status = (s) => el("span", { class: `status st-${s}`, textContent: `${STATUS[s][0]} · ${STATUS[s][1]}` });
+  const name = (it) =>
+    el(
+      "div",
+      { class: "rec-name" },
+      el("strong", { textContent: it.name }),
+      it.zh && el("span", { class: "zh", textContent: it.zh }),
+      el("span", { class: "full", textContent: it.full }),
+    );
+  const best = (it) => {
+    const r = byId.get(it.id);
+    if (!r) return el("div", { class: "rec-note", textContent: it.note });
+    const [first] = r.loc;
+    return el(
+      "div",
+      {},
+      el("button", {
+        type: "button",
+        class: "link rec-find",
+        title: "在索引中查看 Show in the index",
+        textContent: r.n,
+        onclick: () => showInIndex(r.n),
+      }),
+      el(
+        "div",
+        { class: "rec-sub" },
+        el("a", { class: "dl", href: fileUrl(first.p, first.f[0][0]), rel: "noopener", textContent: "下载 Download" }),
+        ` · ${fmtSize(r.s)}`,
+        r.r === 1 ? " · 含音频/图片" : "",
+      ),
+      el("div", { class: "rec-note", textContent: it.note }),
+    );
+  };
+  const latest = (it) => el("a", { href: it.src, rel: "noopener", title: "来源 Source", textContent: it.latest });
+  const td = (label, child) => el("td", { "data-label": label }, child);
+  const table = (heads, rows) =>
+    el(
+      "table",
+      { class: "rec-table" },
+      el("thead", {}, el("tr", {}, ...heads.map((h) => el("th", { scope: "col", textContent: h })))),
+      el("tbody", {}, ...rows),
+    );
+  const card = (cls, zh, en, ...body) =>
+    el("article", { class: `rec-card ${cls}` }, el("h3", {}, zh, el("span", { class: "sub", textContent: en })), ...body);
+
+  const items = rec.categories.flatMap((c) => c.items);
+  const starters = items.filter((it) => it.starter && byId.has(it.id));
+  const starterSize = starters.reduce((n, it) => n + byId.get(it.id).s, 0);
+
+  $("rec-cards").replaceChildren(
+    card(
+      "starter",
+      "入门套装",
+      `Starter set · ${starters.length} 部 · 共 ${fmtSize(starterSize)}`,
+      el("p", {
+        class: "rec-note",
+        textContent: "一套覆盖学习释义、母语释义、生僻词、发音、搭配、词源和中文释义。体积主要是音频。",
+      }),
+      table(
+        ["词典 Dictionary", "本站版本 Best on freemdict", "状态 Status"],
+        starters.map((it) => el("tr", {}, td("词典", name(it)), td("本站版本", best(it)), td("状态", status(it.status)))),
+      ),
+    ),
+    ...rec.categories.map((cat) =>
+      card(
+        "",
+        cat.zh,
+        cat.en,
+        table(
+          ["词典 Dictionary", "最新版次 Latest edition", "本站最佳版本 Best on freemdict", "状态 Status"],
+          cat.items.map((it) =>
+            el(
+              "tr",
+              {},
+              td("词典", name(it)),
+              td("最新版次", latest(it)),
+              td("本站最佳版本", best(it)),
+              td("状态", status(it.status)),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 function renderHeader(meta) {
   const by = meta.by_lang;
   $("stats").textContent =
@@ -357,7 +468,9 @@ function bindInputs() {
 }
 
 async function main() {
-  const [data, meta, t2s] = await Promise.all(["data/dicts.json", "data/meta.json", "t2s.json"].map(loadJson));
+  const [data, meta, t2s, rec] = await Promise.all(
+    ["data/dicts.json", "data/meta.json", "t2s.json", "data/recommended.json"].map(loadJson),
+  );
   dicts = data;
   fold = makeFold(t2s);
   index = buildIndex(dicts, fold);
@@ -368,6 +481,7 @@ async function main() {
 
   readUrl();
   renderHeader(meta);
+  renderRecommended(rec, new Map(dicts.map((d) => [d.id, d])));
   bindInputs();
   update();
 }
