@@ -31,7 +31,11 @@ const STATUS = {
 const SUGGESTIONS = ["OALD", "牛津高阶", "LDOCE", "柯林斯 双解", "Merriam-Webster", "etymology", "发音", "英汉大词典"];
 
 const state = { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE, tab: "starter" };
-let dicts, index, fold, brands;
+let dicts, index, fold, brands, byId;
+// Recommendations: curated items, a search index over them, and the ids they point to.
+let recItems = [];
+let recIndex = [];
+let recIds = new Set();
 let revealActiveTab = () => {}; // set by renderRecommended
 
 const $ = (id) => document.getElementById(id);
@@ -133,11 +137,13 @@ function update() {
 
   const results = sortResults(pool.filter((i) => passes(dicts[i])), Boolean(hits));
   renderResults(results);
+  renderRecHits(state.q ? matchRecommended() : []);
   $("suggest").hidden = Boolean(state.q);
   // Recommendations are the landing view: shown until the user searches or filters.
   const pristine = !state.q && !state.lang.size && !state.kind.size && !state.brand && !state.res;
   $("rec").hidden = !pristine;
   $("all-title").hidden = !pristine;
+  $("to-rec").hidden = pristine;
   if (pristine) revealActiveTab(); // hidden elements have no layout, so re-center once shown
   writeUrl();
 }
@@ -217,6 +223,7 @@ function card(r) {
     el(
       "div",
       { class: "badges" },
+      recIds.has(r.id) && el("span", { class: "badge rec", textContent: "★ 推荐 Recommended" }),
       el("span", { class: "badge lang", textContent: label(LANGS, r.l) }),
       r.k !== "mdx" && el("span", { class: "badge", textContent: label(KINDS, r.k) }),
       ...r.b.map((b) => el("span", { class: "badge", textContent: b })),
@@ -275,58 +282,110 @@ function showInIndex(name) {
   $("count").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function renderRecommended(rec, byId) {
+// ---- recommendation rows (shared by the tabs and the in-search panel) -------------
+
+const recStatus = (s) => el("span", { class: `status st-${s}`, textContent: `${STATUS[s][0]} · ${STATUS[s][1]}` });
+const recTd = (label, child) => el("td", { "data-label": label }, child);
+
+function recName(it) {
+  return el(
+    "div",
+    { class: "rec-name" },
+    el("strong", { textContent: it.name }),
+    it.zh && el("span", { class: "zh", textContent: it.zh }),
+    el("span", { class: "full", textContent: it.full }),
+  );
+}
+
+function recBest(it) {
+  const r = byId.get(it.id);
+  if (!r) return el("div", { class: "rec-note", textContent: it.note });
+  const [first] = r.loc;
+  return el(
+    "div",
+    {},
+    el("button", {
+      type: "button",
+      class: "link rec-find",
+      title: "在索引中查看 Show in the index",
+      textContent: r.n,
+      onclick: () => showInIndex(r.n),
+    }),
+    el(
+      "div",
+      { class: "rec-sub" },
+      el("a", { class: "dl", href: fileUrl(first.p, first.f[0][0]), rel: "noopener", textContent: "下载 Download" }),
+      ` · ${fmtSize(r.s)}`,
+      r.r === 1 ? " · 含音频/图片" : "",
+    ),
+    el("div", { class: "rec-note", textContent: it.note }),
+  );
+}
+
+function recRow(it, withLatest) {
+  return el(
+    "tr",
+    {},
+    recTd("词典", recName(it)),
+    withLatest &&
+      recTd("最新版次", el("a", { href: it.src, rel: "noopener", title: "来源 Source", textContent: it.latest })),
+    recTd("本站最佳版本", recBest(it)),
+    recTd("状态", recStatus(it.status)),
+  );
+}
+
+function recTable(items, withLatest) {
+  const heads = ["词典 Dictionary", withLatest && "最新版次 Latest edition", "本站最佳版本 Best on freemdict", "状态 Status"];
+  return el(
+    "table",
+    { class: "rec-table" },
+    el("thead", {}, el("tr", {}, ...heads.filter(Boolean).map((h) => el("th", { scope: "col", textContent: h })))),
+    el("tbody", {}, ...items.map((it) => recRow(it, withLatest))),
+  );
+}
+
+function recCard(cls, zh, en, ...body) {
+  return el("article", { class: `rec-card ${cls}` }, el("h3", {}, zh, el("span", { class: "sub", textContent: en })), ...body);
+}
+
+// Recommended items matching the current query, honouring the active filters.
+function matchRecommended() {
+  const hits = search(recIndex, state.q, fold) ?? [];
+  const filtered = state.lang.size || state.kind.size || state.brand || state.res;
+  return hits
+    .map((h) => recItems[h.i])
+    .filter((it) => {
+      const r = byId.get(it.id);
+      return r ? passes(r) : !filtered;
+    });
+}
+
+function renderRecHits(items) {
+  const box = $("rec-hits");
+  box.hidden = items.length === 0;
+  box.replaceChildren(
+    ...(items.length ? [recCard("hits", "★ 推荐版本", `Recommended picks · ${items.length}`, recTable(items, false))] : []),
+  );
+}
+
+function renderRecommended(rec) {
   $("rec-meta").textContent =
     `最新版次核对于 ${rec.reviewed}；本站版本按版次、音频图片是否完整、更新时间挑选，未逐一打开验证。` +
     ` Editions checked ${rec.reviewed}; picks judged from file metadata.`;
 
-  const status = (s) => el("span", { class: `status st-${s}`, textContent: `${STATUS[s][0]} · ${STATUS[s][1]}` });
-  const name = (it) =>
-    el(
-      "div",
-      { class: "rec-name" },
-      el("strong", { textContent: it.name }),
-      it.zh && el("span", { class: "zh", textContent: it.zh }),
-      el("span", { class: "full", textContent: it.full }),
-    );
-  const best = (it) => {
-    const r = byId.get(it.id);
-    if (!r) return el("div", { class: "rec-note", textContent: it.note });
-    const [first] = r.loc;
-    return el(
-      "div",
-      {},
-      el("button", {
-        type: "button",
-        class: "link rec-find",
-        title: "在索引中查看 Show in the index",
-        textContent: r.n,
-        onclick: () => showInIndex(r.n),
-      }),
-      el(
-        "div",
-        { class: "rec-sub" },
-        el("a", { class: "dl", href: fileUrl(first.p, first.f[0][0]), rel: "noopener", textContent: "下载 Download" }),
-        ` · ${fmtSize(r.s)}`,
-        r.r === 1 ? " · 含音频/图片" : "",
-      ),
-      el("div", { class: "rec-note", textContent: it.note }),
-    );
-  };
-  const latest = (it) => el("a", { href: it.src, rel: "noopener", title: "来源 Source", textContent: it.latest });
-  const td = (label, child) => el("td", { "data-label": label }, child);
-  const table = (heads, rows) =>
-    el(
-      "table",
-      { class: "rec-table" },
-      el("thead", {}, el("tr", {}, ...heads.map((h) => el("th", { scope: "col", textContent: h })))),
-      el("tbody", {}, ...rows),
-    );
-  const card = (cls, zh, en, ...body) =>
-    el("article", { class: `rec-card ${cls}` }, el("h3", {}, zh, el("span", { class: "sub", textContent: en })), ...body);
+  recItems = rec.categories.flatMap((c) => c.items);
+  recIds = new Set(recItems.map((it) => it.id).filter(Boolean));
+  // Search each pick by its curated names plus its record's name and aliases,
+  // so "牛津高阶", "OALD" and "Oxford Advanced" all reach the same pick.
+  recIndex = buildIndex(
+    recItems.map((it) => {
+      const r = byId.get(it.id);
+      return { n: [it.name, it.zh, it.full].filter(Boolean).join(" "), a: r ? [r.n, ...r.a] : [], b: r ? r.b : [], loc: [] };
+    }),
+    fold,
+  );
 
-  const items = rec.categories.flatMap((c) => c.items);
-  const starters = items.filter((it) => it.starter && byId.has(it.id));
+  const starters = recItems.filter((it) => it.starter && byId.has(it.id));
   const starterSize = starters.reduce((n, it) => n + byId.get(it.id).s, 0);
 
   const panels = [
@@ -335,7 +394,7 @@ function renderRecommended(rec, byId) {
       tab: ["入门套装", "Starter set"],
       count: starters.length,
       body: () =>
-        card(
+        recCard(
           "starter",
           "入门套装",
           `Starter set · ${starters.length} 部 · 共 ${fmtSize(starterSize)}`,
@@ -343,35 +402,14 @@ function renderRecommended(rec, byId) {
             class: "rec-note",
             textContent: "一套覆盖学习释义、母语释义、生僻词、发音、搭配、词源和中文释义。体积主要是音频。",
           }),
-          table(
-            ["词典 Dictionary", "本站版本 Best on freemdict", "状态 Status"],
-            starters.map((it) => el("tr", {}, td("词典", name(it)), td("本站版本", best(it)), td("状态", status(it.status)))),
-          ),
+          recTable(starters, false),
         ),
     },
     ...rec.categories.map((cat) => ({
       key: cat.key,
       tab: [cat.tab_zh, cat.tab_en],
       count: cat.items.length,
-      body: () =>
-        card(
-          "",
-          cat.zh,
-          cat.en,
-          table(
-            ["词典 Dictionary", "最新版次 Latest edition", "本站最佳版本 Best on freemdict", "状态 Status"],
-            cat.items.map((it) =>
-              el(
-                "tr",
-                {},
-                td("词典", name(it)),
-                td("最新版次", latest(it)),
-                td("本站最佳版本", best(it)),
-                td("状态", status(it.status)),
-              ),
-            ),
-          ),
-        ),
+      body: () => recCard("", cat.zh, cat.en, recTable(cat.items, true)),
     })),
   ];
   if (!panels.some((p) => p.key === state.tab)) state.tab = "starter";
@@ -515,13 +553,22 @@ function bindInputs() {
     update();
   });
 
-  $("reset").addEventListener("click", () => {
+  const clearSearch = () => {
     Object.assign(state, { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE });
     q.value = "";
     res.checked = false;
     sort.value = "rel";
+  };
+  $("reset").addEventListener("click", () => {
+    clearSearch();
     update();
     q.focus();
+  });
+  // Back to the recommendation tabs, on whichever tab was last open.
+  $("to-rec").addEventListener("click", () => {
+    clearSearch();
+    update();
+    $("rec").scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   $("suggest").append(
@@ -554,7 +601,8 @@ async function main() {
 
   readUrl();
   renderHeader(meta);
-  renderRecommended(rec, new Map(dicts.map((d) => [d.id, d])));
+  byId = new Map(dicts.map((d) => [d.id, d]));
+  renderRecommended(rec);
   bindInputs();
   update();
 }

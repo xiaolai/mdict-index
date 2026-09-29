@@ -83,6 +83,12 @@ h1 .sub { color: var(--muted); font-weight: 500; font-size: 17px; margin-left: 6
 .link { font: inherit; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
 
 .count { color: var(--muted); font-size: 14px; margin: 14px 0 8px; }
+.count-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 16px; }
+.count-row .link { font-size: 14px; }
+.rec, .rec-hits { scroll-margin-top: 90px; } /* clear the sticky search bar */
+.rec-hits { margin-top: 16px; }
+.rec-card.hits { border-color: var(--accent); }
+.badge.rec { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 
 .section-title { font-size: 20px; margin: 22px 0 2px; }
 .section-title .sub, .rec-card h3 .sub { color: var(--muted); font-weight: 500; font-size: 14px; margin-left: 8px; }
