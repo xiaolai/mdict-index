@@ -36,7 +36,8 @@ BRANDS: list[tuple[str, re.Pattern[str]]] = [
 ALIASES: list[tuple[re.Pattern[str], list[str]]] = [
     (re.compile(pattern), aliases)
     for pattern, aliases in [
-        (rf"{_B}(oald|oalecd|oaled){_E}|advanced learner'?s|牛津高阶",
+        # "advanced learner's" alone would also tag Cambridge, Collins, Macmillan and MW titles.
+        (rf"{_B}(oald|oalecd|oaled){_E}|oxford advanced learner|牛津高阶",
          ["OALD", "Oxford Advanced Learner's Dictionary", "牛津高阶", "牛津高阶英汉双解"]),
         (rf"{_B}ode{_E}|oxford dictionary of english|新牛津英英|新牛津英语",
          ["ODE", "Oxford Dictionary of English", "新牛津英语词典"]),
@@ -57,7 +58,8 @@ ALIASES: list[tuple[re.Pattern[str], list[str]]] = [
         (r"柯林斯", ["Collins", "COBUILD"]),
         (rf"collegiate|{_B}(mwc|mwcd){_E}|韦氏大学",
          ["Merriam-Webster's Collegiate", "MWC", "韦氏大学词典"]),
-        (rf"webster'?s third|unabridged|{_B}mwu{_E}",
+        # Not bare "unabridged": Random House and Dictionary.com have unabridged editions too.
+        (rf"webster'?s third|merriam[- ]webster unabridged|{_B}mwu{_E}",
          ["Webster's Third", "Merriam-Webster Unabridged", "韦氏大词典"]),
         (rf"{_B}cald{_E}|cambridge advanced learner|剑桥高阶",
          ["CALD", "Cambridge Advanced Learner's Dictionary", "剑桥高阶"]),
@@ -73,15 +75,26 @@ ALIASES: list[tuple[re.Pattern[str], list[str]]] = [
         (r"collocation|combinatory|搭配", ["collocations", "搭配"]),
         (r"idiom|习语|成语|惯用语", ["idioms", "习语"]),
         (r"phrasal verb|短语动词", ["phrasal verbs", "短语动词"]),
-        (r"pronunc|pronouncing|发音|sound", ["pronunciation", "audio", "发音"]),
+        # "sound" only as a name of its own (audio packs "Sound-en_GB", "Sound"), not
+        # "Pic&Sound" or CSS files like "No.Sound.Icon".
+        (r"pronunc|pronouncing|发音|(?<![a-z&])sound(?![a-z])(?!.*icon)", ["pronunciation", "audio", "发音"]),
         (r"英汉大词典|陆谷孙", ["英汉大词典", "陆谷孙", "Lu Gusun"]),
         (r"双解", ["bilingual", "双解", "英汉双解"]),
     ]
 ]
 
 
+# Names that match a brand pattern but belong to another publisher.
+NOT_BRAND: dict[str, re.Pattern[str]] = {
+    "Merriam-Webster": re.compile(r"random house|new world"),  # "Webster's" is not a trademark
+}
+
+
 def brands_of(folded_name: str) -> list[str]:
-    return [label for label, pattern in BRANDS if pattern.search(folded_name)]
+    return [
+        label for label, pattern in BRANDS
+        if pattern.search(folded_name) and not (label in NOT_BRAND and NOT_BRAND[label].search(folded_name))
+    ]
 
 
 def aliases_of(folded_name: str) -> list[str]:

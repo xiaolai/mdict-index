@@ -204,6 +204,21 @@ class Families(unittest.TestCase):
         self.assertIn("牛津高阶", aliases_of("oxford advanced learner's dictionary 10th"))
         self.assertIn("LDOCE", aliases_of("longman doce5 extras"))
 
+    def test_aliases_and_brands_do_not_leak_across_publishers(self):
+        for other in ["cambridge advanced learner's dictionary 4th", "collins cobuild advanced learner's dictionary",
+                      "macmillan english dictionary for advanced learners", "merriam-webster's advanced learner's dictionary"]:
+            self.assertNotIn("OALD", aliases_of(other), other)
+        for other in ["random house webster's unabridged dictionary", "dictionary.com unabridged 2016"]:
+            self.assertNotIn("Webster's Third", aliases_of(other), other)
+        self.assertIn("Webster's Third", aliases_of("mwu2020"))
+        self.assertNotIn("Merriam-Webster", brands_of("random house webster's unabridged dictionary"))
+        self.assertNotIn("Merriam-Webster", brands_of("webster's new world college dictionary"))
+        self.assertIn("Merriam-Webster", brands_of("merriam-webster's collegiate dictionary 11th"))
+        for noise in ["20211114 new sound icon and css", "laad3_no.sound.icon", "merriam-webster's collegiate dictionary 11th(pic&sound)"]:
+            self.assertNotIn("pronunciation", aliases_of(noise), noise)
+        for pack in ["sound-en_gb(british.english,word.93612)", "sound", "longman pronunciation dictionary"]:
+            self.assertIn("pronunciation", aliases_of(pack), pack)
+
 
 if __name__ == "__main__":
     unittest.main()
