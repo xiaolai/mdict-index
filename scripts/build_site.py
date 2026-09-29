@@ -21,15 +21,13 @@ import hashlib
 import json
 import os
 import re
-import sys
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from classify import classify  # noqa: E402
-from families import aliases_of, brands_of  # noqa: E402
+from classify import classify
+from families import aliases_of, brands_of
 
 ROOT = Path(__file__).resolve().parent.parent
 # An archive or one volume of a split archive; `base` is the name shared by all volumes.

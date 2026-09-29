@@ -41,7 +41,7 @@ jobs:
 
       - name: Test
         run: |
-          python3 -m unittest discover -s tests
+          PYTHONPATH=scripts python3 -m unittest discover -s tests
           node --test tests/search.test.mjs
 
       - name: Decide whether to crawl

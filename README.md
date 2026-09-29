@@ -36,7 +36,7 @@ python3 -m http.server -d site 8000               # open http://localhost:8000
 ## Tests
 
 ```sh
-python3 -m unittest discover -s tests
+PYTHONPATH=scripts python3 -m unittest discover -s tests
 node --test tests/search.test.mjs
 ```
 

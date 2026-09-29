@@ -1,16 +1,15 @@
 """Behavioural tests for the site build: grouping, dedupe, tracking, guards."""
 import json
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
+# Run with scripts/ importable: PYTHONPATH=scripts python3 -m unittest discover -s tests
+from build_site import build, build_records, group_folder
+from classify import classify
+from families import aliases_of, brands_of
 
-from build_site import build, build_records, group_folder  # noqa: E402
-from classify import classify  # noqa: E402
-from families import aliases_of, brands_of  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent
 
 D = "01-Jan-2024 00:00"
 
