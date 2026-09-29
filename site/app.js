@@ -30,8 +30,9 @@ const STATUS = {
 };
 const SUGGESTIONS = ["OALD", "牛津高阶", "LDOCE", "柯林斯 双解", "Merriam-Webster", "etymology", "发音", "英汉大词典"];
 
-const state = { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE };
+const state = { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE, tab: "starter" };
 let dicts, index, fold, brands;
+let revealActiveTab = () => {}; // set by renderRecommended
 
 const $ = (id) => document.getElementById(id);
 
@@ -76,6 +77,7 @@ function readUrl() {
   state.brand = brands.has(p.get("brand")) ? p.get("brand") : "";
   state.res = p.get("res") === "1";
   state.sort = SORTS.includes(p.get("sort")) ? p.get("sort") : "rel";
+  state.tab = p.get("tab") ?? "starter"; // validated against the loaded tabs in renderRecommended
 }
 
 function writeUrl() {
@@ -86,6 +88,7 @@ function writeUrl() {
   if (state.brand) p.set("brand", state.brand);
   if (state.res) p.set("res", "1");
   if (state.sort !== "rel") p.set("sort", state.sort);
+  if (state.tab !== "starter") p.set("tab", state.tab);
   const qs = p.toString();
   history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
 }
@@ -135,6 +138,7 @@ function update() {
   const pristine = !state.q && !state.lang.size && !state.kind.size && !state.brand && !state.res;
   $("rec").hidden = !pristine;
   $("all-title").hidden = !pristine;
+  if (pristine) revealActiveTab(); // hidden elements have no layout, so re-center once shown
   writeUrl();
 }
 
@@ -325,41 +329,110 @@ function renderRecommended(rec, byId) {
   const starters = items.filter((it) => it.starter && byId.has(it.id));
   const starterSize = starters.reduce((n, it) => n + byId.get(it.id).s, 0);
 
-  $("rec-cards").replaceChildren(
-    card(
-      "starter",
-      "入门套装",
-      `Starter set · ${starters.length} 部 · 共 ${fmtSize(starterSize)}`,
-      el("p", {
-        class: "rec-note",
-        textContent: "一套覆盖学习释义、母语释义、生僻词、发音、搭配、词源和中文释义。体积主要是音频。",
-      }),
-      table(
-        ["词典 Dictionary", "本站版本 Best on freemdict", "状态 Status"],
-        starters.map((it) => el("tr", {}, td("词典", name(it)), td("本站版本", best(it)), td("状态", status(it.status)))),
-      ),
-    ),
-    ...rec.categories.map((cat) =>
-      card(
-        "",
-        cat.zh,
-        cat.en,
-        table(
-          ["词典 Dictionary", "最新版次 Latest edition", "本站最佳版本 Best on freemdict", "状态 Status"],
-          cat.items.map((it) =>
-            el(
-              "tr",
-              {},
-              td("词典", name(it)),
-              td("最新版次", latest(it)),
-              td("本站最佳版本", best(it)),
-              td("状态", status(it.status)),
+  const panels = [
+    {
+      key: "starter",
+      tab: ["入门套装", "Starter set"],
+      count: starters.length,
+      body: () =>
+        card(
+          "starter",
+          "入门套装",
+          `Starter set · ${starters.length} 部 · 共 ${fmtSize(starterSize)}`,
+          el("p", {
+            class: "rec-note",
+            textContent: "一套覆盖学习释义、母语释义、生僻词、发音、搭配、词源和中文释义。体积主要是音频。",
+          }),
+          table(
+            ["词典 Dictionary", "本站版本 Best on freemdict", "状态 Status"],
+            starters.map((it) => el("tr", {}, td("词典", name(it)), td("本站版本", best(it)), td("状态", status(it.status)))),
+          ),
+        ),
+    },
+    ...rec.categories.map((cat) => ({
+      key: cat.key,
+      tab: [cat.tab_zh, cat.tab_en],
+      count: cat.items.length,
+      body: () =>
+        card(
+          "",
+          cat.zh,
+          cat.en,
+          table(
+            ["词典 Dictionary", "最新版次 Latest edition", "本站最佳版本 Best on freemdict", "状态 Status"],
+            cat.items.map((it) =>
+              el(
+                "tr",
+                {},
+                td("词典", name(it)),
+                td("最新版次", latest(it)),
+                td("本站最佳版本", best(it)),
+                td("状态", status(it.status)),
+              ),
             ),
           ),
         ),
-      ),
+    })),
+  ];
+  if (!panels.some((p) => p.key === state.tab)) state.tab = "starter";
+
+  // WAI-ARIA tabs: one tab stop, arrow keys move between tabs, panels follow selection.
+  const tabs = panels.map((p) =>
+    el(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        id: `tab-${p.key}`,
+        class: "rec-tab",
+        "aria-controls": `panel-${p.key}`,
+        onclick: () => select(p.key),
+      },
+      p.tab[0],
+      el("span", { class: "en", textContent: p.tab[1] }),
+      el("span", { class: "n", textContent: String(p.count) }),
     ),
   );
+  const bodies = panels.map((p) => {
+    const body = p.body();
+    body.id = `panel-${p.key}`;
+    body.tabIndex = 0;
+    body.setAttribute("role", "tabpanel");
+    body.setAttribute("aria-labelledby", `tab-${p.key}`);
+    return body;
+  });
+  function select(key, focus = false) {
+    state.tab = key;
+    panels.forEach((p, i) => {
+      const on = p.key === key;
+      tabs[i].setAttribute("aria-selected", String(on));
+      tabs[i].tabIndex = on ? 0 : -1;
+      bodies[i].hidden = !on;
+      if (on && focus) tabs[i].focus();
+    });
+    revealActiveTab();
+    writeUrl();
+  }
+  // On narrow screens the strip scrolls sideways; keep the active tab in view.
+  // Sets scrollLeft only: scrollIntoView would also scroll the page.
+  revealActiveTab = () => {
+    const t = tabs[panels.findIndex((p) => p.key === state.tab)];
+    const strip = t.parentElement;
+    strip.scrollLeft = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
+  };
+  const onKey = (e) => {
+    const i = panels.findIndex((p) => p.key === state.tab);
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: panels.length - 1 }[e.key];
+    if (next === undefined) return;
+    e.preventDefault();
+    select(panels[(next + panels.length) % panels.length].key, true);
+  };
+
+  $("rec-cards").replaceChildren(
+    el("div", { class: "rec-tabs", role: "tablist", "aria-label": "推荐分类 Recommendation categories", onkeydown: onKey }, ...tabs),
+    ...bodies,
+  );
+  select(state.tab);
 }
 
 function renderHeader(meta) {

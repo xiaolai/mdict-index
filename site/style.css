@@ -87,9 +87,23 @@ h1 .sub { color: var(--muted); font-weight: 500; font-size: 17px; margin-left: 6
 .section-title { font-size: 20px; margin: 22px 0 2px; }
 .section-title .sub, .rec-card h3 .sub { color: var(--muted); font-weight: 500; font-size: 14px; margin-left: 8px; }
 .rec-meta { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-.rec-grid { display: grid; gap: 14px; }
+.rec-tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; position: relative; z-index: 1; }
+.rec-tab {
+  flex: none; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer;
+  background: none; border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; padding: 8px 14px;
+}
+.rec-tab:hover { color: var(--text); }
+.rec-tab .en { font-size: 12px; margin-left: 5px; }
+.rec-tab .n { font-size: 11px; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--chip); font-variant-numeric: tabular-nums; }
+.rec-tab[aria-selected="true"] {
+  color: var(--text); font-weight: 600; background: var(--panel); border-color: var(--line);
+  box-shadow: 0 1px 0 var(--panel); /* covers the panel's top border under the active tab */
+}
+.rec-tab[aria-selected="true"] .en { font-weight: 500; }
+.rec-tab:focus-visible, .rec-card[role="tabpanel"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .rec-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
-.rec-card.starter { border-color: var(--accent); background: linear-gradient(var(--accent-soft), var(--panel) 90px); }
+.rec-card[role="tabpanel"] { border-top-left-radius: 0; }
+.rec-card.starter { background: linear-gradient(var(--accent-soft), var(--panel) 90px); }
 .rec-card h3 { margin: 0 0 8px; font-size: 16px; }
 .rec-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .rec-table th { text-align: left; font-weight: 600; font-size: 12px; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
@@ -147,6 +161,8 @@ h1 .sub { color: var(--muted); font-weight: 500; font-size: 17px; margin-left: 6
 }
 
 @media (max-width: 600px) {
+  .rec-tab { padding: 7px 10px; }
+  .rec-tab .en { display: none; }
   h1 { font-size: 21px; }
   h1 .sub { display: block; margin: 0; font-size: 14px; }
   .hint { display: none; }

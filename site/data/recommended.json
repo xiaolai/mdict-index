@@ -3,6 +3,8 @@
  "categories": [
   {
    "key": "learners",
+   "tab_zh": "学习型",
+   "tab_en": "Learner's",
    "zh": "英英 · 学习型词典",
    "en": "English learner's dictionaries",
    "items": [
@@ -79,6 +81,8 @@
   },
   {
    "key": "native",
+   "tab_zh": "母语参考",
+   "tab_en": "Native & reference",
    "zh": "英英 · 母语与参考词典",
    "en": "Native-speaker and reference dictionaries",
    "items": [
@@ -176,6 +180,8 @@
   },
   {
    "key": "usage",
+   "tab_zh": "发音用法",
+   "tab_en": "Usage & origins",
    "zh": "发音 · 搭配 · 用法 · 词源",
    "en": "Pronunciation, usage and word origins",
    "items": [
@@ -252,6 +258,8 @@
   },
   {
    "key": "enzh",
+   "tab_zh": "英汉",
+   "tab_en": "English–Chinese",
    "zh": "英汉",
    "en": "English–Chinese",
    "items": [

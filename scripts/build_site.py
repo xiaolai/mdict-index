@@ -220,6 +220,9 @@ def resolve_recommended(curated: dict, dicts: list[dict]) -> tuple[dict, list[st
     seen: set[str] = set()
     categories = []
     for cat in curated["categories"]:
+        missing = {"key", "zh", "en", "tab_zh", "tab_en"} - cat.keys()
+        if missing:
+            raise ValueError(f"recommended category {cat.get('key')!r}: missing {sorted(missing)}")
         items = []
         for item in cat["items"]:
             key = item["key"]

@@ -130,7 +130,8 @@ def rec(rid, name, size=10, folder="x", kind="mdx"):
 
 
 def curated(*items):
-    return {"reviewed": "2026-01-01", "categories": [{"key": "c", "zh": "c", "en": "c", "items": list(items)}]}
+    cat = {"key": "c", "zh": "c", "en": "c", "tab_zh": "c", "tab_en": "c", "items": list(items)}
+    return {"reviewed": "2026-01-01", "categories": [cat]}
 
 
 def item(key, pick, status="current"):
@@ -167,6 +168,7 @@ class Recommended(unittest.TestCase):
             curated(item("x", None, status="current")),
             curated(item("x", {"name": "X"}), item("x", {"name": "X"})),
             curated({**item("x", {"name": "X"}), "src": "javascript:alert(1)"}),
+            {"reviewed": "x", "categories": [{"key": "c", "zh": "c", "en": "c", "items": []}]},
         ]:
             with self.assertRaises(ValueError):
                 resolve_recommended(bad, [rec("a", "X")])
