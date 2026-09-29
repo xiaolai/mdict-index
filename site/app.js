@@ -1,0 +1,380 @@
+import { buildIndex, makeFold, search } from "./search.js";
+
+// All text from the index is inserted with textContent, and every link is
+// built from these two hosts: names come from a third-party site.
+const HOST = "https://downloads.freemdict.com/";
+const DIRECT = "https://downloads-direct.freemdict.com/"; // freemdict routes .rar here (its CDN blocks .rar)
+const PAGE = 50;
+const NEW_DAYS = 60; // about the last two monthly crawls
+
+const LANGS = [
+  ["en-en", "英英", "English"],
+  ["en-zh", "英汉", "English–Chinese"],
+  ["en-other", "英语–其他", "English–other"],
+  ["other", "其他语种", "Other"],
+  ["unknown", "未分类", "Unclassified"],
+];
+const KINDS = [
+  ["mdx", "词典", "Dictionary"],
+  ["mdd", "资源包", "Audio/image pack"],
+  ["archive", "压缩包", "Archive"],
+];
+const SORTS = ["rel", "name", "size", "date", "new"];
+const SUGGESTIONS = ["OALD", "牛津高阶", "LDOCE", "柯林斯 双解", "Merriam-Webster", "etymology", "发音", "英汉大词典"];
+
+const state = { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE };
+let dicts, index, fold, brands;
+
+const $ = (id) => document.getElementById(id);
+
+function el(tag, props = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else if (k in node) node[k] = v;
+    else node.setAttribute(k, v);
+  }
+  node.append(...children.filter((c) => c != null && c !== false));
+  return node;
+}
+
+const label = (table, key) => {
+  const row = table.find((t) => t[0] === key);
+  return row ? `${row[1]} ${row[2]}` : key;
+};
+
+function fmtSize(bytes) {
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let i = 0;
+  while (bytes >= 1024 && i < units.length - 1) (bytes /= 1024), i++;
+  return `${bytes.toFixed(bytes < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+}
+
+const segments = (folder) => folder.split("/").filter(Boolean).map(encodeURIComponent);
+const folderUrl = (folder) => HOST + segments(folder).map((s) => s + "/").join("");
+const fileUrl = (folder, name) =>
+  (name.toLowerCase().endsWith(".rar") ? DIRECT : HOST) +
+  [...segments(folder), encodeURIComponent(name)].join("/");
+
+// ---- URL state: every view is shareable -------------------------------------
+
+function readUrl() {
+  const p = new URLSearchParams(location.search);
+  const set = (key, table) => new Set((p.get(key) ?? "").split(",").filter((v) => table.some((t) => t[0] === v)));
+  state.q = p.get("q") ?? "";
+  state.lang = set("lang", LANGS);
+  state.kind = set("kind", KINDS);
+  state.brand = brands.has(p.get("brand")) ? p.get("brand") : "";
+  state.res = p.get("res") === "1";
+  state.sort = SORTS.includes(p.get("sort")) ? p.get("sort") : "rel";
+}
+
+function writeUrl() {
+  const p = new URLSearchParams();
+  if (state.q) p.set("q", state.q);
+  if (state.lang.size) p.set("lang", [...state.lang].join(","));
+  if (state.kind.size) p.set("kind", [...state.kind].join(","));
+  if (state.brand) p.set("brand", state.brand);
+  if (state.res) p.set("res", "1");
+  if (state.sort !== "rel") p.set("sort", state.sort);
+  const qs = p.toString();
+  history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+}
+
+// ---- filtering ----------------------------------------------------------------
+
+// `skip` leaves one facet out, so each facet's counts reflect the other filters.
+function passes(r, skip) {
+  return (
+    (skip === "lang" || state.lang.size === 0 || state.lang.has(r.l)) &&
+    (skip === "kind" || state.kind.size === 0 || state.kind.has(r.k)) &&
+    (skip === "brand" || !state.brand || r.b.includes(state.brand)) &&
+    (!state.res || r.r === 1)
+  );
+}
+
+function sortResults(ids, hasQuery) {
+  const by = {
+    size: (a, b) => dicts[b].s - dicts[a].s,
+    date: (a, b) => dicts[b].d.localeCompare(dicts[a].d),
+    new: (a, b) => (dicts[b].fs ?? "").localeCompare(dicts[a].fs ?? "") || dicts[b].d.localeCompare(dicts[a].d),
+    name: (a, b) => a - b, // dicts.json is pre-sorted by folded name
+  }[state.sort === "rel" && !hasQuery ? "name" : state.sort];
+  return by ? [...ids].sort(by) : ids; // "rel" with a query keeps search order
+}
+
+function update() {
+  const hits = search(index, state.q, fold);
+  const pool = hits ? hits.map((h) => h.i) : dicts.map((_, i) => i);
+  const count = (facet, key) => {
+    const out = new Map();
+    for (const i of pool) {
+      const r = dicts[i];
+      if (!passes(r, facet)) continue;
+      for (const k of key(r)) out.set(k, (out.get(k) ?? 0) + 1);
+    }
+    return out;
+  };
+  renderChips($("f-lang"), LANGS, count("lang", (r) => [r.l]), state.lang);
+  renderChips($("f-kind"), KINDS, count("kind", (r) => [r.k]), state.kind);
+  renderBrands(count("brand", (r) => r.b));
+
+  const results = sortResults(pool.filter((i) => passes(dicts[i])), Boolean(hits));
+  renderResults(results);
+  $("suggest").hidden = Boolean(state.q);
+  writeUrl();
+}
+
+// ---- rendering ----------------------------------------------------------------
+
+function renderChips(container, table, counts, selected) {
+  container.replaceChildren(
+    ...table.map(([key, zh, en]) => {
+      const n = counts.get(key) ?? 0;
+      const on = selected.has(key);
+      return el(
+        "button",
+        {
+          type: "button",
+          class: "chip",
+          "aria-pressed": String(on),
+          disabled: n === 0 && !on,
+          onclick: () => {
+            on ? selected.delete(key) : selected.add(key);
+            state.shown = PAGE;
+            update();
+          },
+        },
+        `${zh} ${en}`,
+        el("span", { class: "n", textContent: n.toLocaleString() }),
+      );
+    }),
+  );
+}
+
+function renderBrands(counts) {
+  $("f-brand").replaceChildren(
+    ...[...brands.keys()].map((b) => {
+      const n = counts.get(b) ?? 0;
+      const on = state.brand === b;
+      return el(
+        "button",
+        {
+          type: "button",
+          class: "chip",
+          "aria-pressed": String(on),
+          disabled: n === 0 && !on,
+          onclick: () => {
+            state.brand = on ? "" : b;
+            state.shown = PAGE;
+            update();
+          },
+        },
+        b,
+        el("span", { class: "n", textContent: n.toLocaleString() }),
+      );
+    }),
+  );
+}
+
+// The last folders are what tell same-named records apart ("[英-汉]/oald4" vs "[英-英]/oald4").
+function shortFolder(folder) {
+  const parts = folder.split("/").filter(Boolean);
+  return "📁 " + (parts.length > 3 ? "…/" + parts.slice(-3).join("/") : parts.join("/") || "/");
+}
+
+function daysSince(iso) {
+  return (Date.now() - Date.parse(iso)) / 86_400_000;
+}
+
+function card(r) {
+  const [first] = r.loc;
+  const [mainName] = first.f[0];
+  const ext = mainName.slice(mainName.lastIndexOf(".")).toLowerCase();
+  const fileCount = r.loc.reduce((n, l) => n + l.f.length, 0);
+  return el(
+    "li",
+    { class: "card" },
+    el("h2", { textContent: r.n }),
+    el("p", { class: "where", title: first.p, textContent: shortFolder(first.p) + (r.loc.length > 1 ? ` · +${r.loc.length - 1} 处副本 copies` : "") }),
+    el(
+      "div",
+      { class: "badges" },
+      el("span", { class: "badge lang", textContent: label(LANGS, r.l) }),
+      r.k !== "mdx" && el("span", { class: "badge", textContent: label(KINDS, r.k) }),
+      ...r.b.map((b) => el("span", { class: "badge", textContent: b })),
+      r.r === 1 && el("span", { class: "badge", textContent: "含 .mdd 音频/图片" }),
+      r.fs && daysSince(r.fs) <= NEW_DAYS && el("span", { class: "badge new", textContent: `新收录 New · ${r.fs}` }),
+    ),
+    el(
+      "div",
+      { class: "meta" },
+      el("a", { class: "dl", href: fileUrl(first.p, mainName), rel: "noopener", textContent: `下载 Download ${ext}` }),
+      el("span", { textContent: fmtSize(r.s) }),
+      el("span", { textContent: `更新 ${r.d}` }),
+    ),
+    el(
+      "details",
+      {},
+      el("summary", { textContent: `全部文件 All files (${fileCount})` }),
+      ...r.loc.map((loc) =>
+        el(
+          "div",
+          { class: "loc" },
+          el("a", { class: "folder", href: folderUrl(loc.p), rel: "noopener", textContent: `📁 ${loc.p || "/"}` }),
+          el(
+            "ul",
+            { class: "files" },
+            ...loc.f.map(([name, size]) =>
+              el(
+                "li",
+                {},
+                el("a", { href: fileUrl(loc.p, name), rel: "noopener", textContent: name }),
+                el("span", { class: "sz", textContent: fmtSize(size) }),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+function renderResults(results) {
+  const n = results.length;
+  $("count").textContent = n
+    ? `${n.toLocaleString()} 个结果 results`
+    : "没有匹配的词典。换个名称、缩写或中文名试试。No matches — try another name, abbreviation, or the Chinese title.";
+  $("results").replaceChildren(...results.slice(0, state.shown).map((i) => card(dicts[i])));
+  $("more").hidden = n <= state.shown;
+  $("more").textContent = `显示更多 Show more (${(n - state.shown).toLocaleString()})`;
+}
+
+function renderHeader(meta) {
+  const by = meta.by_lang;
+  $("stats").textContent =
+    `${meta.total.toLocaleString()} 条目 entries · 英英 ${by["en-en"] ?? 0} · 英汉 ${by["en-zh"] ?? 0} · ` +
+    `抓取于 crawled ${meta.crawled} · 自 ${meta.tracking_since} 起跟踪 tracking`;
+
+  const body = $("changes-body");
+  if (meta.changes.length === 0) {
+    body.textContent = `暂无变更。自 ${meta.tracking_since} 起每月比对一次。No changes yet; checked monthly.`;
+    return;
+  }
+  body.replaceChildren(
+    ...meta.changes.map((c) =>
+      el(
+        "div",
+        { class: "change" },
+        el("strong", { textContent: `${c.date}  +${c.added.length} / −${c.removed.length}` }),
+        ...[
+          ["新增 Added", c.added],
+          ["移除 Removed", c.removed],
+        ]
+          .filter(([, names]) => names.length)
+          .map(([title, names]) =>
+            el("div", {}, title, el("ul", {}, ...names.slice(0, 100).map((nm) => el("li", { textContent: nm })))),
+          ),
+      ),
+    ),
+  );
+}
+
+// ---- boot ---------------------------------------------------------------------
+
+async function loadJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+  return res.json();
+}
+
+function bindInputs() {
+  const q = $("q");
+  q.value = state.q;
+  q.addEventListener("input", () => {
+    state.q = q.value;
+    state.shown = PAGE;
+    update();
+  });
+  q.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && q.value) {
+      q.value = "";
+      q.dispatchEvent(new Event("input"));
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement;
+    if (e.key === "/" && !typing) {
+      e.preventDefault();
+      q.focus();
+    }
+  });
+
+  const res = $("f-res");
+  res.checked = state.res;
+  res.addEventListener("change", () => {
+    state.res = res.checked;
+    state.shown = PAGE;
+    update();
+  });
+
+  const sort = $("sort");
+  sort.value = state.sort;
+  sort.addEventListener("change", () => {
+    state.sort = sort.value;
+    update();
+  });
+
+  $("more").addEventListener("click", () => {
+    state.shown += PAGE;
+    update();
+  });
+
+  $("reset").addEventListener("click", () => {
+    Object.assign(state, { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE });
+    q.value = "";
+    res.checked = false;
+    sort.value = "rel";
+    update();
+    q.focus();
+  });
+
+  $("suggest").append(
+    ...SUGGESTIONS.map((s) =>
+      el("button", {
+        type: "button",
+        class: "chip",
+        textContent: s,
+        onclick: () => {
+          q.value = s;
+          q.dispatchEvent(new Event("input"));
+          q.focus();
+        },
+      }),
+    ),
+  );
+}
+
+async function main() {
+  const [data, meta, t2s] = await Promise.all(["data/dicts.json", "data/meta.json", "t2s.json"].map(loadJson));
+  dicts = data;
+  fold = makeFold(t2s);
+  index = buildIndex(dicts, fold);
+  // Brand chips, most common first.
+  const brandCount = new Map();
+  for (const r of dicts) for (const b of r.b) brandCount.set(b, (brandCount.get(b) ?? 0) + 1);
+  brands = new Map([...brandCount].sort((a, b) => b[1] - a[1]));
+
+  readUrl();
+  renderHeader(meta);
+  bindInputs();
+  update();
+}
+
+main().catch((err) => {
+  console.error(err);
+  const stats = $("stats");
+  stats.textContent = `索引加载失败 Failed to load the index: ${err.message}`;
+  stats.classList.add("error");
+});

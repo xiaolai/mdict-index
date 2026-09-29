@@ -1,0 +1,104 @@
+name: Crawl and publish
+
+# Monthly refresh: re-crawl freemdict, rebuild the search data (first_seen +
+# change log), commit the diff, and deploy when publishing is switched on.
+#
+# Schedule: fires on the 1st, 8th and 15th. The first successful run of a month
+# crawls; later runs that month see meta.json already dated this month and skip.
+# A failed crawl (freemdict down, partial listing) therefore retries a week later
+# instead of leaving the data two months stale.
+#
+# workflow_dispatch always crawls. Pushes to main never crawl: they redeploy the
+# committed site as-is, so the "crawled" date only moves when a crawl happened.
+#
+# Publishing: set the repository variable PUBLISH_PAGES=true to deploy to Pages.
+# Unset, the workflow only crawls and commits (a private repo's Pages site is
+# public, so publishing is an explicit opt-in).
+on:
+  schedule:
+    - cron: "17 3 1,8,15 * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write # commit refreshed data
+    outputs:
+      crawl: ${{ steps.plan.outputs.crawl }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test
+        run: |
+          python3 -m unittest discover -s tests
+          node --test tests/search.test.mjs
+
+      - name: Decide whether to crawl
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          last=$(python3 -c "import json; print(json.load(open('site/data/meta.json'))['crawled'][:7])")
+          this=$(date -u +%Y-%m)
+          case "$EVENT" in
+            workflow_dispatch) crawl=true ;;
+            schedule) if [ "$last" = "$this" ]; then crawl=false; else crawl=true; fi ;;
+            *) crawl=false ;;
+          esac
+          echo "Last crawl month: $last; this month: $this; event: $EVENT; crawl: $crawl"
+          echo "crawl=$crawl" >> "$GITHUB_OUTPUT"
+
+      - name: Crawl
+        if: steps.plan.outputs.crawl == 'true'
+        run: python3 scripts/crawl_index.py data/index.jsonl
+
+      - name: Build search data
+        if: steps.plan.outputs.crawl == 'true'
+        run: python3 scripts/build_site.py
+
+      - name: Commit refreshed data
+        if: steps.plan.outputs.crawl == 'true'
+        run: |
+          git add data/index.jsonl site/data
+          if git diff --cached --quiet; then
+            echo "No changes since the last crawl."
+          else
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Update index $(date -u +%F)"
+            git push
+          fi
+
+      - name: Check site output exists
+        run: test -s site/data/dicts.json && test -s site/data/meta.json && test -s site/t2s.json
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        if: vars.PUBLISH_PAGES == 'true'
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        if: vars.PUBLISH_PAGES == 'true'
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: vars.PUBLISH_PAGES == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

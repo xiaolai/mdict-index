@@ -1,0 +1,19 @@
+{
+ "crawled": "2026-09-29",
+ "tracking_since": "2026-09-29",
+ "source": "https://downloads.freemdict.com/",
+ "total": 3506,
+ "by_lang": {
+  "en-en": 772,
+  "en-other": 191,
+  "en-zh": 752,
+  "other": 1694,
+  "unknown": 97
+ },
+ "by_kind": {
+  "archive": 718,
+  "mdd": 76,
+  "mdx": 2712
+ },
+ "changes": []
+}

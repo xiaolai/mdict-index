@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Search the MDict dictionaries on downloads.freemdict.com by English name, Chinese name, or abbreviation.">
+  <title>MDict 词典检索 · Dictionary Finder</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>MDict 词典检索 <span class="sub">Dictionary Finder</span></h1>
+      <p class="stats" id="stats">正在加载索引… Loading index…</p>
+    </div>
+  </header>
+
+  <div class="searchbar">
+    <div class="wrap">
+      <label class="visually-hidden" for="q">搜索词典 Search dictionaries</label>
+      <div class="search-field">
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="icon"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24-1.42 1.42-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
+        <input id="q" type="search" autocomplete="off" spellcheck="false" autofocus
+               placeholder="名称、缩写或中文名 — OALD、牛津高阶、collins 双解…">
+        <kbd class="hint" aria-hidden="true">/</kbd>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="filters">
+      <div class="group" role="group" aria-label="语种 Language" id="f-lang"></div>
+      <div class="group" role="group" aria-label="类型 Kind" id="f-kind"></div>
+      <div class="group scroll" role="group" aria-label="品牌 Brand" id="f-brand"></div>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="f-res"> 含音频/图片 With audio/images</label>
+        <label class="sort">排序 Sort
+          <select id="sort">
+            <option value="rel">相关度 Relevance</option>
+            <option value="name">名称 Name</option>
+            <option value="size">体积 Size</option>
+            <option value="date">更新日期 Updated</option>
+            <option value="new">新收录 Newly tracked</option>
+          </select>
+        </label>
+        <button type="button" id="reset" class="link">清除筛选 Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <p id="count" class="count" aria-live="polite"></p>
+    <div id="suggest" class="suggest" hidden>
+      试试 Try:
+    </div>
+    <ol id="results" class="results"></ol>
+    <button type="button" id="more" class="more" hidden>显示更多 Show more</button>
+    <noscript><p class="error">需要启用 JavaScript。JavaScript is required.</p></noscript>
+  </main>
+
+  <footer class="wrap foot">
+    <details id="changes">
+      <summary>变更记录 Change log</summary>
+      <div id="changes-body"></div>
+    </details>
+    <p>
+      索引来自 <a href="https://downloads.freemdict.com/" rel="noopener">downloads.freemdict.com</a> 的公开目录，本站不托管任何词典文件。
+      Index of the public listing at freemdict; this site hosts no dictionary files.
+      语种分类由文件名推断，可能有少量误差。Language labels are inferred from file names.
+    </p>
+  </footer>
+</body>
+</html>
