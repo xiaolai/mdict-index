@@ -1,3 +1,16 @@
 __pycache__/
 *.tmp
 .DS_Store
+# Downloaded dictionaries: large and mostly commercial; never commit.
+corpus/
+.venv/
+# Local renders contain dictionary text; never commit.
+dev-docs/artifacts/
+# the parallel corpus's data: built from copyrighted dictionaries, never committed
+parallel_corpus/data/
+# lexical inventories: built from copyrighted dictionaries, never committed
+inventories/data/
+# audit tooling's working output: its findings quote dictionary text; never committed
+.cc-suite/
+# local tool settings (.local by convention)
+.claude/*.local.md
