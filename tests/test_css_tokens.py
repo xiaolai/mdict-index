@@ -14,9 +14,17 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CSS = re.sub(r"/\*.*?\*/", "", (ROOT / "site" / "style.css").read_text(), flags=re.S)
-HTML = (ROOT / "site" / "index.html").read_text()
-JS = (ROOT / "site" / "app.js").read_text()
+def _css(path):
+    return re.sub(r"/\*.*?\*/", "", path.read_text(), flags=re.S)
+
+
+# The site's stylesheet holds the design tokens (and the contrast-checked colours); the lookup
+# UI's stylesheet builds on them and follows the same rules.
+CSS = _css(ROOT / "site" / "style.css")
+STYLESHEETS = {"site/style.css": CSS, "scripts/lookup_ui/lookup.css": _css(ROOT / "scripts" / "lookup_ui" / "lookup.css")}
+ALL_CSS = "\n".join(STYLESHEETS.values())
+HTML = {p: (ROOT / p).read_text() for p in ("site/index.html", "scripts/lookup_ui/index.html")}
+JS = {p: (ROOT / p).read_text() for p in ("site/app.js", "scripts/lookup_ui/lookup.js", "scripts/lookup_ui/render.js")}
 
 DECLARATION = re.compile(r"(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+?)\s*(?=;|})")
 NUMBER = re.compile(r"(?<![\w#.-])-?\d*\.?\d+[a-z%]*")
@@ -67,7 +75,7 @@ def mix(fg, bg, pct):
 class TokenDiscipline(unittest.TestCase):
     def test_numbers_and_colours_only_in_token_definitions(self):
         offenders = []
-        for prop, value in declarations(CSS):
+        for prop, value in declarations(ALL_CSS):
             if prop.startswith("--"):
                 continue
             bare = re.sub(r"var\(--[\w-]+\)", "", value)
@@ -77,26 +85,28 @@ class TokenDiscipline(unittest.TestCase):
         self.assertEqual(offenders, [])
 
     def test_media_queries_have_no_breakpoints(self):
-        for condition in re.findall(r"@(?:media|container)([^{]*)", CSS):
+        for condition in re.findall(r"@(?:media|container)([^{]*)", ALL_CSS):
             self.assertNotRegex(condition, r"\d", condition)
 
     def test_every_used_token_is_defined_and_every_defined_token_used(self):
-        defined = {prop for prop, _ in declarations(CSS) if prop.startswith("--")}
-        used = set(re.findall(r"var\((--[\w-]+)", CSS))
+        defined = {prop for prop, _ in declarations(ALL_CSS) if prop.startswith("--")}
+        used = set(re.findall(r"var\((--[\w-]+)", ALL_CSS))
         self.assertEqual(sorted(used - defined), [], "used but never defined")
         self.assertEqual(sorted(defined - used), [], "defined but never used")
 
     def test_every_grid_declares_shrinkable_columns(self):
         # An implicit grid column is sized to its widest child's max-content, so one
         # wide child (a scrolling tab strip, a long file name) widens the whole page.
-        for selector, body in re.findall(r"([^{}]+){([^{}]*)}", CSS):
+        for selector, body in re.findall(r"([^{}]+){([^{}]*)}", ALL_CSS):
             if re.search(r"display:\s*grid", body):
                 self.assertIn("grid-template-columns", body, selector.strip())
 
     def test_no_inline_styles(self):
-        self.assertNotRegex(HTML, r"\sstyle\s*=")
-        self.assertNotRegex(JS, r"\.style\b|[\"']style[\"']")
-        self.assertIsNone(COLOR_LITERAL.search(JS))
+        for path, html in HTML.items():
+            self.assertNotRegex(html, r"\sstyle\s*=", path)
+        for path, js in JS.items():
+            self.assertNotRegex(js, r"\.style\b|[\"']style[\"']|\sstyle\s*=", path)
+            self.assertIsNone(COLOR_LITERAL.search(js), path)
 
 
 class Contrast(unittest.TestCase):
