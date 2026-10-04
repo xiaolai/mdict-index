@@ -1,0 +1,67 @@
+{
+ "_comment": "Dictionaries read by parallel/styled.py (examples told from translated definitions by their style). Keys are freemdict index ids; truth names the layer-2 dictionary whose examples and definitions teach the style.",
+ "9debf8031dfb": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "626d79826a19": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "7b684b9fcb8f": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "ace458c029a4": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "8623679808a8": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "f8652302d9c1": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "5193070304a0": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "a406c316641c": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "9bc19b1d0c31": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "cee53e9ce4ed": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "034c2633e321": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "a7445fa34f22": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "a4e27ae61e63": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "190c07f24b1b": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "3c1f59977c2b": {
+  "extractor": "styled",
+  "truth": "ahd"
+ },
+ "061bb55e284a": {
+  "extractor": "styled",
+  "truth": "ahd"
+ }
+}
