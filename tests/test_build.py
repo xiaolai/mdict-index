@@ -196,6 +196,41 @@ class Classify(unittest.TestCase):
         for path, want in cases.items():
             self.assertEqual(classify(path), want, path)
 
+    def test_abbreviations_must_be_whole_tokens(self):
+        # "ce" inside a word is not "C-E" (English-Chinese).
+        self.assertEqual(classify("x/QWDOCE 5.mdx"), "unknown")
+        self.assertEqual(classify("x/frobsource-2016.mdx"), "unknown")
+        self.assertEqual(classify("x/Frob E-C.mdx"), "en-zh")
+        self.assertEqual(classify("x/Frob Thesaurus EN-ZH.mdx"), "en-zh")
+
+    def test_english_monolingual_markers_are_not_bilingual(self):
+        for name in ["WordNet大型英英词典", "[英-英] 牛津学习词典", "[英-英] Frob Thesaurus", "朗文当代(英英)Longman Frob"]:
+            self.assertEqual(classify(f"x/{name}.mdx"), "en-en", name)
+        # An explicit bilingual marker still wins.
+        for name in ["新牛津英英 + 新牛津双解", "汉英英汉地质词典", "[英-英] 牛津高阶(英英,添加双解版)"]:
+            self.assertEqual(classify(f"x/{name}.mdx"), "en-zh", name)
+
+    def test_english_chinese_spelled_in_english(self):
+        self.assertEqual(classify("x/Frob English-Chinese Dictionary.mdx"), "en-zh")
+        self.assertEqual(classify("x/A Frob Chinese English Dictionary.mdx"), "en-zh")
+
+    def test_english_side_needs_english_evidence(self):
+        # French-Chinese and French-only works: generic markers (双解, etymology) are not English.
+        self.assertEqual(classify("x/拉鲁斯法汉双解词典v0.1.3.mdx"), "other")
+        self.assertEqual(classify("x/Grand Robert etymologie.mdx"), "other")
+        # The language named, or an English publisher, is evidence.
+        self.assertEqual(classify("x/Frob Wörterbuch Englisch-Deutsch.mdx"), "en-other")
+        self.assertEqual(classify("x/Frob Dizionario Inglese-Italiano.mdx"), "en-other")
+        self.assertEqual(classify("x/Duden-Oxford Frob.mdx"), "en-other")
+
+    def test_a_language_tag_outweighs_a_publisher_name(self):
+        # "[其他语种]" (other languages) or "[俄语]" says there is no English side; a publisher does not say there is.
+        self.assertEqual(classify("x/[其他语种] 牛津弗罗布俄语词典.mdx"), "other")
+        self.assertEqual(classify("x/[德语] Duden-Oxford Frob.mdx"), "other")
+        # A tag naming English, or English named outright, still counts.
+        self.assertEqual(classify("x/[英-德] Duden-Oxford Frob.mdx"), "en-other")
+        self.assertEqual(classify("x/[其他语种] 牛津弗罗布英俄词典.mdx"), "en-other")
+
 
 class Families(unittest.TestCase):
     def test_brand_and_alias_matching_uses_word_boundaries(self):

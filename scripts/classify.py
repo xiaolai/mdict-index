@@ -17,7 +17,28 @@ OTHER_LANG = re.compile(
     r"german|deutsch|duden|french|fran[cç]ais|larousse|robert|italian|italiano|zingarelli|spanish|espa[nñ]ol|portug|latin|greek|sanskrit|pali|tibetan|dzongkha|russian|japanese|korean|persian|aryanpur|turkish|dutch|swedish|arabic|hebrew|interlingua|esperanto",
     re.I,
 )
-EN_ZH = re.compile(r"红宝书|要你命|背单词|单词|英词|小品词|英汉|汉英|英漢|漢英|英中|中英|英华|華英|双解|雙解|陆谷孙|新英汉|柯林斯|朗文|牛津|剑桥|劍橋|麦克米伦|韦氏|韋氏|美国传统|金山词霸|有道|词根|詞根|英语|英語|英文|英英|e-?c\b|c-?e\b|ec\b", re.I)
+# Markers that name both languages outright. Abbreviations must be whole tokens:
+# "ce" inside "LDOCE 5" or "zhwikisource" is not "C-E".
+_ZH_EXPLICIT = r"英汉|汉英|英漢|漢英|英中|中英|英华|華英|双解|雙解|english[- ]?chinese|chinese[- ]?english|(?<![a-z])(?:e-?c|c-?e)\b|(?<![a-z])(?:en[-_]?zh|zh[-_]?en)(?![a-z])"
+EN_ZH_EXPLICIT = re.compile(_ZH_EXPLICIT, re.I)
+# Explicit markers plus weaker hints: a Chinese title for an English work is
+# usually a bilingual edition.
+EN_ZH = re.compile(_ZH_EXPLICIT + r"|红宝书|要你命|背单词|单词|英词|小品词|陆谷孙|新英汉|柯林斯|朗文|牛津|剑桥|劍橋|麦克米伦|韦氏|韋氏|美国传统|金山词霸|有道|词根|詞根|英语|英語|英文", re.I)
+# English monolingual: "[英-英]", "英英" (but not "英英汉", an English-English-Chinese work).
+# It outranks the weak hints above, never an explicit bilingual marker.
+EN_MONO = re.compile(r"英-英|英英(?![汉漢])|english[- ]english", re.I)
+# Evidence that a foreign-language work has an English side. Strong: the
+# language named. Weak: an English publisher ("Duden-Oxford", "Larousse
+# Chambers"), which an explicit language tag without English overrules
+# ("[其他语种] 牛津…俄语…" is a Russian work). Generic markers (双解,
+# "dictionary of", etymology) say nothing about English.
+EN_NAMED = re.compile(r"英|english|anglais|englisch|ingl[eé]s|inglese|engels|(?<![a-z])en(?![a-z])", re.I)
+EN_PUBLISHER = re.compile(
+    r"oxford|chambers|collins|cobuild|cambridge|longman|macmillan|merriam|webster|牛津|柯林斯|剑桥|劍橋|朗文|麦克米伦|韦氏|韋氏",
+    re.I,
+)
+# A bracketed language tag: "[其他语种]", "[俄语]", "[汉-汉]", "[日汉-汉日]".
+LANG_TAG = re.compile(r"\[(?:其他语种|[^\]\d]{1,4}[语語]|[一-鿿]{1,3}-[一-鿿]{1,3}(?:-[一-鿿]{1,3})?)\]")
 EN = re.compile(
     r"english|oxford|\bo[a-z]{1,3}d\d*\b|oald|ldoce|longman|collins|cobuild|cambridge|macmillan|merriam|webster|\bmw|chambers|wordnet|thesaurus|roget|urban ?dict|etymolog|idiom|phrasal|heritage|\bahd|random ?house|wiktionary|\bnoad|\bode\b|\boed|lexico|vocab|slang|pronounc|\bcoca\b|\bbnc\b|synonym|collocation|usage|word ?power|dictionary\.com|vocabulary\.com|wordsmyth|encarta|kernerman|\blexi|\bnew ?world|\bfunk|glossary|encyclop|britannica|dictionary of|world ?book|mcgraw|routledge|"
     # Well-known English dictionary abbreviations (optionally followed by an edition number).
@@ -55,6 +76,7 @@ OVERRIDES = {
         "CC-CEDICT", "Microsoft Bing CN-EN Dictionary Online", "Microsoft Bing Dictionary",
         "ODECN", "Wang's_Word_Origins_Enzio", "xsjhy20oct", "xsjhy20oct2", "xsjhy20sep",
         "yuanliudict", "CESCD",
+        "collinsec",  # Collins E-C: "ec" fused onto the name
     ], "en-zh"),
     **dict.fromkeys(["Il Ragazzini EN-IT", "Il Ragazzini IT-EN", "camen22ge", "camen2ko"], "en-other"),
     **dict.fromkeys([
@@ -77,14 +99,15 @@ def classify(path: str) -> str:
     zh = EN_ZH.search(stem)
     other = OTHER_LANG.search(stem)
     en = EN.search(stem)
-    if other and (en or zh or re.search(r"英", stem)):
-        return "en-other"
     if other:
-        return "other"
+        if EN_NAMED.search(stem):
+            return "en-other"
+        return "en-other" if EN_PUBLISHER.search(stem) and not LANG_TAG.search(stem) else "other"
+    mono = EN_MONO.search(stem) and not EN_ZH_EXPLICIT.search(stem)
     if zh:
-        return "en-zh"
+        return "en-en" if mono else "en-zh"
     if en:
-        return "en-zh" if re.search(r"[一-鿿]", stem) and re.search(r"英", stem) else "en-en"
+        return "en-zh" if re.search(r"[一-鿿]", stem) and re.search(r"英", stem) and not mono else "en-en"
     if EN_FOLDER.search(folder):
         return "en-zh" if re.search(r"英汉|英-汉|汉-英|汉英|English-Chinese|双向|英汉辞书", folder) else "en-en"
     if OTHER_FOLDER.search(folder):
