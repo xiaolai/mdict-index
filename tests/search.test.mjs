@@ -55,3 +55,9 @@ test("the compact form never joins two aliases into one match", () => {
   assert.equal(search(idx, "phrasalverbs", fold).length, 1); // within one alias, spacing still ignored
   assert.equal(search(idx, "greltpress", fold).length, 1);
 });
+
+test("a later occurrence at a word boundary counts as a boundary match", () => {
+  const recs = [rec("xGrelt Grelt"), rec("xGrelt yGrelt")];
+  const hits = search(buildIndex(recs, fold), "grelt", fold);
+  assert.deepEqual(hits.map((h) => [h.i, Math.round(h.score)]), [[0, 30], [1, 20]]);
+});

@@ -37,10 +37,13 @@ export function buildIndex(records, fold) {
 
 // Score of one query term against one record; 0 means no match.
 function termScore(e, term, termC) {
-  if (e.name.startsWith(term)) return 40;
-  const at = e.name.indexOf(term);
-  if (at > 0 && BOUNDARY.test(e.name[at - 1])) return 30;
-  if (at >= 0) return 20;
+  const first = e.name.indexOf(term);
+  if (first === 0) return 40;
+  // Any occurrence at a word boundary counts, not only the first one.
+  for (let at = first; at > 0; at = e.name.indexOf(term, at + 1)) {
+    if (BOUNDARY.test(e.name[at - 1])) return 30;
+  }
+  if (first > 0) return 20;
   if (termC && e.nameC.includes(termC)) return 15;
   if (e.extra.some((v) => v.includes(term)) || (termC && e.extraC.some((v) => v.includes(termC)))) return 10;
   if (e.path.includes(term)) return 3;
