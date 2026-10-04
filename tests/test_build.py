@@ -254,6 +254,25 @@ class Families(unittest.TestCase):
         for pack in ["sound-en_gb(british.english,word.93612)", "sound", "longman pronunciation dictionary"]:
             self.assertIn("pronunciation", aliases_of(pack), pack)
 
+    def test_an_edition_number_may_carry_a_tag(self):
+        # Catalog names like "OALD8C" and "MW11sound": the tag follows the edition number.
+        self.assertIn("Oxford", brands_of("oald8c"))
+        self.assertIn("Oxford", brands_of("ode3e"))
+        self.assertIn("Merriam-Webster", brands_of("mw11sound"))
+        self.assertNotIn("Oxford", brands_of("odessa"))
+
+    def test_collins_titles_are_cobuild_only_with_cobuild_evidence(self):
+        self.assertNotIn("COBUILD", aliases_of("柯林斯英英词典第8版"))
+        self.assertIn("Collins", aliases_of("柯林斯英英词典第8版"))
+        for name in ["柯林斯高阶英汉双解学习词典", "柯林斯双解", "collins cobuild advanced"]:
+            self.assertIn("COBUILD", aliases_of(name), name)
+
+    def test_slang_dictionaries_are_not_urban_dictionary(self):
+        for name in ["美国俚语词典", "frob dictionary of american slang"]:
+            self.assertNotIn("Urban Dictionary", aliases_of(name), name)
+            self.assertIn("slang", aliases_of(name), name)
+        self.assertIn("Urban Dictionary", aliases_of("urban dictionary 2020"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -11,8 +11,11 @@ Simplified), so write them in lowercase simplified Chinese.
 import re
 
 # Abbreviations must not be part of a longer word: "ode" must not hit "code".
+# An abbreviation ends at a non-letter or at an edition number, and an edition
+# number may carry any tag: "oald8c", "ode3e", "mw11sound", "lpd3byoeasy" are
+# all real catalog names.
 _B = r"(?<![a-z])"
-_E = r"\d*(?![a-z])"
+_E = r"(?:\d|(?![a-z]))"
 
 BRANDS: list[tuple[str, re.Pattern[str]]] = [
     (label, re.compile(pattern))
@@ -53,9 +56,11 @@ ALIASES: list[tuple[re.Pattern[str], list[str]]] = [
          ["LPD", "Longman Pronunciation Dictionary", "朗文发音词典", "pronunciation"]),
         (rf"{_B}(cepd|epd){_E}|english pronouncing|剑桥发音",
          ["CEPD", "Cambridge English Pronouncing Dictionary", "剑桥发音词典", "pronunciation"]),
-        (rf"cobuild|{_B}(ccald|ccabeld|cced|ccad){_E}",
+        # Chinese titles name COBUILD by its learner's/bilingual line, not by "柯林斯"
+        # alone: 柯林斯英英词典 is the Collins English Dictionary.
+        (rf"cobuild|{_B}(ccald|ccabeld|cced|ccad){_E}|柯林斯(高阶|双解|英汉双解|英语学习|用法)",
          ["COBUILD", "Collins COBUILD", "柯林斯"]),
-        (r"柯林斯", ["Collins", "COBUILD"]),
+        (r"柯林斯", ["Collins"]),
         (rf"collegiate|{_B}(mwc|mwcd){_E}|韦氏大学",
          ["Merriam-Webster's Collegiate", "MWC", "韦氏大学词典"]),
         # Not bare "unabridged": Random House and Dictionary.com have unabridged editions too.
@@ -67,7 +72,8 @@ ALIASES: list[tuple[re.Pattern[str], list[str]]] = [
          ["MED", "Macmillan English Dictionary", "麦克米伦"]),
         (rf"{_B}ahd{_E}|american heritage|美国传统",
          ["AHD", "American Heritage Dictionary", "美国传统词典"]),
-        (r"urban ?dict|俚语", ["Urban Dictionary", "slang", "俚语"]),
+        (r"urban ?dict", ["Urban Dictionary", "slang", "俚语"]),
+        (r"slang|俚语", ["slang", "俚语"]),  # any slang dictionary, not only Urban Dictionary
         (r"etymolog|etymonline|词源|word origins",
          ["etymology", "etymonline", "词源"]),
         (rf"wordnet|{_B}wn\d", ["WordNet"]),
