@@ -1,6 +1,8 @@
-"""Design-token discipline for site/style.css, and contrast of the colour tokens.
+"""Design-token discipline for the site's stylesheets, and contrast of the colour tokens.
 
 Rules:
+- The design tokens live in site/tokens.css, which index.html loads before
+  site/style.css; style.css defines no :root tokens of its own.
 - Numbers, hex colours and colour functions appear only in custom-property
   (token) definitions; everywhere else only 0, 1, 1fr and 100% are allowed.
 - Media queries carry no numbers: the layout is intrinsic, not breakpoint-based.
@@ -18,13 +20,15 @@ def _css(path):
     return re.sub(r"/\*.*?\*/", "", path.read_text(), flags=re.S)
 
 
-# The site's stylesheet holds the design tokens (and the contrast-checked colours); the lookup
-# UI's stylesheet builds on them and follows the same rules.
+# site/tokens.css holds the design tokens (and the contrast-checked colours); the site's
+# stylesheet and the lookup UI's stylesheet build on them and follow the same rules.
+TOKENS = _css(ROOT / "site" / "tokens.css")
 CSS = _css(ROOT / "site" / "style.css")
-STYLESHEETS = {"site/style.css": CSS, "scripts/lookup_ui/lookup.css": _css(ROOT / "scripts" / "lookup_ui" / "lookup.css")}
+STYLESHEETS = {"site/tokens.css": TOKENS, "site/style.css": CSS,
+               "scripts/lookup_ui/lookup.css": _css(ROOT / "scripts" / "lookup_ui" / "lookup.css")}
 ALL_CSS = "\n".join(STYLESHEETS.values())
 HTML = {p: (ROOT / p).read_text() for p in ("site/index.html", "scripts/lookup_ui/index.html")}
-JS = {p: (ROOT / p).read_text() for p in ("site/app.js", "scripts/lookup_ui/lookup.js", "scripts/lookup_ui/render.js")}
+JS = {p: (ROOT / p).read_text() for p in ("site/app.js", "site/view.js", "site/tabs.js", "scripts/lookup_ui/lookup.js", "scripts/lookup_ui/render.js")}
 
 DECLARATION = re.compile(r"(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+?)\s*(?=;|})")
 NUMBER = re.compile(r"(?<![\w#.-])-?\d*\.?\d+[a-z%]*")
@@ -73,6 +77,11 @@ def mix(fg, bg, pct):
 
 
 class TokenDiscipline(unittest.TestCase):
+    def test_tokens_live_in_tokens_css_loaded_first(self):
+        self.assertIsNone(re.search(r"(^|[\s{}]):root\b", CSS), "site/style.css defines :root tokens")
+        links = re.findall(r'<link rel="stylesheet" href="([^"]+)">', HTML["site/index.html"])
+        self.assertEqual(links, ["tokens.css", "style.css"])
+
     def test_numbers_and_colours_only_in_token_definitions(self):
         offenders = []
         for prop, value in declarations(ALL_CSS):
@@ -122,7 +131,7 @@ class Contrast(unittest.TestCase):
     ]
 
     def check(self, dark):
-        tokens = {**token_block(CSS, dark=False), **(token_block(CSS, dark=True) if dark else {})}
+        tokens = {**token_block(TOKENS, dark=False), **(token_block(TOKENS, dark=True) if dark else {})}
         failures = []
         for fg, bg in self.PAIRS:
             fg_rgb = hex_rgb(tokens[fg])
