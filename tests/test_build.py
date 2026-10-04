@@ -5,7 +5,8 @@ import unittest
 from pathlib import Path
 
 # Run with scripts/ importable: PYTHONPATH=scripts python3 -m unittest discover -s tests
-from build_site import build, build_records, group_folder, resolve_recommended
+from build_site import build, build_records, group_folder
+from recommended import resolve_recommended
 from classify import classify
 from families import aliases_of, brands_of
 

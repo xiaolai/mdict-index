@@ -31,6 +31,7 @@ from pathlib import Path
 
 from classify import classify
 from families import aliases_of, brands_of
+from recommended import resolve_recommended
 
 ROOT = Path(__file__).resolve().parent.parent
 # An archive or one volume of a split archive; `base` is the name shared by all volumes.
@@ -42,7 +43,6 @@ ASSET_EXT = (".css", ".js", ".ttf", ".otf", ".woff", ".woff2")
 SKIP_PREFIXES = ("Language_Learning_Videos/",)
 MAX_SHRINK = 0.2  # refuse to publish if the record count drops more than this
 MAX_CHANGES = 60  # change-log entries kept in meta.json
-STATUSES = {"current", "behind", "snapshot", "final", "unclear", "missing"}
 
 
 @dataclass
@@ -202,56 +202,6 @@ def to_json(rid: str, r: Record, fold, first_seen: str | None) -> dict:
     if first_seen:
         out["fs"] = first_seen
     return out
-
-
-def resolve_recommended(curated: dict, dicts: list[dict]) -> tuple[dict, list[str]]:
-    """Point each curated pick at a record id.
-
-    A malformed curation file is an authoring error and raises. A pick that
-    matches no record (the file left freemdict) resolves to null with a
-    warning: one vanished file must not block the monthly update.
-    """
-    by_name: dict[str, list[dict]] = defaultdict(list)
-    for d in dicts:
-        if d["k"] == "mdx":
-            by_name[unicodedata.normalize("NFC", d["n"])].append(d)
-
-    warnings: list[str] = []
-    seen: set[str] = set()
-    categories = []
-    for cat in curated["categories"]:
-        missing = {"key", "zh", "en", "tab_zh", "tab_en"} - cat.keys()
-        if missing:
-            raise ValueError(f"recommended category {cat.get('key')!r}: missing {sorted(missing)}")
-        items = []
-        for item in cat["items"]:
-            key = item["key"]
-            if key in seen:
-                raise ValueError(f"recommended: duplicate key {key!r}")
-            seen.add(key)
-            if item["status"] not in STATUSES:
-                raise ValueError(f"recommended {key!r}: unknown status {item['status']!r}")
-            if not str(item.get("src", "https://")).startswith("https://"):
-                raise ValueError(f"recommended {key!r}: src must be an https:// URL")
-            pick = item.get("pick")
-            if pick is None and item["status"] != "missing":
-                raise ValueError(f"recommended {key!r}: no pick, so status must be 'missing'")
-            rid = None
-            if pick:
-                folder = pick.get("folder")
-                matches = [
-                    d for d in by_name.get(unicodedata.normalize("NFC", pick["name"]), [])
-                    if folder is None or any(folder in loc["p"] for loc in d["loc"])
-                ]
-                if not matches:
-                    warnings.append(f"recommended {key!r}: no record named {pick['name']!r} is on freemdict any more")
-                else:
-                    if len(matches) > 1:
-                        warnings.append(f"recommended {key!r}: {len(matches)} records match; using the most complete")
-                    rid = max(matches, key=lambda d: d["s"])["id"]
-            items.append({**{k: v for k, v in item.items() if k != "pick"}, "id": rid})
-        categories.append({**{k: v for k, v in cat.items() if k != "items"}, "items": items})
-    return {"reviewed": curated["reviewed"], "categories": categories}, warnings
 
 
 def load_json(path: Path):
