@@ -39,10 +39,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Test
+      - name: Install test dependencies
         run: |
-          PYTHONPATH=scripts python3 -m unittest discover -s tests
-          node --test tests/search.test.mjs
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet -r requirements-dev.txt
+
+      - name: Test
+        # Corpus-backed tests skip here: the dictionaries are never in the repository.
+        run: |
+          PYTHONPATH=scripts .venv/bin/python -m unittest discover -s tests
+          PYTHONPATH=scripts:parallel_corpus .venv/bin/python -m unittest discover -s parallel_corpus/tests -t parallel_corpus/tests
+          PYTHONPATH=scripts:inventories .venv/bin/python -m unittest discover -s inventories/tests -t inventories/tests
+          node --test tests/*.test.mjs
 
       - name: Decide whether to crawl
         id: plan
