@@ -32,6 +32,7 @@ const SUGGESTIONS = ["OALD", "牛津高阶", "LDOCE", "柯林斯 双解", "Merri
 
 const state = { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE, tab: "starter" };
 let dicts, index, fold, brands, byId;
+let shownResults = []; // record indexes of the current result list, in display order
 // Recommendations: curated items, a search index over them, and the ids they point to.
 let recItems = [];
 let recIndex = [];
@@ -40,6 +41,11 @@ let revealActiveTab = () => {}; // set by renderRecommended
 let selectTab = () => {}; // set by renderRecommended
 
 const $ = (id) => document.getElementById(id);
+
+// The box is usable while the index loads. Whether the user has edited it by then, not
+// whether it holds text, decides between their text (possibly cleared) and the URL's query.
+let qEdited = false;
+$("q").addEventListener("input", () => (qEdited = true), { once: true });
 
 function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -132,8 +138,8 @@ function update() {
     }
     return out;
   };
-  renderChips($("f-lang"), LANGS, count("lang", (r) => [r.l]), state.lang);
-  renderChips($("f-kind"), KINDS, count("kind", (r) => [r.k]), state.kind);
+  renderChips($("f-lang"), LANGS, count("lang", (r) => [r.l]), "lang");
+  renderChips($("f-kind"), KINDS, count("kind", (r) => [r.k]), "kind");
   renderBrands(count("brand", (r) => r.b));
 
   const results = sortResults(pool.filter((i) => passes(dicts[i])), Boolean(hits));
@@ -155,53 +161,60 @@ function update() {
 
 // ---- rendering ----------------------------------------------------------------
 
-function renderChips(container, table, counts, selected) {
-  container.replaceChildren(
-    ...table.map(([key, zh, en]) => {
-      const n = counts.get(key) ?? 0;
-      const on = selected.has(key);
-      return el(
-        "button",
-        {
-          type: "button",
-          class: "chip",
-          "aria-pressed": String(on),
-          disabled: n === 0 && !on,
-          onclick: () => {
-            on ? selected.delete(key) : selected.add(key);
-            state.shown = PAGE;
-            update();
+// One row of filter chips. The buttons are created once and updated in place:
+// replacing them on every update would drop keyboard focus from the chip just pressed.
+// `options` is [key, text] pairs; `toggle(key)` changes the state.
+function renderFacet(container, options, counts, isOn, toggle) {
+  if (container.children.length !== options.length) {
+    container.replaceChildren(
+      ...options.map(([key, text]) =>
+        el(
+          "button",
+          {
+            type: "button",
+            class: "chip",
+            onclick: () => {
+              toggle(key);
+              state.shown = PAGE;
+              update();
+            },
           },
-        },
-        `${zh} ${en}`,
-        el("span", { class: "chip__n", textContent: n.toLocaleString() }),
-      );
-    }),
+          text,
+          el("span", { class: "chip__n" }),
+        ),
+      ),
+    );
+  }
+  options.forEach(([key], i) => {
+    const chip = container.children[i];
+    const n = counts.get(key) ?? 0;
+    const on = isOn(key);
+    chip.setAttribute("aria-pressed", String(on));
+    // The focused chip stays enabled even at zero: a disabled button cannot hold focus.
+    chip.disabled = n === 0 && !on && chip !== document.activeElement;
+    chip.lastChild.textContent = n.toLocaleString();
+  });
+}
+
+// `facet` names the state Set ("lang" or "kind"). It is looked up on every use, never
+// captured: the handlers outlive a reset, which gives the state a new Set.
+function renderChips(container, table, counts, facet) {
+  renderFacet(
+    container,
+    table.map(([key, zh, en]) => [key, `${zh} ${en}`]),
+    counts,
+    (key) => state[facet].has(key),
+    (key) => (state[facet].has(key) ? state[facet].delete(key) : state[facet].add(key)),
   );
 }
 
 function renderBrands(counts) {
-  $("f-brand").replaceChildren(
-    ...[...brands.keys()].map((b) => {
-      const n = counts.get(b) ?? 0;
-      const on = state.brand === b;
-      return el(
-        "button",
-        {
-          type: "button",
-          class: "chip",
-          "aria-pressed": String(on),
-          disabled: n === 0 && !on,
-          onclick: () => {
-            state.brand = on ? "" : b;
-            state.shown = PAGE;
-            update();
-          },
-        },
-        b,
-        el("span", { class: "chip__n", textContent: n.toLocaleString() }),
-      );
-    }),
+  renderFacet(
+    $("f-brand"),
+    [...brands.keys()].map((b) => [b, b]),
+    counts,
+    (b) => state.brand === b,
+    (b) => (state.brand = state.brand === b ? "" : b),
   );
 }
 
@@ -276,12 +289,27 @@ function card(r) {
 
 function renderResults(results) {
   const n = results.length;
+  shownResults = results;
   $("count").textContent = n
     ? `${n.toLocaleString()} 个结果 results`
     : "没有匹配的词典。换个名称、缩写或中文名试试。No matches — try another name, abbreviation, or the Chinese title.";
   $("results").replaceChildren(...results.slice(0, state.shown).map((i) => card(dicts[i])));
+  renderMore();
+}
+
+function renderMore() {
+  const n = shownResults.length;
   $("more").hidden = n <= state.shown;
   $("more").textContent = `显示更多 Show more (${(n - state.shown).toLocaleString()})`;
+}
+
+// Append the next page. The cards already on screen are left alone, so a file
+// list the user opened stays open.
+function showMore() {
+  const from = state.shown;
+  state.shown += PAGE;
+  $("results").append(...shownResults.slice(from, state.shown).map((i) => card(dicts[i])));
+  renderMore();
 }
 
 // Put an exact dictionary name in the search box and bring its results into view.
@@ -380,11 +408,8 @@ function renderRecHits(items) {
   );
 }
 
-function renderRecommended(rec) {
-  $("rec-meta").textContent =
-    `最新版次核对于 ${rec.reviewed}；本站版本按版次、音频图片是否完整、更新时间挑选，未逐一打开验证。` +
-    ` Editions checked ${rec.reviewed}; picks judged from file metadata.`;
-
+// Index the curated picks for search, and remember which records they point to.
+function indexRecommended(rec) {
   recItems = rec.categories.flatMap((c) => c.items);
   recIds = new Set(recItems.map((it) => it.id).filter(Boolean));
   // Search each pick by its curated names plus its record's name and aliases,
@@ -396,11 +421,13 @@ function renderRecommended(rec) {
     }),
     fold,
   );
+}
 
+// One panel per tab: the starter set, then each curated category.
+function recPanels(rec) {
   const starters = recItems.filter((it) => it.starter && byId.has(it.id));
   const starterSize = starters.reduce((n, it) => n + byId.get(it.id).s, 0);
-
-  const panels = [
+  return [
     {
       key: "starter",
       tab: ["入门套装", "Starter set"],
@@ -424,9 +451,11 @@ function renderRecommended(rec) {
       body: () => recPanel("", cat.zh, cat.en, recList(cat.items)),
     })),
   ];
-  if (!panels.some((p) => p.key === state.tab)) state.tab = "starter";
+}
 
-  // WAI-ARIA tabs: one tab stop, arrow keys move between tabs, panels follow selection.
+// WAI-ARIA tabs: one tab stop, arrow keys move between tabs, panels follow selection.
+// Returns the tab strip and panel elements, plus `select(key)` and `reveal()`.
+function tabController(panels) {
   const tabs = panels.map((p) =>
     el(
       "button",
@@ -451,6 +480,13 @@ function renderRecommended(rec) {
     body.setAttribute("aria-labelledby", `tab-${p.key}`);
     return body;
   });
+  // On narrow screens the strip scrolls sideways; keep the active tab in view.
+  // Sets scrollLeft only: scrollIntoView would also scroll the page.
+  const reveal = () => {
+    const t = tabs[panels.findIndex((p) => p.key === state.tab)];
+    const strip = t.parentElement;
+    strip.scrollLeft = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
+  };
   function select(key, focus = false) {
     state.tab = key;
     panels.forEach((p, i) => {
@@ -460,17 +496,9 @@ function renderRecommended(rec) {
       bodies[i].hidden = !on;
       if (on && focus) tabs[i].focus();
     });
-    revealActiveTab();
+    reveal();
     writeUrl();
   }
-  selectTab = select;
-  // On narrow screens the strip scrolls sideways; keep the active tab in view.
-  // Sets scrollLeft only: scrollIntoView would also scroll the page.
-  revealActiveTab = () => {
-    const t = tabs[panels.findIndex((p) => p.key === state.tab)];
-    const strip = t.parentElement;
-    strip.scrollLeft = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
-  };
   const onKey = (e) => {
     const i = panels.findIndex((p) => p.key === state.tab);
     const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: panels.length - 1 }[e.key];
@@ -478,12 +506,24 @@ function renderRecommended(rec) {
     e.preventDefault();
     select(panels[(next + panels.length) % panels.length].key, true);
   };
+  const strip = el("div", { class: "tabs", role: "tablist", "aria-label": "推荐分类 Recommendation categories", onkeydown: onKey }, ...tabs);
+  return { strip, bodies, select, reveal };
+}
 
-  $("rec-cards").replaceChildren(
-    el("div", { class: "tabs", role: "tablist", "aria-label": "推荐分类 Recommendation categories", onkeydown: onKey }, ...tabs),
-    ...bodies,
-  );
-  select(state.tab);
+function renderRecommended(rec) {
+  $("rec-meta").textContent =
+    `最新版次核对于 ${rec.reviewed}；本站版本按版次、音频图片是否完整、更新时间挑选，未逐一打开验证。` +
+    ` Editions checked ${rec.reviewed}; picks judged from file metadata.`;
+
+  indexRecommended(rec);
+  const panels = recPanels(rec);
+  if (!panels.some((p) => p.key === state.tab)) state.tab = "starter";
+
+  const tabs = tabController(panels);
+  selectTab = tabs.select;
+  revealActiveTab = tabs.reveal;
+  $("rec-cards").replaceChildren(tabs.strip, ...tabs.bodies);
+  tabs.select(state.tab);
 }
 
 function renderHeader(meta) {
@@ -536,7 +576,8 @@ async function loadJson(url) {
 
 function bindInputs() {
   const q = $("q");
-  q.value = state.q;
+  if (qEdited) state.q = q.value;
+  else q.value = state.q;
   q.addEventListener("input", () => {
     state.q = q.value;
     state.shown = PAGE;
@@ -573,10 +614,7 @@ function bindInputs() {
     update();
   });
 
-  $("more").addEventListener("click", () => {
-    state.shown += PAGE;
-    update();
-  });
+  $("more").addEventListener("click", showMore);
 
   const clearSearch = () => {
     Object.assign(state, { q: "", lang: new Set(), kind: new Set(), brand: "", res: false, sort: "rel", shown: PAGE });
