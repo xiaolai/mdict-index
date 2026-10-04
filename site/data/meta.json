@@ -2,18 +2,18 @@
  "crawled": "2026-10-01",
  "tracking_since": "2026-09-29",
  "source": "https://downloads.freemdict.com/",
- "total": 3506,
+ "total": 3509,
  "by_lang": {
-  "en-en": 772,
-  "en-other": 191,
-  "en-zh": 752,
-  "other": 1694,
-  "unknown": 97
+  "en-en": 865,
+  "en-other": 182,
+  "en-zh": 657,
+  "other": 1706,
+  "unknown": 99
  },
  "by_kind": {
-  "archive": 718,
+  "archive": 720,
   "mdd": 76,
-  "mdx": 2712
+  "mdx": 2713
  },
  "changes": []
 }
