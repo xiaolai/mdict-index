@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>统一词典 Unified dictionary</title>
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/site.css">
+  <link rel="stylesheet" href="/static/lookup.css">
+  <script type="module" src="/static/lookup.js"></script>
+</head>
+<body>
+  <header class="container">
+    <h1 class="lookup-title"><a href="/">统一词典 <span class="section__sub">Unified dictionary</span></a></h1>
+    <p class="lookup-meta">25 部词典，同一版式；每张卡片可切换到原版排版。
+      <span lang="en">25 dictionaries in one layout; switch any card to its original design.</span></p>
+  </header>
+  <div class="lookup-bar">
+    <form class="container lookup-form" id="form">
+      <label class="visually-hidden" for="q">查词 Look up</label>
+      <div class="search">
+        <svg class="search__icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24-1.42 1.42-4.24-4.25A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
+        <input id="q" class="search__input" name="q" autofocus autocomplete="off" spellcheck="false"
+               placeholder="英文单词、中文，或按释义搜索 — take, 打招呼, fear of heights">
+      </div>
+      <button class="btn btn--primary">查 Look up</button>
+      <button class="btn btn--ghost" type="button" id="define">按释义 By definition</button>
+    </form>
+  </div>
+  <main class="container results" id="out" aria-live="polite"></main>
+</body>
+</html>

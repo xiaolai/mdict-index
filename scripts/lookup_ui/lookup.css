@@ -1,0 +1,91 @@
+/* ==========================================================================
+   Lookup UI: the unified dictionary view.
+   Builds on the website's design tokens (/static/tokens.css, loaded first); the few
+   tokens below are specific to this page. Same rules as the site, enforced by
+   tests/test_css_tokens.py: literals only in token blocks, no width breakpoints,
+   every grid declares shrinkable columns.
+   ========================================================================== */
+:root {
+  --u-num-width: 2.5rem;       /* sense-number column */
+  --u-frame-height: 32rem;     /* "original" iframe, resizable by the reader */
+  --u-font-ipa: "Charis SIL", "Doulos SIL", "Gentium Plus", "Lucida Grande", "Segoe UI", sans-serif;
+  --u-play-size: 1.75rem;
+}
+
+/* ---- page ------------------------------------------------------------------ */
+.lookup-bar { position: sticky; top: 0; z-index: var(--z-bar); padding-block: var(--space-sm);
+  background: color-mix(in srgb, var(--c-bg) var(--bar-opacity), transparent); backdrop-filter: blur(var(--bar-blur));
+  border-bottom: var(--border) solid var(--c-border); }
+.lookup-form { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.lookup-form .search { flex: 1 1 var(--entry-min); }
+.lookup-title { margin: 0; padding-block: var(--space-lg) var(--space-2xs); font-family: var(--font-serif);
+  font-size: var(--fs-xl); font-weight: var(--fw-bold); }
+.lookup-title a { color: var(--c-text); text-decoration: none; }
+.lookup-meta { margin: 0; font-size: var(--fs-sm); color: var(--c-text-muted); }
+.results { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); padding-block: var(--space-lg) var(--space-2xl); }
+.results__note { margin: 0; font-size: var(--fs-sm); color: var(--c-text-muted); }
+
+/* ---- a dictionary's card ------------------------------------------------------ */
+.dict-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); min-width: 0;
+  padding: var(--space-md) var(--space-lg); background: var(--c-surface);
+  border: var(--border) solid var(--c-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.dict-card__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2xs) var(--space-sm);
+  padding-bottom: var(--space-xs); border-bottom: var(--border) solid var(--c-border); }
+.dict-card__name { margin: 0; font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--c-accent);
+  text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+.dict-card__via { font-size: var(--fs-xs); color: var(--c-text-muted); }
+.dict-card__original > summary { display: flex; align-items: center; min-height: var(--tap-min); cursor: pointer;
+  font-size: var(--fs-sm); color: var(--c-accent); }
+.dict-card__frames { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); padding-top: var(--space-xs); }
+.dict-card__frame { width: 100%; height: var(--u-frame-height); resize: vertical; background: var(--c-surface);
+  border: var(--border) solid var(--c-border); border-radius: var(--radius-md); }
+
+/* ---- the unified entry ---------------------------------------------------------- */
+.u-entry { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); min-width: 0; }
+.u-entry + .u-entry { padding-top: var(--space-sm); border-top: var(--border) dashed var(--c-border); }
+.u-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2xs) var(--space-sm); }
+.u-hw { font-family: var(--font-serif); font-size: var(--fs-xl); font-weight: var(--fw-bold); line-height: var(--lh-tight);
+  overflow-wrap: anywhere; }
+.u-hom { font-size: var(--fs-xs); color: var(--c-text-muted); }
+.u-pos { font-size: var(--fs-sm); font-style: italic; color: var(--c-text-muted); }
+.u-prons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2xs) var(--space-md); font-size: var(--fs-sm); }
+.u-pron { display: inline-flex; align-items: center; gap: var(--space-2xs); }
+.u-region { font-size: var(--fs-2xs); color: var(--c-text-muted); letter-spacing: var(--tracking-caps); }
+.u-ipa { font-family: var(--u-font-ipa); }
+.u-note { font-size: var(--fs-xs); font-style: italic; color: var(--c-text-muted); }
+.u-play { display: inline-flex; align-items: center; justify-content: center; width: var(--u-play-size); height: var(--u-play-size);
+  padding: 0; font-size: var(--fs-2xs); color: var(--c-accent); background: var(--c-accent-soft);
+  border: 0; border-radius: var(--radius-pill); cursor: pointer; }
+.u-play:hover { color: var(--c-on-accent); background: var(--c-accent); }
+.u-forms, .u-stub, .u-missing { margin: 0; font-size: var(--fs-sm); color: var(--c-text-muted); }
+.u-stub, .u-missing { font-style: italic; }
+
+.u-group { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); }
+.u-group__title { margin: var(--space-xs) 0 0; font-size: var(--fs-2xs); font-weight: var(--fw-semibold);
+  color: var(--c-text-muted); text-transform: uppercase; letter-spacing: var(--tracking-caps); }
+.u-senses { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); margin: 0; padding: 0; list-style: none; }
+.u-sense { display: grid; grid-template-columns: var(--u-num-width) minmax(0, 1fr); gap: var(--space-xs); }
+.u-sense:not(:has(> .u-num)) { grid-template-columns: minmax(0, 1fr); }
+.u-num { font-weight: var(--fw-semibold); color: var(--c-accent); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.u-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); min-width: 0; }
+.u-phrase { font-weight: var(--fw-bold); overflow-wrap: anywhere; }
+.u-labels { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+.u-label { padding: 0 var(--space-xs); font-size: var(--fs-2xs); line-height: var(--lh-base); color: var(--c-text-muted);
+  background: var(--c-surface-sunken); border-radius: var(--radius-sm); }
+.u-def { margin: 0; overflow-wrap: anywhere; }
+.u-def-zh { margin: 0; color: var(--c-text-muted); }
+.u-examples { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); margin: 0;
+  padding-inline-start: var(--space-md); list-style: none; border-inline-start: var(--ring) solid var(--c-border); }
+.u-example { display: grid; grid-template-columns: minmax(0, 1fr); font-size: var(--fs-sm); }
+.u-ex { font-style: italic; overflow-wrap: anywhere; }
+.u-example--collocation .u-ex { font-style: normal; font-weight: var(--fw-medium); }
+.u-ex-zh { color: var(--c-text-muted); }
+.u-cite { font-size: var(--fs-xs); font-style: normal; color: var(--c-text-muted); }
+.u-etym { margin: var(--space-xs) 0 0; font-size: var(--fs-sm); color: var(--c-text-muted); overflow-wrap: anywhere; }
+.u-etym__label { margin-inline-end: var(--space-xs); font-weight: var(--fw-semibold); color: var(--c-text); }
+.u-more { justify-self: start; }
+
+/* ---- Chinese-to-English and definition results ---------------------------------------- */
+.hit { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); }
+.hit__word { font-family: var(--font-serif); font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.hit__meta { font-size: var(--fs-xs); color: var(--c-text-muted); }
