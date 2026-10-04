@@ -22,12 +22,14 @@ export const compact = (text) => text.replace(NON_WORD, "");
 export function buildIndex(records, fold) {
   return records.map((r) => {
     const name = fold(r.n);
-    const extra = fold([...r.a, ...r.b].join(" "));
+    // Aliases and brands stay separate values: compacting them joined would let
+    // a query match across two of them ("rbs短语动" in "phrasal verbs" + "短语动词").
+    const extra = [...r.a, ...r.b].map(fold);
     return {
       name,
       nameC: compact(name),
       extra,
-      extraC: compact(extra),
+      extraC: extra.map(compact),
       path: fold(r.loc.map((l) => l.p).join(" ")),
     };
   });
@@ -40,7 +42,7 @@ function termScore(e, term, termC) {
   if (at > 0 && BOUNDARY.test(e.name[at - 1])) return 30;
   if (at >= 0) return 20;
   if (termC && e.nameC.includes(termC)) return 15;
-  if (e.extra.includes(term) || (termC && e.extraC.includes(termC))) return 10;
+  if (e.extra.some((v) => v.includes(term)) || (termC && e.extraC.some((v) => v.includes(termC)))) return 10;
   if (e.path.includes(term)) return 3;
   return 0;
 }

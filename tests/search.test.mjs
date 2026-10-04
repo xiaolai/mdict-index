@@ -46,3 +46,12 @@ test("aliases and folder paths are searchable", () => {
 test("case and full-width characters are folded", () => {
   assert.deepEqual(names("ＬＤＯＣＥ"), ["Longman DOCE5"]);
 });
+
+test("the compact form never joins two aliases into one match", () => {
+  const recs = [rec("Frob", ["phrasal verbs", "短语动词"], ["Grelt Press"])];
+  const idx = buildIndex(recs, fold);
+  assert.deepEqual(search(idx, "rbs短语动", fold), []); // tail of one alias + head of the next
+  assert.deepEqual(search(idx, "词grelt", fold), []); // alias + brand
+  assert.equal(search(idx, "phrasalverbs", fold).length, 1); // within one alias, spacing still ignored
+  assert.equal(search(idx, "greltpress", fold).length, 1);
+});
