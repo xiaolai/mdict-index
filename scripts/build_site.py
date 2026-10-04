@@ -24,8 +24,9 @@ import json
 import os
 import re
 import sys
+import tempfile
 import unicodedata
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -34,8 +35,17 @@ from families import aliases_of, brands_of
 from recommended import resolve_recommended
 
 ROOT = Path(__file__).resolve().parent.parent
-# An archive or one volume of a split archive; `base` is the name shared by all volumes.
-ARCHIVE_RE = re.compile(r"(?P<base>.+?)(\.part\d+\.rar|\.rar|\.r\d\d|\.zip|\.z\d\d|\.(7z|zip)\.\d{3}|\.7z)", re.I)
+# An archive or one volume of a split archive; `base` is the name shared by all
+# volumes. The group that matched names the volume scheme: "X.rar" and "X.zip"
+# are two archives, as are "X.zip" and the split set "X.zip.001", "X.zip.002".
+ARCHIVE_RE = re.compile(
+    r"(?P<base>.+?)(?:(?P<partrar>\.part\d+\.rar)|(?P<rar>\.rar|\.r\d\d)|(?P<zip>\.zip|\.z\d\d)"
+    r"|(?P<split7z>\.7z\.\d{3})|(?P<splitzip>\.zip\.\d{3})|(?P<sevenz>\.7z))",
+    re.I,
+)
+# A numbered volume of a resource pack: "X.1.mdd". Only .mdd files have volumes;
+# "X.1.mdx" is a dictionary named "X.1".
+MDD_VOLUME_RE = re.compile(r"(?P<stem>.+?)(?:\.(?P<vol>\d+))?\.mdd", re.I)
 # The volume a user opens to extract: .zip of a split zip, .part1.rar, .001.
 ARCHIVE_ENTRY_RE = re.compile(r"(\.zip|\.part0*1\.rar|\.001|\.7z|\.rar)$", re.I)
 ASSET_EXT = (".css", ".js", ".ttf", ".otf", ".woff", ".woff2")
@@ -43,6 +53,8 @@ ASSET_EXT = (".css", ".js", ".ttf", ".otf", ".woff", ".woff2")
 SKIP_PREFIXES = ("Language_Learning_Videos/",)
 MAX_SHRINK = 0.2  # refuse to publish if the record count drops more than this
 MAX_CHANGES = 60  # change-log entries kept in meta.json
+_UMASK = os.umask(0o022)
+os.umask(_UMASK)  # read the process umask (os.umask is the only way)
 
 
 @dataclass
@@ -70,7 +82,17 @@ def iso_date(listing_date: str) -> str:
 def strip_ext(name: str) -> str:
     if m := ARCHIVE_RE.fullmatch(name):
         return m["base"]
-    return re.sub(r"(\.\d+)?\.(mdx|mdd)$", "", name, flags=re.I)
+    if m := MDD_VOLUME_RE.fullmatch(name):
+        return m["stem"]
+    return re.sub(r"\.mdx$", "", name, flags=re.I)
+
+
+def mdd_volume(name: str) -> int | None:
+    """Volume number of an .mdd file; None for the unnumbered main volume."""
+    m = MDD_VOLUME_RE.fullmatch(name)
+    if m is None:
+        raise ValueError(f"not an .mdd file: {name!r}")
+    return int(m["vol"]) if m["vol"] else None
 
 
 def group_folder(folder: str, files: list[dict]) -> list[Record]:
@@ -102,13 +124,17 @@ def group_folder(folder: str, files: list[dict]) -> list[Record]:
         if f["name"].lower().endswith(".mdd") and f["name"] not in claimed:
             orphans[strip_ext(f["name"].lower())].append(f)
     for group in orphans.values():
+        # The main volume identifies the pack (its size is in the record id), so
+        # it must not change when numbered volumes come and go.
+        # The unnumbered volume first ("X.0.mdd" is numbered), then by number.
+        group.sort(key=lambda f: (mdd_volume(f["name"]) is not None, mdd_volume(f["name"]) or 0, f["name"]))
         records.append(_record("mdd", folder, group[0], group))
         claimed.update(f["name"] for f in group)
 
-    archives: dict[str, list[dict]] = defaultdict(list)
+    archives: dict[tuple[str, str], list[dict]] = defaultdict(list)
     for f in files:
         if m := ARCHIVE_RE.fullmatch(f["name"]):
-            archives[m["base"].lower()].append(f)
+            archives[(m["base"].lower(), m.lastgroup)].append(f)
     for volumes in archives.values():
         entry = min(volumes, key=lambda f: (not ARCHIVE_ENTRY_RE.search(f["name"]), f["name"]))
         records.append(_record("archive", folder, entry, [entry] + [v for v in volumes if v is not entry]))
@@ -138,15 +164,54 @@ def _record(kind: str, folder: str, main: dict, own: list[dict]) -> Record:
         locations=[{
             "folder": folder,
             "files": [[f["name"], f["size"]] for f in own],
+            "main_name": main["name"],
             "main_size": main["size"],
         }],
     )
 
 
 def record_id(r: Record) -> str:
-    """Stable identity: the same file content (name + main-file size) anywhere on the site."""
+    """Stable identity: the same main file (name, format, size) anywhere on the site.
+
+    The main file's suffix after the record name names its format and volume
+    scheme: "X.rar" and "X.zip", or "X.rar" and "X.part1.rar", of equal size
+    are different records. The plain ".mdx" and ".mdd" suffixes are left out of
+    the key, so those ids are the ones published before the suffix was added.
+    An id still changes whenever these rules do; `previous_records` carries a
+    record's history across such a change.
+    """
+    main = r.locations[0]["main_name"]
+    suffix = main[len(strip_ext(main)):].lower()
     key = f"{r.kind}|{unicodedata.normalize('NFKC', r.name).lower()}|{r.locations[0]['main_size']}"
+    if suffix not in (".mdx", ".mdd"):
+        key += f"|{suffix}"
     return hashlib.sha1(key.encode()).hexdigest()[:12]
+
+
+def previous_records(records: dict[str, Record], prev: dict[str, dict]) -> dict[str, list[str]]:
+    """The previous build's records that each record continues, by id.
+
+    A record continues the previous record with its id, or else every previous
+    record that listed one of its main files (same folder, name and size).
+    The file match does not depend on how ids, names or groupings are
+    computed, so a change to those rules (a renamed record, a split, a merge,
+    another lead volume) neither resets first_seen nor logs files as added
+    and removed. A record whose main files are all new is new.
+    """
+    published: dict[tuple[str, str, int], set[str]] = defaultdict(set)
+    for pid, d in prev.items():
+        for loc in d["loc"]:
+            for name, size in loc["f"]:
+                published[(loc["p"], name, size)].add(pid)
+    out = {}
+    for rid, r in records.items():
+        if rid in prev:
+            out[rid] = [rid]
+        elif found := set().union(*(
+            published.get((loc["folder"], loc["main_name"], loc["main_size"]), set()) for loc in r.locations
+        )):
+            out[rid] = sorted(found)
+    return out
 
 
 def build_records(index_rows: list[dict]) -> dict[str, Record]:
@@ -175,9 +240,15 @@ def build_records(index_rows: list[dict]) -> dict[str, Record]:
 def _settle_copies(r: Record) -> None:
     """Copies share the main file but not always its companions (one copy may
     lack the .mdd). Lead with the most complete copy, since the Download
-    button and size come from it, and flag resources if any copy has them."""
-    total = lambda loc: sum(size for _, size in loc["files"])
-    r.locations.sort(key=lambda loc: (-total(loc), loc["folder"]))
+    button and size come from it, and flag resources if any copy has them.
+    Completeness is resources first, then bytes: a large stylesheet must not
+    outrank the .mdd."""
+    def total(loc):
+        return sum(size for _, size in loc["files"])
+
+    def has_mdd(loc):
+        return any(name.lower().endswith(".mdd") for name, _ in loc["files"])
+    r.locations.sort(key=lambda loc: (not has_mdd(loc), -total(loc), loc["folder"]))
     r.size = total(r.locations[0])
     r.has_resources = r.kind != "archive" and any(
         name.lower().endswith(".mdd") for loc in r.locations for name, _ in loc["files"]
@@ -225,10 +296,13 @@ def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str, recommend
         )
 
     tracking_since = prev_meta.get("tracking_since", today)
+    continued = previous_records(records, prev)
     dicts = []
     for rid, r in records.items():
-        if rid in prev:
-            first_seen = prev[rid].get("fs")
+        if rid in continued:
+            # The earliest sighting; a record of the baseline build has none.
+            seen = [prev[pid].get("fs") for pid in continued[rid]]
+            first_seen = None if None in seen else min(seen)
         else:
             first_seen = today if prev else None  # the first build is the baseline
         dicts.append(to_json(rid, r, fold, first_seen))
@@ -236,8 +310,9 @@ def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str, recommend
 
     changes = list(prev_meta.get("changes", []))
     if prev:
-        added = sorted(d["n"] for d in dicts if d["id"] not in prev)
-        removed = sorted(d["n"] for rid, d in prev.items() if rid not in records)
+        still_here = {pid for pids in continued.values() for pid in pids}
+        added = sorted(d["n"] for d in dicts if d["id"] not in continued)
+        removed = sorted(d["n"] for rid, d in prev.items() if rid not in still_here)
         if added or removed:
             changes.insert(0, {"date": today, "added": added, "removed": removed})
     meta = {
@@ -245,8 +320,8 @@ def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str, recommend
         "tracking_since": tracking_since,
         "source": "https://downloads.freemdict.com/",
         "total": len(dicts),
-        "by_lang": _count(d["l"] for d in dicts),
-        "by_kind": _count(d["k"] for d in dicts),
+        "by_lang": dict(sorted(Counter(d["l"] for d in dicts).items())),
+        "by_kind": dict(sorted(Counter(d["k"] for d in dicts).items())),
         "changes": changes[:MAX_CHANGES],
     }
 
@@ -265,17 +340,17 @@ def build(index_path: Path, out_dir: Path, t2s_path: Path, today: str, recommend
     return meta
 
 
-def _count(values) -> dict[str, int]:
-    out: dict[str, int] = defaultdict(int)
-    for v in values:
-        out[v] += 1
-    return dict(sorted(out.items()))
-
-
 def _write_atomic(path: Path, text: str) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(text)
-    os.replace(tmp, path)
+    # A private temporary file: two builds writing at once must not share one.
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as out:
+            out.write(text)
+        os.chmod(tmp, 0o666 & ~_UMASK)  # mkstemp creates 0600; the site is published as-is
+        os.replace(tmp, path)
+    except BaseException:
+        os.unlink(tmp)
+        raise
 
 
 def main() -> None:

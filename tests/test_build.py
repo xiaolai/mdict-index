@@ -1,14 +1,15 @@
 """Behavioural tests for the site build: grouping, dedupe, tracking, guards."""
+import hashlib
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
 # Run with scripts/ importable: PYTHONPATH=scripts python3 -m unittest discover -s tests
-from build_site import build, build_records, group_folder
-from recommended import resolve_recommended
+from build_site import build, build_records, group_folder, record_id
 from classify import classify
 from families import aliases_of, brands_of
+from recommended import resolve_recommended
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -57,6 +58,32 @@ class GroupFolder(unittest.TestCase):
             files = [n for n, _ in rec.locations[0]["files"]]
             self.assertEqual((rec.name, files[0], len(files), rec.size), (vols[0].split(".")[0], entry, len(vols), 10 * len(vols)))
 
+    def test_numbered_mdx_names_keep_their_number(self):
+        # "X.1.mdx" and "X.2.mdx" are two dictionaries, not volumes of one.
+        recs = build_records([row("a/Wordlist.1.mdx", 7), row("a/Wordlist.2.mdx", 7)])
+        self.assertEqual(sorted(r.name for r in recs.values()), ["Wordlist.1", "Wordlist.2"])
+
+    def test_resource_pack_is_led_by_its_unnumbered_volume(self):
+        # Adding numbered volumes must not change which file identifies the pack.
+        (alone,) = group_folder("x", [f("Pack.mdd", 50)])
+        (pack,) = group_folder("x", [f("Pack.1.mdd", 10), f("Pack.mdd", 50), f("Pack.2.mdd", 20)])
+        self.assertEqual([n for n, _ in pack.locations[0]["files"]], ["Pack.mdd", "Pack.1.mdd", "Pack.2.mdd"])
+        self.assertEqual(pack.locations[0]["main_size"], alone.locations[0]["main_size"])
+        # Without an unnumbered volume, the lowest number leads (numerically: 2 before 10).
+        (pack,) = group_folder("x", [f("Pack.10.mdd"), f("Pack.2.mdd")])
+        self.assertEqual(pack.locations[0]["files"][0][0], "Pack.2.mdd")
+        # A volume numbered 0 is still a numbered volume, and sorts after the unnumbered one.
+        (pack,) = group_folder("x", [f("Pack.0.mdd", 10), f("Pack.mdd", 50)])
+        self.assertEqual(pack.locations[0]["files"][0][0], "Pack.mdd")
+        self.assertEqual(record_id(pack), record_id(alone))
+
+    def test_same_named_archives_of_different_formats_stay_separate(self):
+        recs = group_folder("x", [f("Tales.rar", 10), f("Tales.zip", 20)])
+        self.assertEqual(sorted((r.name, r.size) for r in recs), [("Tales", 10), ("Tales", 20)])
+        # A split archive is still one record, and a standalone .zip beside a .zip.NNN set is not part of it.
+        recs = group_folder("x", [f("S.zip.001"), f("S.zip.002"), f("S.zip", 5)])
+        self.assertEqual(sorted(len(r.locations[0]["files"]) for r in recs), [1, 2])
+
 
 class BuildRecords(unittest.TestCase):
     def test_identical_copies_merge_into_one_record_with_two_locations(self):
@@ -71,6 +98,32 @@ class BuildRecords(unittest.TestCase):
         self.assertEqual([loc["folder"] for loc in rec.locations], ["b", "a"])
         self.assertTrue(rec.has_resources)
         self.assertEqual(rec.size, 907)
+
+    def test_copy_with_resources_leads_even_when_another_copy_is_larger(self):
+        # Copy "a" is larger only because of a big stylesheet; "b" has the .mdd.
+        recs = build_records([row("a/X.mdx", 7), row("a/X.css", 5000), row("b/X.mdx", 7), row("b/X.mdd", 900)])
+        (rec,) = recs.values()
+        self.assertEqual([loc["folder"] for loc in rec.locations], ["b", "a"])
+        self.assertEqual(rec.size, 907)
+
+    def test_equal_sized_main_files_of_different_formats_stay_separate(self):
+        # The id holds the main file's format and volume scheme, not only name and size.
+        for a, b in [("Tales.rar", "Tales.zip"), ("Tales.rar", "Tales.part1.rar"),
+                     ("Tales.7z", "Tales.7z.001"), ("Pack.mdd", "Pack.1.mdd")]:
+            recs = build_records([row(f"a/{a}", 10), row(f"b/{b}", 10)])
+            self.assertEqual(len(recs), 2, (a, b))
+        # Copies in the same format still merge.
+        self.assertEqual(len(build_records([row("a/Tales.zip", 10), row("b/Tales.zip", 10)])), 1)
+
+    def test_plain_dictionary_ids_do_not_depend_on_the_format_suffix(self):
+        # Ids are published: only the formats that used to collide gained a suffix.
+        def plain(key):
+            return hashlib.sha1(key.encode()).hexdigest()[:12]
+        for name, key in [("X.mdx", "mdx|x|100"), ("X.mdd", "mdd|x|100")]:
+            (r,) = group_folder("x", [f(name)])
+            self.assertEqual(record_id(r), plain(key), name)
+        (r,) = group_folder("x", [f("X.rar")])
+        self.assertEqual(record_id(r), plain("archive|x|100|.rar"))
 
     def test_same_name_different_size_stays_separate(self):
         self.assertEqual(len(build_records([row("a/X.mdx", 7), row("b/X.mdx", 8)])), 2)
@@ -113,12 +166,63 @@ class Tracking(unittest.TestCase):
         _, dicts = self.run_build(base + ["d/New.mdx"], "2026-01-15")
         self.assertEqual({d["n"]: d.get("fs") for d in dicts}["New"], "2026-01-08")
 
+    def publish_as(self, records):
+        """Overwrite the previous build's dicts.json, as an older id scheme might have written it."""
+        (self.out / "dicts.json").write_text(json.dumps([
+            {"id": rid, "k": k, "n": n, "l": "unknown", "b": [], "a": [], "s": 1, "d": "2024-01-01",
+             "loc": [{"p": "d", "f": files}], **({"fs": fs} if fs else {})}
+            for rid, k, n, files, fs in records
+        ]))
+
+    def test_records_reidentified_by_a_rule_change_keep_their_history(self):
+        # The previous build ran older rules: other ids, other names, other groupings.
+        # A record whose main file was published before is not new, whatever it was called.
+        base = [f"d/D{i}.mdx" for i in range(10)]
+        self.run_build(base, "2026-01-01")
+        old = json.loads((self.out / "dicts.json").read_text())
+        self.publish_as(
+            [(d["id"], d["k"], d["n"], d["loc"][0]["f"], None) for d in old]
+            + [
+                ("old-ud7", "mdx", "UD7", [["UD7.1.mdx", 100]], "2025-11-01"),  # was named without its number
+                ("old-tales", "archive", "Tales", [["Tales.rar", 100], ["Tales.zip", 100]], "2025-12-01"),  # was merged
+                ("old-pack", "mdd", "Pack", [["Pack.1.mdd", 100], ["Pack.mdd", 100]], None),  # was led by Pack.1.mdd
+            ]
+        )
+        meta, dicts = self.run_build(
+            base + ["d/UD7.1.mdx", "d/Tales.rar", "d/Tales.zip", "d/Pack.mdd", "d/Pack.1.mdd", "d/New.mdx"], "2026-01-08"
+        )
+        seen = {(d["k"], d["n"]): d.get("fs") for d in dicts}
+        self.assertEqual(seen[("mdx", "UD7.1")], "2025-11-01")
+        self.assertEqual([d.get("fs") for d in dicts if d["k"] == "archive"], ["2025-12-01", "2025-12-01"])
+        self.assertIsNone(seen[("mdd", "Pack")])  # part of the baseline
+        self.assertIsNone(seen[("mdx", "D0")])
+        self.assertEqual(seen[("mdx", "New")], "2026-01-08")
+        self.assertEqual(meta["changes"][0], {"date": "2026-01-08", "added": ["New"], "removed": []})
+
+    def test_a_record_none_of_whose_main_files_survives_is_removed(self):
+        self.run_build([f"d/D{i}.mdx" for i in range(10)], "2026-01-01")
+        old = json.loads((self.out / "dicts.json").read_text())
+        self.publish_as([(d["id"], d["k"], d["n"], d["loc"][0]["f"], None) for d in old]
+                        + [("old-gone", "mdx", "Gone", [["Gone.mdx", 100], ["D0.css", 100]], None)])
+        meta, _ = self.run_build([f"d/D{i}.mdx" for i in range(10)] + ["d/D0.css"], "2026-01-08")
+        self.assertEqual(meta["changes"][0], {"date": "2026-01-08", "added": [], "removed": ["Gone"]})
+
     def test_large_shrink_is_refused_and_previous_output_kept(self):
         self.run_build([f"d/D{i}.mdx" for i in range(10)], "2026-01-01")
         before = (self.out / "dicts.json").read_text()
         with self.assertRaises(SystemExit):
             self.run_build(["d/D0.mdx"], "2026-01-08")
         self.assertEqual((self.out / "dicts.json").read_text(), before)
+
+    def test_outputs_are_written_through_private_temporary_files(self):
+        # A file at a fixed temporary name (another build's) must be left alone.
+        self.out.mkdir()
+        other = self.out / "dicts.json.tmp"
+        other.write_text("another build")
+        self.run_build([f"d/D{i}.mdx" for i in range(3)], "2026-01-01")
+        self.assertEqual(other.read_text(), "another build")
+        self.assertEqual(sorted(p.name for p in self.out.iterdir()), ["dicts.json", "dicts.json.tmp", "meta.json"])
+        self.assertEqual((self.out / "dicts.json").stat().st_mode & 0o044, 0o044)  # readable when published
 
     def test_empty_index_is_refused(self):
         self.index.write_text("")
