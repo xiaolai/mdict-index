@@ -22,6 +22,13 @@ from copyrighted dictionaries and is never committed.
 | Pronunciation by part of speech; stress in word families | `inventory/ipa.py`, `inventory/pronunciation.py` | done |
 | Commonly misspelled words; commonly confused words | `inventory/confusables.py` | done |
 
+```sh
+.venv/bin/python inventories/build.py                  # every inventory, in order; --from STEP / --only STEP
+.venv/bin/python inventories/build.py --without-jev    # where jev is not installed
+```
+
+`inventories/build.py` runs the steps in dependency order and stops at the first failure
+(`tests/test_build.py` checks the order against the files each module reads).
 Build order: `inflections.py` first (the others use its lemmas and forms), then
 `evidence.py` (the example index phrases and collocations read ambiguous notation with) and
 `usage.py` (its grammar patterns correct some phrase kinds), then any of `phrases.py`,
