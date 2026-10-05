@@ -60,16 +60,6 @@ class Plan(unittest.TestCase):
         self.assertNotIn("--without-jev", build.command("phrases", without_jev=True))
         self.assertNotIn("--without-jev", build.command("sameword"))
 
-    def test_missing_jev_stops_the_build_before_its_first_step(self):
-        # Found at the start, not after the eight steps before sameword have run for a quarter hour.
-        absent, present = (lambda name: None), (lambda name: "/usr/local/bin/jev")
-        why = build.missing_jev(build.plan(), without_jev=False, which=absent)
-        self.assertIn("--without-jev", why)
-        self.assertIn("Nothing has been built", why)
-        self.assertIsNone(build.missing_jev(build.plan(), without_jev=True, which=absent))
-        self.assertIsNone(build.missing_jev(build.plan(), without_jev=False, which=present))
-        self.assertIsNone(build.missing_jev(build.plan(only="levels"), without_jev=False, which=absent))
-
 
 if __name__ == "__main__":
     unittest.main()

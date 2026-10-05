@@ -78,7 +78,7 @@ python3 scripts/doctor.py                     # what is missing, and how to fix 
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python scripts/doctor.py            # again, with the project's Python: should say "ready"
 PYTHONPATH=scripts .venv/bin/python scripts/build_corpus.py   # download and build the unified dictionary
-.venv/bin/python inventories/build.py         # the lexical inventories (add --without-jev if jev is missing)
+.venv/bin/python inventories/build.py         # the lexical inventories
 .venv/bin/python parallel_corpus/build.py     # the parallel corpus
 .venv/bin/python analyzer/build.py            # the text analyzer's lexicon
 PYTHONPATH=scripts .venv/bin/python scripts/serve_unified.py  # http://127.0.0.1:8766/ and /analyze
@@ -87,18 +87,19 @@ PYTHONPATH=scripts .venv/bin/python scripts/serve_unified.py  # http://127.0.0.1
 ### No jev? You can still build everything
 
 `jev` is a command-line client for TypeSafe's calibrated-judgment model, and most people
-do not have it. You do not need it: every step builds without it, and `doctor.py` says
-whether it is installed. Two steps ask it a question; without it, this is what changes:
+do not have it. You do not need it: every step builds without it, with no extra flag, and
+`doctor.py` says whether it is installed. Two steps use its answers, which are committed:
 
-| Step | Asks jev | Without jev |
+| Step | Uses jev's answers to | Without jev |
 |---|---|---|
 | Unified dictionary | no | the same |
-| Inventories | whether a word whose stress moves with its part of speech ("REcord" the noun, "reCORD" the verb) is one word or two | run `inventories/build.py --without-jev`: those 767 contrasts are tagged "uncertain"; every other inventory is the same. Forget the flag and the build stops before doing anything, saying so |
+| Inventories | whether a word whose stress moves with its part of speech ("REcord" the noun, "reCORD" the verb) is one word or two | nothing to do: the answers are committed in `inventories/sameword_answers.json` (the mean of three of jev's answers per word, so every build agrees) and reused when your dictionaries give the same definitions. Any word they do not cover is tagged "uncertain", and the build says how many |
 | Parallel corpus | how accurate each dictionary's example pairs are | nothing to do: the answers are committed in `parallel_corpus/verdicts.json` and reused when your download of a dictionary matches the one they were measured on. If freemdict has since replaced a file, that dictionary is left out, and the build names it |
 | Analyzer | no | the same |
 
-So without jev you lose one label on a few hundred stress contrasts, and possibly a
-dictionary or two of example sentences if freemdict changes its files.
+So without jev you lose nothing while your downloads match the ones the committed answers
+were measured on. If freemdict replaces a file, you lose the stress labels of the words it
+changes, and that dictionary's example sentences.
 
 ## Unified dictionary database (local only)
 

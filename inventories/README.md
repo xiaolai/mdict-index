@@ -24,7 +24,7 @@ from copyrighted dictionaries and is never committed.
 
 ```sh
 .venv/bin/python inventories/build.py                  # every inventory, in order; --from STEP / --only STEP
-.venv/bin/python inventories/build.py --without-jev    # where jev is not installed
+.venv/bin/python inventories/build.py --without-jev    # never ask jev, even if it is installed
 ```
 
 `inventories/build.py` runs the steps in dependency order and stops at the first failure
@@ -33,9 +33,10 @@ Build order: `inflections.py` first (the others use its lemmas and forms), then
 `evidence.py` (the example index phrases and collocations read ambiguous notation with) and
 `usage.py` (its grammar patterns correct some phrase kinds), then any of `phrases.py`,
 `collocations.py`, `levels.py`, `families.py`; `pronunciation.py` after `families.py`, then
-`sameword.py` (it asks Jev, caching the answers in `data/sameword_cache.json`; with
-`--without-jev` it asks nothing, tags the unanswered contrasts "uncertain", and records that in
-`pronunciations.db`'s `build_info`, which `check.py` prints), and
+`sameword.py` (it takes jev's answers from the committed `sameword_answers.json` and asks jev
+only about contrasts that file lacks, caching those answers in `data/sameword_cache.json`;
+without jev, or with `--without-jev`, those contrasts are tagged "uncertain", and
+`pronunciations.db`'s `build_info`, which `check.py` prints, records how many), and
 `confusables.py` (it needs `levels.db` and `pronunciations.db`). Last, `check.py` runs the
 invariants every inventory must hold (no empty fields, no dangling references, shares in
 range, known values on every axis, a stress row agreeing with its counts...) and exits 1 on
@@ -414,13 +415,20 @@ Each contrast is tagged (`inventory/sameword.py`, after `pronunciation.py`): one
 parts of speech, or two words that share a spelling (Latin *rite* adv., English *rite* n.).
 The definitions of the two parts of speech go to a calibrated model as two questions (one
 word with related meanings? unrelated words?); `p_same` and `p_unrelated` are kept, and
-`word_relation` reads them with thresholds set on 78 hand-labelled contrasts:
+`word_relation` reads them with thresholds set on 78 hand-labelled contrasts.
+
+jev's answers vary from one asking to the next (by up to 0.25: two fresh builds tagged 26 of
+767 contrasts differently), so the answers every build uses are committed in
+`sameword_answers.json`: for each contrast, the mean of three answers to each question, keyed by
+the SHA-256 of the definitions jev was shown. The file holds hashes and numbers only, no word or
+definition; a contrast whose definitions change (a new download, a parser change) no longer
+matches its hash and is asked afresh. `sameword.py --export-answers` rewrites the file.
 
 | word_relation | Rule | Rows | Right, 40 fresh hand-labelled contrasts |
 |---|---|---|---|
-| same word | p_same ≥ 0.8, p_unrelated < 0.15 | 526 | 21 of 22 |
-| likely different words | p_unrelated ≥ 0.15, p_same < 0.8 | 133 | 7 of 10 |
-| uncertain | the rest; or no definitions for both | 108 | (5 different, 3 the same) |
+| same word | p_same ≥ 0.8, p_unrelated < 0.15 | 525 | 21 of 22 |
+| likely different words | p_unrelated ≥ 0.15, p_same < 0.8 | 130 | 7 of 10 |
+| uncertain | the rest; or no definitions for both | 112 | (5 different, 3 the same) |
 
 Two signals were tried and dropped: definitions sharing words (AUC 0.66), and whether
 the two pronunciations stand in one etymological entry of ODE or the OED (it votes the wrong

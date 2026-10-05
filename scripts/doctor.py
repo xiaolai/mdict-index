@@ -3,8 +3,9 @@
     python3 scripts/doctor.py          (or .venv/bin/python, once the virtual environment exists)
 
 Required: a recent Python, the pinned packages, FTS5 in Python's sqlite3, curl, and disk for
-the downloads and everything built from them. Optional: jev, which two steps ask; without it
-the inventories build with --without-jev and the parallel corpus takes the shared verdicts.
+the downloads and everything built from them. Optional: jev, whose answers two steps use;
+they are committed (inventories/sameword_answers.json, parallel_corpus/verdicts.json), so
+without it both steps build the same unless a download has changed.
 Also says what is already built.
 """
 from __future__ import annotations
@@ -102,8 +103,9 @@ def disk(free_gb: float, used: float) -> Check:
 def jev(which=shutil.which) -> Check:
     found = which("jev")
     detail = (found if found else
-              "not installed: build the inventories with --without-jev (stress contrasts tagged 'uncertain'); "
-              "the parallel corpus uses the shared verdicts, and leaves out any dictionary whose pairs differ")
+              "not installed, and not needed: the inventories and the parallel corpus use its committed answers; "
+              "a word or dictionary those do not cover (a download freemdict has since changed) is tagged "
+              "'uncertain' or left out, and the build says so")
     return Check("jev", found is not None, detail, required=False)
 
 

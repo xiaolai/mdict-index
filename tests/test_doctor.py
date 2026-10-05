@@ -60,8 +60,8 @@ class Checks(unittest.TestCase):
         check = doctor.jev(lambda _: None)
         self.assertFalse(check.ok)
         self.assertFalse(check.required)
-        self.assertIn("--without-jev", check.detail)
-        self.assertIn("shared verdicts", check.detail)
+        self.assertIn("not needed", check.detail)
+        self.assertIn("committed answers", check.detail)
 
 
 if __name__ == "__main__":
