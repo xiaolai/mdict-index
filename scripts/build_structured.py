@@ -11,6 +11,11 @@ entry of its dictionary, in parallel, and writes into the unified database:
   s_example  examples / collocations / quotations per sense
   zh_term    Chinese gloss terms -> sense, the Chinese-to-English index
   zh_fts     the distinct terms in a trigram index: "contains" queries without scanning zh_term
+  entry_key  a name for every entry that a rebuild keeps: "oald:2:run" (dictionary, which occurrence of
+             the headword in the dictionary's file, headword); ids are renumbered by every build
+  sense_key  (view) a sense's name: its entry's key and its position, "oald:2:run:3"
+  dictionary_version  per dictionary, two hashes that change exactly when its keys may: `records`
+             (headwords and bodies in file order) and `senses` (every sense's key, phrase, definition)
   sense_fts  full-text index over English definitions ("words meaning ...")
 
 The build fails if any parser raises, produces a contract problem, or covers
@@ -104,9 +109,59 @@ def build_zh_index(conn: sqlite3.Connection) -> int:
     return conn.execute("SELECT count(*) FROM zh_fts").fetchone()[0]
 
 
+def build_keys(conn: sqlite3.Connection) -> int:
+    """entry_key and sense_key: names for entries and senses that survive a rebuild; how many entries.
+
+    Every id here is renumbered by a build (layer 1 numbers entries across all dictionaries, layer 2
+    offsets senses by the dictionaries merged before), so another program cannot hold on to one. A
+    dictionary's records keep their file order, so an entry is named by its dictionary, which
+    occurrence of its headword it is in that order, and the headword: "oald:2:run". The headword
+    comes last, so a key splits back unambiguously (split(":", 2)); a sense appends its position
+    within the entry ("oald:2:run:3"; rsplit(":", 1)). A key holds while the dictionary's file and
+    its parser are unchanged; dictionary_version says when either changed (build_versions)."""
+    conn.execute("DROP VIEW IF EXISTS sense_key")
+    conn.execute("DROP TABLE IF EXISTS entry_key")
+    conn.execute("CREATE TABLE entry_key (entry_id INTEGER PRIMARY KEY, key TEXT NOT NULL UNIQUE)")
+    total = 0
+    for dict_id, dict_key in conn.execute("SELECT id, key FROM dictionary ORDER BY id").fetchall():
+        seen: dict[str, int] = {}
+        rows = []
+        for entry_id, headword in conn.execute("SELECT id, headword FROM entry WHERE dict_id = ? ORDER BY id", (dict_id,)):
+            seen[headword] = seen.get(headword, 0) + 1
+            rows.append((entry_id, f"{dict_key}:{seen[headword]}:{headword}"))
+        conn.executemany("INSERT INTO entry_key VALUES (?,?)", rows)
+        total += len(rows)
+    conn.execute("CREATE VIEW sense_key AS SELECT s.id AS sense_id, k.key || ':' || s.ord AS key "
+                 "FROM s_sense s JOIN entry_key k ON k.entry_id = s.entry_id")
+    return total
+
+
+def build_versions(conn: sqlite3.Connection) -> int:
+    """dictionary_version: per dictionary, `records` hashes its headwords and bodies in file order
+    and `senses` every sense's key, phrase and definition, neither touching an id. A program that
+    keeps keys keeps these too: a changed `records` means entry keys may have moved, a changed
+    `senses` that sense keys may have (a parser change shows here, not in `records`)."""
+    conn.execute("DROP TABLE IF EXISTS dictionary_version")
+    conn.execute("CREATE TABLE dictionary_version (dict_id INTEGER PRIMARY KEY, records TEXT NOT NULL, senses TEXT NOT NULL)")
+    for (dict_id,) in conn.execute("SELECT id FROM dictionary ORDER BY id").fetchall():
+        records, senses = hashlib.sha256(), hashlib.sha256()
+        for headword, body in conn.execute("SELECT headword, body FROM entry WHERE dict_id = ? ORDER BY id", (dict_id,)):
+            hw = headword.encode("utf-8")
+            records.update(struct.pack("<QQ", len(hw), len(body)) + hw + body)
+        for fields in conn.execute(
+                "SELECT k.key, s.ord, s.kind, s.phrase, s.definition, s.definition_zh FROM s_sense s "
+                "JOIN entry_key k ON k.entry_id = s.entry_id WHERE s.dict_id = ? ORDER BY s.entry_id, s.ord", (dict_id,)):
+            for f in map(str, fields):
+                b = f.encode("utf-8")
+                senses.update(struct.pack("<Q", len(b)) + b)
+        conn.execute("INSERT INTO dictionary_version VALUES (?,?,?)", (dict_id, records.hexdigest(), senses.hexdigest()))
+    return conn.execute("SELECT count(*) FROM dictionary_version").fetchone()[0]
+
+
 def build_derived(conn: sqlite3.Connection) -> dict[str, int]:
-    """Everything built from layers 1 and 2 rather than parsed: the Chinese indexes."""
-    return {"zh terms": build_zh_index(conn)}
+    """Everything built from layers 1 and 2 rather than parsed: the Chinese indexes, the keys, and
+    the per-dictionary versions that say when keys may have changed."""
+    return {"zh terms": build_zh_index(conn), "entry keys": build_keys(conn), "dictionaries": build_versions(conn)}
 
 
 def rebuild_derived(db: Path, build=build_derived) -> dict[str, int]:
@@ -421,7 +476,7 @@ def main() -> None:
     ap.add_argument("--only", default="")
     ap.add_argument("--merge-only", action="store_true", help="re-merge existing shards without parsing (e.g. after an interrupted merge)")
     ap.add_argument("--derived-only", action="store_true",
-                    help="only (re)build what is derived from layers 1 and 2 (the Chinese indexes)")
+                    help="only (re)build what is derived from layers 1 and 2 (Chinese indexes, entry and sense keys)")
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
     args = ap.parse_args()
     if args.derived_only:

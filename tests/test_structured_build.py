@@ -363,3 +363,61 @@ class ZhTerms(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Keys(unittest.TestCase):
+    """Entry and sense keys hold across rebuilds that renumber every id."""
+
+    @staticmethod
+    def db(dictionaries: list[tuple[int, str, list[str]]]) -> sqlite3.Connection:
+        """A layer 1 and 2 with these dictionaries (id, key, headwords in file order), ids as given."""
+        conn = sqlite3.connect(":memory:")
+        conn.executescript(L1_SCHEMA + L2_SCHEMA + "DROP TABLE IF EXISTS s_source;")
+        conn.executescript(L1_INDEXES)
+        entry_id = sense_id = 100 * dictionaries[0][0]
+        for dict_id, key, headwords in dictionaries:
+            conn.execute("INSERT INTO dictionary VALUES (?,?,?,'','', 'native','ok','', '','','',2.0,'{}','','')",
+                         (dict_id, key, key))
+            for hw in headwords:
+                entry_id += 1
+                conn.execute("INSERT INTO entry (id, dict_id, headword, norm, body) VALUES (?,?,?,?,?)",
+                             (entry_id, dict_id, hw, norm(hw), b""))
+                for ord_ in (1, 2):
+                    sense_id += 1
+                    conn.execute("INSERT INTO s_sense VALUES (?,?,?,?,'sense','','','','[]','','')",
+                                 (sense_id, entry_id, dict_id, ord_))
+        build_structured.build_keys(conn)
+        return conn
+
+    @staticmethod
+    def keys(conn, dict_key):
+        return (sorted(k for (k,) in conn.execute("SELECT key FROM entry_key WHERE key LIKE ?", (dict_key + ":%",))),
+                sorted(k for (k,) in conn.execute("SELECT key FROM sense_key WHERE key LIKE ?", (dict_key + ":%",))))
+
+    def test_a_dictionary_keeps_its_keys_whatever_else_is_built(self):
+        alone = self.db([(1, "noad", ["run", "set", "run", "a:b"])])
+        beside = self.db([(3, "oald", ["go", "run"]), (7, "noad", ["run", "set", "run", "a:b"])])
+        self.assertEqual(self.keys(alone, "noad"), self.keys(beside, "noad"))   # every id differs between the two
+
+    def test_repeated_headwords_are_numbered_in_file_order_and_keys_split_back(self):
+        conn = self.db([(1, "noad", ["run", "set", "run", "a:b"])])
+        entries, senses = self.keys(conn, "noad")
+        self.assertEqual(entries, ["noad:1:a:b", "noad:1:run", "noad:1:set", "noad:2:run"])
+        self.assertEqual("noad:1:a:b".split(":", 2), ["noad", "1", "a:b"])          # a ':' in the headword
+        self.assertEqual("noad:1:a:b:2".rsplit(":", 1), ["noad:1:a:b", "2"])
+        self.assertIn("noad:2:run:2", senses)
+        first_run = conn.execute("SELECT entry_id FROM entry_key WHERE key = 'noad:1:run'").fetchone()[0]
+        second_run = conn.execute("SELECT entry_id FROM entry_key WHERE key = 'noad:2:run'").fetchone()[0]
+        self.assertLess(first_run, second_run)
+
+    def test_versions_ignore_ids_and_follow_content(self):
+        def versions(dictionaries, key):
+            conn = self.db(dictionaries)
+            build_structured.build_versions(conn)
+            return conn.execute("SELECT v.records, v.senses FROM dictionary_version v JOIN dictionary d ON d.id = v.dict_id "
+                                "WHERE d.key = ?", (key,)).fetchone()
+        alone = versions([(1, "noad", ["run", "set"])], "noad")
+        self.assertEqual(alone, versions([(3, "oald", ["go"]), (7, "noad", ["run", "set"])], "noad"))  # ids moved
+        changed = versions([(1, "noad", ["run", "sat"])], "noad")
+        self.assertNotEqual(alone[0], changed[0])
+        self.assertNotEqual(alone[1], changed[1])

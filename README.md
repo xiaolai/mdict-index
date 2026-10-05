@@ -128,9 +128,12 @@ Chinese-to-English lookup reads two indexes: exact terms by `zh_term`'s index, a
 containing the query from `zh_fts`, a trigram index of the distinct terms (7.6 ms a query on
 average, where scanning the two million gloss rows took 119). A database built before
 2026-10-05 lacks it; `PYTHONPATH=scripts .venv/bin/python scripts/build_structured.py
---derived-only` adds it in under a minute. The server reads through memory-mapped I/O and,
-in the background at start, reads every index a lookup needs, so the first lookups after a
-restart are warm.
+--derived-only` adds it, and the entry and sense keys `READING.md` describes, in under a
+minute. The server reads through memory-mapped I/O and, in the background at start, reads
+every index a lookup needs, so the first lookups after a restart are warm.
+
+Another program reading these databases (keys that survive rebuilds, encodings, rendering):
+[`READING.md`](READING.md).
 
 ## Parallel corpus of example sentences (local only)
 
