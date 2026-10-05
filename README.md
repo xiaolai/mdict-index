@@ -68,8 +68,10 @@ freemdict copy each build downloads, and its size: [`DICTIONARIES.md`](DICTIONAR
 ## From zero: building the local tools
 
 Everything below runs on your machine and builds data that is never committed.
-A complete build needs about 67 GB of disk and several hours, most of it
-downloading and parsing.
+A complete build needs about 78 GB of disk at its peak (67 GB once done) and, on a
+10-core Mac with the 21 GB of downloads already in place, about two and a half hours:
+the unified dictionary about 35 minutes, the inventories 20, the parallel corpus 90
+(it downloads and reads some 280 more dictionaries for their example pairs).
 
 ```sh
 python3 scripts/doctor.py                     # what is missing, and how to fix it

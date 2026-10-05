@@ -3,6 +3,7 @@
 Needs the project dependencies (requirements-dev.txt); the files are
 generated, so no copyrighted data is involved.
 """
+import contextlib
 import sqlite3
 import tempfile
 import unittest
@@ -14,7 +15,8 @@ from mdict_utils.base.writemdict import MDictWriter
 from build_resources import build as build_resources
 from build_resources import norm_key
 from serve_unified import _sound_name
-from build_unified import SCHEMA, load, temp_beside
+from build_unified import SCHEMA, Source, load, temp_beside
+from build_unified import build as build_unified
 
 
 def write(path: Path, records: dict, is_mdd: bool = False, encoding: str = "utf8") -> None:
@@ -78,6 +80,47 @@ class Layer1(unittest.TestCase):
     def test_count_mismatch_against_inspection_fails_loudly(self):
         with self.assertRaises(AssertionError):
             load(self.conn, 1, ITEM, "cat", RECORD, {"content_entries": 3, "redirects": 1, "empty": 1}, folder=self.dir)
+
+
+class Layer1Build(unittest.TestCase):
+    """The whole of layer 1: dictionaries decoded in parallel, written in plan order."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.plan = []
+        for dict_id, key, records in ((1, "a", {"take": "<b>take</b>", "took": "@@@LINK=take"}),
+                                      (2, "b", {"run": "<b>run</b>", "ran": "@@@LINK=run", "go": "<b>go</b>"})):
+            (self.root / key).mkdir()
+            write(self.root / key / f"{key}.mdx", records)
+            content = sum(not v.startswith("@@@") for v in records.values())
+            self.plan.append(Source(dict_id, {**ITEM, "key": key}, "cat", RECORD,
+                                    {"content_entries": content, "redirects": len(records) - content, "empty": 0},
+                                    self.root / key))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_entries_are_numbered_in_plan_order_whatever_the_workers(self):
+        dumps = []
+        for workers in (1, 2):
+            out = self.root / f"u{workers}.db"
+            build_unified(out, self.plan, workers)
+            with contextlib.closing(sqlite3.connect(out)) as conn:
+                dumps.append((conn.execute("SELECT id, dict_id, headword FROM entry ORDER BY id").fetchall(),
+                              conn.execute("SELECT dict_id, headword, target FROM redirect ORDER BY rowid").fetchall(),
+                              conn.execute("SELECT id, key FROM dictionary ORDER BY id").fetchall(),
+                              conn.execute("SELECT norm FROM headword ORDER BY norm").fetchall()))
+        self.assertEqual(dumps[0], dumps[1])
+        # numbered in file order (the writer sorts keys: "go" before "run"), dictionary after dictionary
+        self.assertEqual(dumps[0][0], [(1, 1, "take"), (2, 2, "go"), (3, 2, "run")])
+        self.assertEqual(dumps[0][2], [(1, "a"), (2, "b")])
+
+    def test_a_failed_dictionary_fails_the_build_and_leaves_nothing_behind(self):
+        bad = self.plan[1]._replace(expected={"content_entries": 9, "redirects": 1, "empty": 0})
+        with self.assertRaises(AssertionError):
+            build_unified(self.root / "u.db", [self.plan[0], bad], 2)
+        self.assertEqual(sorted(p.name for p in self.root.iterdir()), ["a", "b"])
 
 
 class NormPath(unittest.TestCase):
@@ -158,6 +201,20 @@ class Layer3(unittest.TestCase):
         rows = conn.execute("SELECT r.dict_id, r.norm, b.data FROM resource r JOIN blob b ON b.hash = r.hash ORDER BY 1, 2").fetchall()
         self.assertEqual(rows, [(1, "img/a.png", b"PNG-A-dup"), (1, "sound/take.mp3", b"SHARED-AUDIO"),
                                 (2, "take_uk.mp3", b"SHARED-AUDIO")])
+
+    def test_a_shared_file_counts_as_new_for_the_first_dictionary_only(self):
+        self.assertEqual((self.report["a"]["new_blobs"], self.report["b"]["new_blobs"]), (2, 0))
+
+    def test_the_same_store_whatever_the_workers(self):
+        root = Path(self.tmp.name)
+        dumps = []
+        for workers in (1, 3):
+            out = root / f"r{workers}.db"
+            report = dict(build_resources(self.db, out, corpus=root, workers=workers))
+            with contextlib.closing(sqlite3.connect(out)) as conn:
+                dumps.append((report, conn.execute("SELECT * FROM resource ORDER BY 1, 2").fetchall(),
+                              conn.execute("SELECT * FROM blob ORDER BY 1").fetchall()))
+        self.assertEqual(dumps[0], dumps[1])
 
 
 if __name__ == "__main__":

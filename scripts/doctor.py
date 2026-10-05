@@ -20,8 +20,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MIN_PYTHON = (3, 12)  # CI's Python; this repository is also developed on 3.14
 # Disk used by a complete build, measured 2026-10-05: corpus/ 56 GB (21 GB of it downloads),
-# inventories/data 1.4 GB, parallel_corpus/data 9.2 GB.
-FULL_BUILD_GB = 67
+# inventories/data 1.4 GB, parallel_corpus/data 9.2 GB: 67 GB. The most it needs at once is more,
+# while layer 3 builds: its per-dictionary shards (22 GB) sit beside the new resources.db (24 GB)
+# until the merge ends, on top of the 32 GB of corpus/ already built: 78 GB.
+FULL_BUILD_GB = 78
 BUILT_DIRS = ("corpus", "inventories/data", "parallel_corpus/data")
 
 
@@ -94,7 +96,7 @@ def disk(free_gb: float, used: float) -> Check:
     need = max(0.0, FULL_BUILD_GB - used)
     return Check("disk", free_gb >= need,
                  f"{free_gb:.0f} GB free; a full build needs about {need:.0f} GB more "
-                 f"({FULL_BUILD_GB} GB in all, {used:.0f} GB already here)")
+                 f"({FULL_BUILD_GB} GB at its peak, {used:.0f} GB already here)")
 
 
 def jev(which=shutil.which) -> Check:

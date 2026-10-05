@@ -1,6 +1,6 @@
 """Build one SQLite database holding every downloaded dictionary, losslessly.
 
-    .venv/bin/python scripts/build_unified.py [--out corpus/unified.db]
+    .venv/bin/python scripts/build_unified.py [--out corpus/unified.db] [--workers N]
 
 Layer 1 of the unified dictionary: each dictionary's original HTML, keyed
 by a shared lookup form of the headword, with redirects kept as data and
@@ -17,6 +17,11 @@ Schema
 
 After loading each dictionary, row counts are checked against
 corpus/_inspect/report.json; any mismatch fails the build.
+
+Decoding is the slow part (reading the MDX blocks, normalizing headwords, recompressing
+bodies), so each dictionary is decoded by its own worker process into a shard file; the
+main process, the only writer of the database, appends the shards in plan order, so entry
+ids come out exactly as a one-process build numbers them.
 """
 from __future__ import annotations
 
@@ -25,13 +30,16 @@ import contextlib
 import json
 import os
 import re
+import shutil
 import sqlite3
 import sys
 import tempfile
 import time
 import unicodedata
 import zlib
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parent.parent
 CORPUS = ROOT / "corpus"
@@ -171,38 +179,84 @@ def load(conn: sqlite3.Connection, dict_id: int, item: dict, category: str, reco
     return got
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--out", type=Path, default=CORPUS / "unified.db")
-    args = ap.parse_args()
-    report = json.loads((CORPUS / "_inspect" / "report.json").read_text())
-    dicts = {d["id"]: d for d in json.loads((ROOT / "site/data/dicts.json").read_text())}
-    rec = json.loads((ROOT / "site/data/recommended.json").read_text())
+class Source(NamedTuple):
+    """One dictionary to load: its id in the database, its recommendation, and the counts to check."""
+    dict_id: int
+    item: dict
+    category: str
+    record: dict
+    expected: dict
+    folder: Path
 
-    t0 = time.time()
-    tmp = temp_beside(args.out)  # unique per build: concurrent builds never share or unlink each other's file
+
+def load_shard(source: Source, shard: Path) -> tuple[dict, float]:
+    """Load one dictionary into its own new database `shard` (a worker's job); counts and seconds taken."""
+    t = time.time()
+    with contextlib.closing(sqlite3.connect(shard)) as conn:
+        conn.executescript("PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF;" + SCHEMA)
+        got = load(conn, source.dict_id, source.item, source.category, source.record, source.expected, source.folder)
+    return got, time.time() - t
+
+
+def append_shard(conn: sqlite3.Connection, shard: Path) -> None:
+    """Append a shard's rows; entries take the next ids, in the shard's file order."""
+    conn.execute("ATTACH DATABASE ? AS shard", (str(shard),))
     try:
-        with contextlib.closing(sqlite3.connect(tmp)) as conn:
+        conn.execute("INSERT INTO main.dictionary SELECT * FROM shard.dictionary")
+        conn.execute("INSERT INTO main.entry(dict_id, headword, norm, body) "
+                     "SELECT dict_id, headword, norm, body FROM shard.entry ORDER BY id")
+        conn.execute("INSERT INTO main.redirect SELECT * FROM shard.redirect ORDER BY rowid")
+        conn.commit()
+    finally:
+        conn.execute("DETACH DATABASE shard")
+
+
+def build(out: Path, plan: list[Source], workers: int) -> None:
+    """Build layer 1 at `out` from `plan`, all or nothing: a failure leaves no file behind."""
+    tmp = temp_beside(out)  # unique per build: concurrent builds never share or unlink each other's file
+    shards = Path(tempfile.mkdtemp(dir=out.parent, prefix=f".{out.name}.shards."))
+    try:
+        with contextlib.closing(sqlite3.connect(tmp)) as conn, ProcessPoolExecutor(workers) as pool:
             conn.executescript("PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF;" + SCHEMA)
-            dict_id = 0
-            for cat in rec["categories"]:
-                for item in cat["items"]:
-                    if item["id"] is None:
-                        continue
-                    dict_id += 1
-                    t = time.time()
-                    got = load(conn, dict_id, item, cat["key"], dicts[item["id"]], report[item["key"]]["mdx"][0])
-                    print(f"{item['key']:11} {got['content_entries']:>8,} entries {got['redirects']:>8,} redirects  "
-                          f"{time.time() - t:5.1f}s", file=sys.stderr)
+            # Largest first, so the longest decode starts at once; appended in plan order regardless.
+            size = {s.dict_id: sum(p.stat().st_size for p in s.folder.iterdir() if p.suffix.lower() == ".mdx") for s in plan}
+            order = sorted(plan, key=lambda s: -size[s.dict_id])
+            futures = {s.dict_id: pool.submit(load_shard, s, shards / f"{s.dict_id}.db") for s in order}
+            try:
+                for source in plan:
+                    got, seconds = futures[source.dict_id].result()
+                    append_shard(conn, shards / f"{source.dict_id}.db")
+                    (shards / f"{source.dict_id}.db").unlink()
+                    print(f"{source.item['key']:11} {got['content_entries']:>8,} entries {got['redirects']:>8,} redirects  "
+                          f"{seconds:5.1f}s", file=sys.stderr)
+            except BaseException:
+                pool.shutdown(cancel_futures=True)
+                raise
             conn.executescript(INDEXES)
             conn.execute("INSERT INTO headword_fts(headword_fts) VALUES ('rebuild')")
             conn.commit()
             conn.execute("VACUUM")
-        os.replace(tmp, args.out)
+        os.replace(tmp, out)
     finally:
         tmp.unlink(missing_ok=True)  # a failed build leaves nothing behind; after os.replace it is already gone
-    print(f"built {args.out} ({args.out.stat().st_size / 1e9:.2f} GB) in {time.time() - t0:.0f}s", file=sys.stderr)
+        shutil.rmtree(shards, ignore_errors=True)
 
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", type=Path, default=CORPUS / "unified.db")
+    ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
+    args = ap.parse_args()
+    report = json.loads((CORPUS / "_inspect" / "report.json").read_text())
+    dicts = {d["id"]: d for d in json.loads((ROOT / "site/data/dicts.json").read_text())}
+    rec = json.loads((ROOT / "site/data/recommended.json").read_text())
+    picks = [(cat["key"], item) for cat in rec["categories"] for item in cat["items"] if item["id"] is not None]
+    plan = [Source(dict_id, item, category, dicts[item["id"]], report[item["key"]]["mdx"][0], CORPUS / item["key"])
+            for dict_id, (category, item) in enumerate(picks, start=1)]
+
+    t0 = time.time()
+    build(args.out, plan, args.workers)
+    print(f"built {args.out} ({args.out.stat().st_size / 1e9:.2f} GB) in {time.time() - t0:.0f}s", file=sys.stderr)
 
 if __name__ == "__main__":
     main()

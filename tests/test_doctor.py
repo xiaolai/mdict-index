@@ -52,8 +52,8 @@ class Checks(unittest.TestCase):
         self.assertFalse(doctor.curl(lambda _: None).ok)
 
     def test_disk_counts_what_is_already_built(self):
-        self.assertTrue(doctor.disk(free_gb=10, used=60).ok)     # 7 GB more needed
-        self.assertFalse(doctor.disk(free_gb=10, used=0).ok)     # the full 67 GB needed
+        self.assertTrue(doctor.disk(free_gb=10, used=70).ok)     # 8 GB more needed
+        self.assertFalse(doctor.disk(free_gb=10, used=0).ok)     # the full 78 GB needed
         self.assertTrue(doctor.disk(free_gb=0, used=80).ok)      # nothing more needed
 
     def test_jev_is_optional_and_says_what_changes_without_it(self):
