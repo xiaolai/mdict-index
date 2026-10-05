@@ -64,6 +64,8 @@ def build(root: Path) -> tuple[Path, Path]:
     conn.executescript(L2_INDEXES)
     from build_structured import zh_terms
     conn.executemany("INSERT INTO zh_term VALUES (?,?)", [(t, s[0]) for s in SENSES for t in zh_terms(s[10])])
+    from build_structured import build_derived
+    build_derived(conn)
     conn.execute("INSERT INTO sense_fts(sense_fts) VALUES ('rebuild')")
     conn.commit()
     conn.close()
@@ -143,6 +145,66 @@ class ServerApp(unittest.TestCase):
         r = self.get_json("/api/zh?q=" + urllib.parse.quote("打招呼"))
         self.assertEqual([x["headword"] for x in r["results"]], ["take", "go"])  # take: exact term; go: substring
         self.assertEqual(r["results"][0]["exact"], 1)
+
+    def test_chinese_contains_queries_use_the_trigram_index(self):
+        three = self.get_json("/api/zh?q=" + urllib.parse.quote("打招呼"))   # MATCH: three characters
+        two = self.get_json("/api/zh?q=" + urllib.parse.quote("招呼"))       # LIKE: under three
+        self.assertEqual([x["headword"] for x in three["results"]], ["take", "go"])
+        self.assertEqual({x["headword"] for x in two["results"]}, {"take", "go"})
+        self.assertEqual([x["exact"] for x in two["results"]], [0, 0])
+        self.assertEqual(self.get_json("/api/zh?q=" + urllib.parse.quote("%_"))["results"], [])  # literal, not wildcards
+
+    def test_a_database_without_the_chinese_index_says_how_to_add_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db, res = build(Path(tmp))
+            con = sqlite3.connect(db)
+            con.execute("DROP TABLE zh_fts")
+            con.commit()
+            con.close()
+            status, _, body = App(db, res).handle("/api/zh?q=" + urllib.parse.quote("招呼"))
+            self.assertEqual(status, 503)
+            self.assertIn(b"--derived-only", body)
+            self.assertIn(str(db).encode(), body)  # this server's database, not the default one
+            import subprocess, sys
+            done = subprocess.run([sys.executable, str(Path(__file__).resolve().parent.parent / "scripts" / "build_structured.py"),
+                                   "--db", str(db), "--derived-only"], capture_output=True, text=True)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertEqual(App(db, res).handle("/api/zh?q=" + urllib.parse.quote("招呼"))[0], 200)
+
+    def test_prewarm_reads_every_part_a_lookup_needs(self):
+        from serve_unified import PREWARM
+        parts = self.app.prewarm()
+        self.assertEqual(len(parts), len(PREWARM))
+        self.assertFalse([p for p in parts if "not in this database" in p], parts)  # the fixture has them all
+        conn = self.app._conn()
+        self.assertGreater(conn.execute("PRAGMA mmap_size").fetchone()[0], 0)
+        conn.close()
+
+    def test_a_nul_in_a_query_is_refused_not_a_crash(self):
+        for route in ("/api/zh?q=%E6%89%93%E6%8B%9B%E5%91%BC%00x", "/api/lookup?q=take%00", "/api/define?q=leave%00"):
+            self.assertEqual(self.app.handle(route)[0], 400, route)
+
+    def test_exact_matches_that_fill_the_budget_leave_no_room_for_containing_ones(self):
+        from unittest import mock
+        import serve_unified
+        with mock.patch.object(serve_unified, "ZH_ROWS", 1):
+            r = self.get_json("/api/zh?q=" + urllib.parse.quote("打招呼"))
+        self.assertEqual([x["headword"] for x in r["results"]], ["take"])   # "go" only contains it
+
+    def test_a_failed_chinese_index_rebuild_keeps_the_old_index(self):
+        from build_structured import rebuild_derived
+        with tempfile.TemporaryDirectory() as tmp:
+            db, res = build(Path(tmp))
+
+            def half_built(conn):
+                conn.execute("DROP TABLE zh_fts")
+                conn.execute("CREATE VIRTUAL TABLE zh_fts USING fts5(term, tokenize='trigram')")
+                raise RuntimeError("disk full")
+            with self.assertRaises(RuntimeError):
+                rebuild_derived(db, build=half_built)
+            con = sqlite3.connect(db)
+            self.assertGreater(con.execute("SELECT count(*) FROM zh_fts").fetchone()[0], 0)
+            con.close()
 
     def test_define_searches_english_definitions(self):
         r = self.get_json("/api/define?q=leave")

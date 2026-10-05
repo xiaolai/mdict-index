@@ -10,6 +10,7 @@ entry of its dictionary, in parallel, and writes into the unified database:
   s_sense    senses (kind, pos, number, phrase, labels, definition, definition_zh)
   s_example  examples / collocations / quotations per sense
   zh_term    Chinese gloss terms -> sense, the Chinese-to-English index
+  zh_fts     the distinct terms in a trigram index: "contains" queries without scanning zh_term
   sense_fts  full-text index over English definitions ("words meaning ...")
 
 The build fails if any parser raises, produces a contract problem, or covers
@@ -38,6 +39,7 @@ from structured.model import Entry, covered, problems, stub_problem  # noqa: E40
 
 SCHEMA = """
 DROP TABLE IF EXISTS sense_fts;
+DROP TABLE IF EXISTS zh_fts;
 DROP TABLE IF EXISTS zh_term;
 DROP TABLE IF EXISTS s_example;
 DROP TABLE IF EXISTS s_sense;
@@ -91,6 +93,36 @@ CREATE INDEX s_example_sense ON s_example(sense_id, ord);
 CREATE TABLE zh_term (term TEXT NOT NULL, sense_id INTEGER NOT NULL);
 CREATE VIRTUAL TABLE sense_fts USING fts5(definition, content='s_sense', content_rowid='id', tokenize='porter unicode61');
 """
+
+def build_zh_index(conn: sqlite3.Connection) -> int:
+    """Index zh_term: by term (exact queries), and in zh_fts, a trigram index of its distinct terms
+    (queries for terms containing a string read this, not every zh_term row); how many terms."""
+    conn.execute("CREATE INDEX IF NOT EXISTS zh_term_term ON zh_term(term)")
+    conn.execute("DROP TABLE IF EXISTS zh_fts")
+    conn.execute("CREATE VIRTUAL TABLE zh_fts USING fts5(term, tokenize='trigram')")
+    conn.execute("INSERT INTO zh_fts(term) SELECT DISTINCT term FROM zh_term")
+    return conn.execute("SELECT count(*) FROM zh_fts").fetchone()[0]
+
+
+def build_derived(conn: sqlite3.Connection) -> dict[str, int]:
+    """Everything built from layers 1 and 2 rather than parsed: the Chinese indexes."""
+    return {"zh terms": build_zh_index(conn)}
+
+
+def rebuild_derived(db: Path, build=build_derived) -> dict[str, int]:
+    """build_derived on an existing layer 2, in one transaction: a failure midway leaves the old
+    tables whole (without one, Python's sqlite3 commits each DROP and CREATE at once)."""
+    with contextlib.closing(sqlite3.connect(db, autocommit=False)) as conn:
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'zh_term'").fetchone() is None:
+            raise SystemExit(f"{db} has no layer 2 (zh_term): build it first")
+        try:
+            n = build(conn)
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+    return n
+
 
 # Chinese glosses: "（打电话时的招呼语）喂；你好" -> ["喂", "你好"]
 _ZH_NOTE = re.compile(r"[（(〈【\[][^）)〉】\]]*[）)〉】\]]")
@@ -331,7 +363,7 @@ def merge(db: Path, shards: list[Path]) -> None:
                 merge_popups(conn)
                 rows = conn.execute("SELECT id, definition_zh FROM s_sense WHERE definition_zh != ''")
                 conn.executemany("INSERT INTO zh_term VALUES (?,?)", ((t, sid) for sid, zh in rows for t in zh_terms(zh)))
-                conn.execute("CREATE INDEX zh_term_term ON zh_term(term)")
+                build_derived(conn)
                 conn.execute("INSERT INTO sense_fts(sense_fts) VALUES ('rebuild')")
                 conn.commit()
             except BaseException:
@@ -388,8 +420,14 @@ def main() -> None:
     ap.add_argument("--db", type=Path, default=CORPUS / "unified.db")
     ap.add_argument("--only", default="")
     ap.add_argument("--merge-only", action="store_true", help="re-merge existing shards without parsing (e.g. after an interrupted merge)")
+    ap.add_argument("--derived-only", action="store_true",
+                    help="only (re)build what is derived from layers 1 and 2 (the Chinese indexes)")
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
     args = ap.parse_args()
+    if args.derived_only:
+        counts = rebuild_derived(args.db)
+        print("derived: " + ", ".join(f"{k} {v:,}" for k, v in counts.items()), file=sys.stderr)
+        return
     all_keys = sorted(registry())
     requested = set(filter(None, args.only.split(",")))
     if unknown := sorted(requested - set(all_keys)):

@@ -24,13 +24,16 @@ route is testable directly. Binds to 127.0.0.1 only.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import html
 import json
 import mimetypes
 import re
+import shlex
 import sqlite3
 import sys
 import threading
+import time
 import urllib.parse
 import zlib
 from collections import defaultdict
@@ -111,7 +114,28 @@ def _text(message: str, status: int):
     return status, {"Content-Type": "text/plain; charset=utf-8"}, message.encode()
 
 
+class ZhIndexMissing(RuntimeError):
+    """The database predates the Chinese trigram index: a 503 that says how to add it."""
+
+
 ANALYZE_MAX_BYTES = 1_000_000  # the analyzer itself takes up to 200,000 characters
+# Memory-mapped reads halve a warm lookup (1.06 -> 0.48 ms median, 500 random words); SQLite as built
+# here caps the mapping at 2 GB, which covers every index a lookup reads.
+MMAP_BYTES = 2_147_418_112
+# What a lookup reads, walked once at start (in the background) so the first lookups find it in memory;
+# the entries and examples themselves are read only when shown.
+PREWARM = [
+    ("headwords", "SELECT count(*) FROM headword"),
+    ("entries by headword", "SELECT count(*) FROM entry INDEXED BY entry_norm WHERE norm IS NOT NULL"),
+    ("redirects", "SELECT count(*) FROM redirect INDEXED BY redirect_norm WHERE norm IS NOT NULL"),
+    ("layer-2 entries", "SELECT count(*) FROM s_entry INDEXED BY s_entry_dict WHERE dict_id IS NOT NULL"),
+    ("senses by entry", "SELECT count(*) FROM s_sense INDEXED BY s_sense_entry WHERE entry_id IS NOT NULL"),
+    ("pronunciations", "SELECT count(*) FROM s_pron INDEXED BY s_pron_entry WHERE entry_id IS NOT NULL"),
+    ("examples by sense", "SELECT count(*) FROM s_example INDEXED BY s_example_sense WHERE sense_id IS NOT NULL"),
+    ("Chinese terms", "SELECT count(*) FROM zh_term INDEXED BY zh_term_term WHERE term IS NOT NULL"),
+    ("Chinese trigrams", "SELECT count(*) FROM zh_fts_data"),
+    ("headword trigrams", "SELECT count(*) FROM headword_fts_data"),
+]
 
 
 class Analyzer:
@@ -159,8 +183,22 @@ class App:
         except ValueError as error:          # too long
             return _text(str(error), 413)
 
+    def prewarm(self) -> list[str]:
+        """Read what a lookup reads (PREWARM), so the first lookups after a restart are warm; the
+        names of the parts read. A part this database lacks is skipped and named as such."""
+        done = []
+        with contextlib.closing(self._conn()) as conn:
+            for name, sql in PREWARM:
+                try:
+                    conn.execute(sql).fetchone()
+                    done.append(name)
+                except sqlite3.OperationalError:
+                    done.append(f"{name} (not in this database)")
+        return done
+
     def _conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(f"file:{self.db}?mode=ro", uri=True, check_same_thread=False)
+        conn.execute(f"PRAGMA mmap_size={MMAP_BYTES}")
         if self.resources:
             conn.execute("ATTACH DATABASE ? AS res", (f"file:{self.resources}?mode=ro",))
         return conn
@@ -174,6 +212,8 @@ class App:
         url = urllib.parse.urlsplit(raw_path)
         query = urllib.parse.parse_qs(url.query)
         q = (query.get("q") or [""])[0].strip()
+        if "\x00" in q:  # no query holds one; SQLite's query syntax cannot (full-text search fails on it)
+            return _text("a query cannot contain a NUL character", 400)
         parts = [urllib.parse.unquote(p) for p in url.path.split("/") if p]
         conn = self._conn()
         try:
@@ -192,7 +232,10 @@ class App:
             if parts == ["api", "lookup"]:
                 return _json(self.api_lookup(conn, q))
             if parts == ["api", "zh"]:
-                return _json(self.api_zh(conn, q))
+                try:
+                    return _json(self.api_zh(conn, q))
+                except ZhIndexMissing as missing:
+                    return _text(str(missing), 503)
             if parts == ["api", "define"]:
                 return _json(self.api_define(conn, q))
             if len(parts) == 2 and parts[0] == "entry":
@@ -279,12 +322,33 @@ class App:
         return {"query": q, "hits": hits, "suggestions": [] if hits else suggest(conn, q)}
 
     def api_zh(self, conn, q: str) -> dict:
+        """English words for a Chinese term: senses whose Chinese gloss is the term, then those whose
+        gloss contains it (shortest terms first), ZH_ROWS senses at most; ranked by how many
+        dictionaries give the exact term, then any. Exact terms come from zh_term's index; terms
+        containing the query from zh_fts, a trigram index of the distinct terms (build_structured.py),
+        so no query scans the two million zh_term rows."""
         if not q or not self._has_layer2(conn):
             return {"query": q, "results": []}
-        rows = conn.execute(
-            "SELECT e.headword, d.key, s.definition_zh, z.term = ? AS exact FROM zh_term z "
-            "JOIN s_sense s ON s.id = z.sense_id JOIN entry e ON e.id = s.entry_id JOIN dictionary d ON d.id = s.dict_id "
-            "WHERE z.term = ? OR instr(z.term, ?) > 0 ORDER BY exact DESC LIMIT ?", (q, q, q, ZH_ROWS)).fetchall()
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'zh_fts'").fetchone() is None:
+            raise ZhIndexMissing("the Chinese index zh_fts is missing: run PYTHONPATH=scripts .venv/bin/python "
+                                 f"scripts/build_structured.py --db {shlex.quote(str(self.db))} --derived-only")
+        sql = ("SELECT e.headword, d.key, s.definition_zh FROM zh_term z JOIN s_sense s ON s.id = z.sense_id "
+               "JOIN entry e ON e.id = s.entry_id JOIN dictionary d ON d.id = s.dict_id WHERE z.term = ?")
+        rows = [(*r, True) for r in conn.execute(sql + " LIMIT ?", (q, ZH_ROWS))]
+        # Every term gives at least one row, so the rows still wanted bound the terms needed.
+        budget = ZH_ROWS - len(rows)
+        if len(q) >= 3:  # a trigram index answers MATCH for three characters or more; LIKE below that
+            where, arg = "zh_fts MATCH ?", '"' + q.replace('"', '""') + '"'
+        else:
+            where = "term LIKE ? ESCAPE '\\'"
+            arg = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        containing = [t for (t,) in conn.execute(
+            f"SELECT term FROM zh_fts WHERE {where} AND term != ? ORDER BY length(term), term LIMIT ?",
+            (arg, q, budget))] if budget > 0 else []
+        for term in containing:
+            if len(rows) >= ZH_ROWS:
+                break
+            rows += [(*r, False) for r in conn.execute(sql + " LIMIT ?", (term, ZH_ROWS - len(rows)))]
         groups: dict[str, dict] = defaultdict(lambda: {"dicts": set(), "exact_dicts": set(), "glosses": []})
         for headword, dict_key, gloss, exact in rows:
             g = groups[headword.lower()]
@@ -378,8 +442,15 @@ def main() -> None:
     ap.add_argument("--resources", type=Path, default=CORPUS / "resources.db")
     ap.add_argument("--port", type=int, default=8766)
     args = ap.parse_args()
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(App(args.db, args.resources)))
+    app = App(args.db, args.resources)
+    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(app))
     print(f"serving http://127.0.0.1:{args.port}/", file=sys.stderr)
+
+    def warm():
+        started = time.time()
+        parts = app.prewarm()
+        print(f"warmed in {time.time() - started:.1f}s: {', '.join(parts)}", file=sys.stderr)
+    threading.Thread(target=warm, daemon=True).start()
     server.serve_forever()
 
 

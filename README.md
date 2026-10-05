@@ -124,6 +124,14 @@ tokens. Each card can switch to that dictionary's original design (layer 1, with
 its own CSS, images and working cross-links). It also does Chinese-to-English
 lookup and search by definition.
 
+Chinese-to-English lookup reads two indexes: exact terms by `zh_term`'s index, and terms
+containing the query from `zh_fts`, a trigram index of the distinct terms (7.6 ms a query on
+average, where scanning the two million gloss rows took 119). A database built before
+2026-10-05 lacks it; `PYTHONPATH=scripts .venv/bin/python scripts/build_structured.py
+--derived-only` adds it in under a minute. The server reads through memory-mapped I/O and,
+in the background at start, reads every index a lookup needs, so the first lookups after a
+restart are warm.
+
 ## Parallel corpus of example sentences (local only)
 
 An English–Chinese corpus of the example sentences in freemdict's dictionaries,
