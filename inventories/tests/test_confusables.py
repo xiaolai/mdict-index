@@ -70,6 +70,12 @@ class Confusions(unittest.TestCase):
         self.assertIn(("glim", "glum"), pairs("cobuild", "glim", "Glim and glum are often confused."))
         self.assertIn(("glim", "glum"), pairs("oald", "glim", "Do not confuse this verb with to glum (= to frown) ."))
 
+    def test_things_confused_with_things_are_not_words_confused(self):
+        self.assertEqual(pairs("ode", "glim", "Glim is often confused with the glum moth, which ..."), [])
+        self.assertIn(("glim", "glum"), pairs("ode", "glim", "Glim is often confused with the verb glum ."))
+        self.assertEqual([clean_words(p, LEX | {"and"}) for p in pairs("ode", "glim", "and are sometimes confused with glum")],
+                         [("glum",)])
+
     def test_examples_are_not_warnings(self):
         html = '<span class="def">a sweet</span><span class="x">the difference between glim and glum is small</span>'
         self.assertEqual(pairs("ode", "glim", "the difference between glim and glum is small", html), [])
@@ -118,6 +124,13 @@ class Misspellings(unittest.TestCase):
         text = "Get It Right!: glimmate Note that the correct spelling is glimmate (not 'glimate'): ✗ A glimmmate day."
         found = list(misspellings("med", "glimmate", text, LEX | {"day"}))
         self.assertEqual(found[0].wrong, ("glimmmate",))   # 'glimate' is itself a word here; glimmmate is not
+
+    def test_chambers_misspellings_but_not_etymologies(self):
+        def read(headword, text):
+            return [(m.word, m.wrong) for m in misspellings("chambers", headword, text, LEX)]
+        self.assertEqual(read("glimate", "glīˈmate noun A misspelling of glimmate"), [("glimmate", ("glimate",))])
+        self.assertEqual(read("glimate", "glimate an obsolete misspelling of glimmate"), [("glimmate", ("glimate",))])
+        self.assertEqual(read("glum", "glum (also gloom) from Old Glim, a facetious misspelling of glim correct"), [])
 
     def test_often_misspelled(self):
         found = list(misspellings("noad", "glimmer", "Usage: Glimmer is often misspelled as glimer .", LEX))

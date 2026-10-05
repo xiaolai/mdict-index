@@ -469,25 +469,27 @@ them, hint, kind, dictionaries), `confusable` (a pair, its kinds, dictionaries, 
 the source's note), `confusable_set` (OALD's and PEU's sets of three or more).
 
 Misspellings are taken only where a dictionary says so outright, so the list is short and
-sure (106 words):
+sure (104 words):
 
 | Kind | Source | Words |
 |---|---|---|
 | learner_error | CALD's "Check your spelling! *Accommodation* is one of the 50 words most often spelled wrongly by learners. Remember: the correct spelling has 'cc' and 'mm'" (the Cambridge Learner Corpus); COBUILD's "Be careful with the spelling of this word"; Macmillan's Get It Right! spelling boxes, wrong forms from their ✗ sentences (*accomodation*, *developping*, *independance*) | 69 |
-| misspelling | "*barbecue* is often misspelled as *barbeque*"; Chambers' "a misspelling of"; a spelling "regarded as an error" (*miniscule*) | 6 |
+| misspelling | "*barbecue* is often misspelled as *barbeque*"; Chambers' "a misspelling of" (a run-on form with its part of speech, or an entry opening with its own headword; not an etymology's aside such as OK's "a facetious misspelling of all correct"); a spelling "regarded as an error" (*miniscule*) | 4 |
 | nonstandard | "a nonstandard spelling of *another*": spellings that represent speech (*'nother*) | 31 |
 
 Of 20 well-known hard spellings (accommodation, separate, definitely, necessary, receive,
 embarrass, government, environment, beginning, believe, business, whether, until...), 20 are
 in.
 
-Confusable pairs (817):
+Confusable pairs (806; on 2026-10-05, 11 pairs read from things "confused with the oak apple gall" or from a
+lost subject, "and are sometimes confused with", were dropped: "confused with the ..." now names a word
+only through a word class, "the verb affect"):
 
 | Kind | Source | Pairs |
 |---|---|---|
 | which_word | OALD's Which Word? boxes (affect / effect; alone / on your own / lonely / lone) | 136 |
 | homophone | OALD's Homophones boxes (base \| bass) | 119 |
-| confused | "Do not confuse (the adjective) *loose* with (the verb) *lose*", "*appraise* is frequently confused with *apprise*", "For an explanation of the difference between *continual* and *continuous*", CALD's "Common mistake: *than* or *then*?", PEU's entry titles ("allow, permit and let", "alternate(ly) and alternative(ly)"; lists only from its Word Problems part, and no title naming grammar terms or spelling rules); read from notes, examples left out | 422 |
+| confused | "Do not confuse (the adjective) *loose* with (the verb) *lose*", "*appraise* is frequently confused with *apprise*", "For an explanation of the difference between *continual* and *continuous*", CALD's "Common mistake: *than* or *then*?", PEU's entry titles ("allow, permit and let", "alternate(ly) and alternative(ly)"; lists only from its Word Problems part, and no title naming grammar terms or spelling rules); read from notes, examples left out | 411 |
 | sound_alike | each word's main pronunciation transcribed alike by two dictionaries or more (weak vowels as one before the stress only; reduced forms set aside), both words common (Oxford 3000/5000, Longman Communication 3000, Macmillan stars, Collins' top three bands), not spellings of one word | 286 |
 
 Of 33 well-known confusable pairs (affect/effect, principal/principle, stationary/stationery,

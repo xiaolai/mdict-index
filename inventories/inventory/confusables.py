@@ -79,7 +79,11 @@ _CALD = re.compile(r"Check your spelling! ! ([\w'-]+) is one of the (\d+) words 
                    r"(?: ! Remember: (.*?)(?= Common mistake|!| Ⅰ| Ⅱ|$))?")
 _OFTEN_MISSPELLED = re.compile(r"([\w'-]+) is (?:often|frequently|commonly) (?:misspelled|misspelt) as ([\w'-]+)")
 _NONSTANDARD = re.compile(r"(?:a )?nonstandard spelling of ((?:[\w']+ )*[\w']+\?|[\w'-]+)")  # "am I right?"; else one word
-_MISSPELLING_OF = re.compile(r"([\w'ˈˌ-]+) (?:noun|adjective|verb|adverb)?\s*(?:An? )?misspelling of ([\w'-]+)", re.I)
+# Chambers: a run-on form with its part of speech ("idēˈalogue noun A misspelling of ideologue"), or an entry
+# whose own headword opens it ("dispathy an obsolete misspelling of dyspathy"). Not an etymology's aside
+# ("oll korrekt, a facetious misspelling of all correct"; "a misspelling of L pirus").
+_MISSPELLING_OF = re.compile(r"([\w'ˈˌ-]+) (?:noun|adjective|verb|adverb)\s*(?:An? )?misspelling of ([\w'-]+)", re.I)
+_MISSPELLING_ENTRY = re.compile(r"^([\w'ˈˌ-]+) (?:an? )?(?:obsolete |erroneous |common )?misspelling of ([\w'-]+)", re.I)
 _REGARDED_ERROR = re.compile(r"(?:variant|spelling) of ([a-z][\w'-]+)[^.]{0,300}?regarded as an error", re.I)
 _GET_IT_RIGHT = re.compile(r"Get It Right!: ([\w' -]+?) (.*?)(?=Get It Right!:|$)")
 
@@ -101,7 +105,11 @@ def misspellings(name: str, headword: str, text: str, lexicon: frozenset[str]) -
         for m in _NONSTANDARD.finditer(text[:400]):
             yield Misspelling(name, m.group(1).lower(), (headword.lower(),), "", "nonstandard")
     if name == "chambers":
-        for m in _MISSPELLING_OF.finditer(text):
+        entry = _MISSPELLING_ENTRY.match(text.strip())
+        found = [*_MISSPELLING_OF.finditer(text)]
+        if entry and entry.group(1).lower() == headword.lower():
+            found.append(entry)
+        for m in found:
             if not re.search(r"(?:obsolete|Latin|Greek|from)\s*$", text[:m.start()][-25:]):
                 wrong = "".join(ch for ch in unicodedata.normalize("NFKD", re.sub("[ˈˌ]", "", m.group(1)))
                                 if not unicodedata.combining(ch)).lower()  # idēalogue -> idealogue
@@ -132,12 +140,15 @@ _DIFFERENCE = re.compile(r"(?:explanation of|On|For) the difference(?:s)? betwee
 _CHOOSE = re.compile(r"Common mistake : ([\w'-]+) or ([\w'-]+)\? ! Warning: Choose the right word")
 _BOTH_CONFUSED = re.compile(r"([\w'-]+) and ([\w'-]+) are (?:often |frequently |sometimes |commonly |easily )?confused")
 _DO_NOT_WITH = re.compile(r"Do not confuse with (?:the (?:noun|verb|adjective|adverb),? )?([\w' -]{1,40}?)(?=\s*[.,;:(]|$)")
-_OFTEN = re.compile(r"([\w'-]+) (?:is|are) (?:often |frequently |sometimes |commonly )?confused with (?:the )?"
-                    r"(?:similar-sounding )?(?:words? |verb |noun |adjective )?([\w'-]+)(?: and ([\w'-]+))?")
+# "confused with the ..." names a word only through a word-class phrase ("the verb affect", "the
+# similar-sounding word ..."); "is often confused with the oak apple gall" is about things, not words.
+_OFTEN = re.compile(r"([\w'-]+) (?:is|are) (?:often |frequently |sometimes |commonly )?confused with "
+                    r"(?:(?:the )?(?:similar-sounding )?(?:words? |verb |noun |adjective ))?(?!the |a |an )"
+                    r"([\w'-]+)(?: and ([\w'-]+))?")
 _NOT_TO_BE = re.compile(r"(?:should not|not to) be confused with (?:the )?(?:words? |verb |noun |adjective )?"
                         r"([\w'-]+(?: [\w'-]+)?)")
 _FUNCTION = frozenset("your you the a an this that it them him her his my our their reader readers people anyone "
-                      "someone something".split())
+                      "someone something and or nor".split())  # "... and are sometimes confused with": a lost subject
 
 
 _EXAMPLE = re.compile(r'<(span|li|div|em|i)[^>]*class="(?:x|unx|example|examples|exa|eg|EXAMPLE|ex|cit|quote|'
