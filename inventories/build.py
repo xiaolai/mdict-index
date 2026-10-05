@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -57,6 +58,25 @@ def command(step: str, without_jev: bool = False) -> list[str]:
     return cmd
 
 
+def missing_jev(steps: list[str], without_jev: bool, which=shutil.which) -> str | None:
+    """Why the build cannot start, if it would reach sameword with no jev and no --without-jev."""
+    if "sameword" not in steps or without_jev or which("jev"):
+        return None
+    return """jev is not installed. Nothing has been built yet.
+
+The inventories use jev for one thing only: deciding whether a word whose stress moves with
+its part of speech ("REcord" the noun, "reCORD" the verb) is one word or two. Every other
+inventory comes out the same without it.
+
+To build without jev, run the same command with --without-jev:
+
+    .venv/bin/python inventories/build.py --without-jev
+
+Those stress contrasts are then tagged "uncertain" instead of "same word" or "likely different
+words", and the database records that it was built without jev. Answers jev gave before,
+cached in inventories/data/sameword_cache.json, are still used."""
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--from", dest="start", choices=NAMES)
@@ -69,6 +89,8 @@ def main() -> None:
     from build_structured import STRUCTURED
     if not args.dry_run and not STRUCTURED.is_dir():
         sys.exit(f"{STRUCTURED} does not exist: build layer 2 first (scripts/build_corpus.py)")
+    if not args.dry_run and (why := missing_jev(plan(args.start, args.only), args.without_jev)):
+        sys.exit(why)
     for step in plan(args.start, args.only):
         cmd = command(step, args.without_jev)
         print(f"== {step}: {' '.join(cmd[1:])}", file=sys.stderr, flush=True)

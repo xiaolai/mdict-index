@@ -84,13 +84,21 @@ PYTHONPATH=scripts .venv/bin/python scripts/build_corpus.py   # download and bui
 PYTHONPATH=scripts .venv/bin/python scripts/serve_unified.py  # http://127.0.0.1:8766/ and /analyze
 ```
 
-Two steps ask `jev`, a command-line client for TypeSafe's calibrated-judgment
-model that you may not have. Without it the
-inventories build with `--without-jev`, which tags every stress contrast
-"uncertain" and records that in the database. The parallel corpus does not need
-it: each dictionary's audit verdict is committed in `parallel_corpus/verdicts.json`,
-pinned to the exact pairs it was measured on, and is reused when your pairs are
-the same.
+### No jev? You can still build everything
+
+`jev` is a command-line client for TypeSafe's calibrated-judgment model, and most people
+do not have it. You do not need it: every step builds without it, and `doctor.py` says
+whether it is installed. Two steps ask it a question; without it, this is what changes:
+
+| Step | Asks jev | Without jev |
+|---|---|---|
+| Unified dictionary | no | the same |
+| Inventories | whether a word whose stress moves with its part of speech ("REcord" the noun, "reCORD" the verb) is one word or two | run `inventories/build.py --without-jev`: those 767 contrasts are tagged "uncertain"; every other inventory is the same. Forget the flag and the build stops before doing anything, saying so |
+| Parallel corpus | how accurate each dictionary's example pairs are | nothing to do: the answers are committed in `parallel_corpus/verdicts.json` and reused when your download of a dictionary matches the one they were measured on. If freemdict has since replaced a file, that dictionary is left out, and the build names it |
+| Analyzer | no | the same |
+
+So without jev you lose one label on a few hundred stress contrasts, and possibly a
+dictionary or two of example sentences if freemdict changes its files.
 
 ## Unified dictionary database (local only)
 
