@@ -4,6 +4,7 @@
 
 Routes
   /                      search page (scripts/lookup_ui/index.html)
+  /analyze               text analysis page (scripts/lookup_ui/analyze.html; POST /api/analyze below)
   /static/NAME           the page's own CSS/JS and the website's design tokens (allow-listed)
   /api/entry/ID          one entry's complete structured data (the unified view's "show all")
   /api/lookup?q=WORD     every dictionary's entries for WORD (redirects followed), each with a
@@ -14,6 +15,8 @@ Routes
                          resources resolved to that dictionary's store, sound:// playable,
                          entry:// links turned into searches
   /res/KEY/PATH          a resource (audio, image, stylesheet) from resources.db
+  POST /api/analyze      {"text": "..."} -> the text analyzer's result (analyzer/README.md); JSON
+                         only, so another site's page cannot make the server work for it
 
 The routing and responses live in App, which never touches a socket, so every
 route is testable directly. Binds to 127.0.0.1 only.
@@ -27,6 +30,7 @@ import mimetypes
 import re
 import sqlite3
 import sys
+import threading
 import urllib.parse
 import zlib
 from collections import defaultdict
@@ -47,6 +51,8 @@ STATIC = {
     "lookup.css": (UI / "lookup.css", "text/css; charset=utf-8"),
     "lookup.js": (UI / "lookup.js", "text/javascript; charset=utf-8"),
     "render.js": (UI / "render.js", "text/javascript; charset=utf-8"),
+    "analyze.js": (UI / "analyze.js", "text/javascript; charset=utf-8"),
+    "analysis.js": (UI / "analysis.js", "text/javascript; charset=utf-8"),
     "tokens.css": (SITE / "tokens.css", "text/css; charset=utf-8"),  # the website's design tokens
     "site.css": (SITE / "style.css", "text/css; charset=utf-8"),  # the website's base styles
 }
@@ -105,10 +111,53 @@ def _text(message: str, status: int):
     return status, {"Content-Type": "text/plain; charset=utf-8"}, message.encode()
 
 
+ANALYZE_MAX_BYTES = 1_000_000  # the analyzer itself takes up to 200,000 characters
+
+
+class Analyzer:
+    """The text analyzer, loaded on first use (spaCy and the lexicon take seconds and memory)."""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._loaded = None
+
+    def __call__(self, text: str) -> dict:
+        with self._lock:
+            if self._loaded is None:
+                sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "analyzer"))
+                from analysis import load_nlp
+                from analysis.lexicon import load
+                self._loaded = (load_nlp(), load())
+        from analysis.analyze import analyze
+        return analyze(text, *self._loaded)
+
+
 class App:
-    def __init__(self, db: Path, resources: Path | None = None):
+    def __init__(self, db: Path, resources: Path | None = None, analyzer=None):
         self.db = db
         self.resources = resources if resources and resources.exists() else None
+        self.analyzer = analyzer or Analyzer()
+
+    def handle_post(self, raw_path: str, content_type: str, body: bytes):
+        """POST /api/analyze: {"text": ...} -> the analysis."""
+        if urllib.parse.urlsplit(raw_path).path.rstrip("/") != "/api/analyze":
+            return _text("not found", 404)
+        if content_type.split(";")[0].strip().lower() != "application/json":
+            return _text("send JSON: Content-Type application/json", 415)
+        if len(body) > ANALYZE_MAX_BYTES:
+            return _text(f"at most {ANALYZE_MAX_BYTES:,} bytes", 413)
+        try:
+            text = json.loads(body.decode("utf-8"))["text"]
+            if not isinstance(text, str):
+                raise TypeError("text must be a string")
+        except (ValueError, KeyError, TypeError) as error:
+            return _text(f'expected {{"text": "..."}}: {error}', 400)
+        try:
+            return _json(self.analyzer(text))
+        except FileNotFoundError as error:  # analyzer.db not built
+            return _text(str(error), 503)
+        except ValueError as error:          # too long
+            return _text(str(error), 413)
 
     def _conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(f"file:{self.db}?mode=ro", uri=True, check_same_thread=False)
@@ -130,6 +179,8 @@ class App:
         try:
             if not parts:
                 return 200, {"Content-Type": "text/html; charset=utf-8"}, (UI / "index.html").read_bytes()
+            if parts == ["analyze"]:
+                return 200, {"Content-Type": "text/html; charset=utf-8"}, (UI / "analyze.html").read_bytes()
             if len(parts) == 2 and parts[0] == "static":
                 if parts[1] not in STATIC:
                     return _text("not found", 404)
@@ -292,6 +343,23 @@ def make_handler(app: App):
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):  # noqa: N802 (http.server naming)
             status, headers, body = app.handle(self.path)
+            self.send_response(status)
+            for k, v in headers.items():
+                self.send_header(k, v)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_POST(self):  # noqa: N802
+            try:
+                length = int(self.headers.get("Content-Length") or 0)
+            except ValueError:
+                length = -1
+            if not 0 <= length <= ANALYZE_MAX_BYTES:
+                status, headers, body = _text(f"Content-Length must be 0 to {ANALYZE_MAX_BYTES:,}", 413)
+            else:
+                status, headers, body = app.handle_post(self.path, self.headers.get("Content-Type", ""),
+                                                        self.rfile.read(length))
             self.send_response(status)
             for k, v in headers.items():
                 self.send_header(k, v)

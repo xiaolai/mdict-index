@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>文本分析 Analyze a text</title>
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/site.css">
+  <link rel="stylesheet" href="/static/lookup.css">
+  <script type="module" src="/static/analyze.js"></script>
+</head>
+<body>
+  <header class="container">
+    <h1 class="lookup-title"><a href="/analyze">文本分析 <span class="section__sub">Analyze a text</span></a></h1>
+    <p class="lookup-meta">贴入英文：标出短语动词、习语、搭配，以及值得注意的词。<a href="/">查词 Look up a word</a>
+      <span lang="en">Paste English: its phrasal verbs, idioms, collocations and notable words are marked.</span></p>
+  </header>
+  <div class="lookup-bar">
+    <form class="container a-form" id="form">
+      <label class="visually-hidden" for="text">文本 Text</label>
+      <textarea id="text" class="a-input" rows="6" spellcheck="false" autofocus
+                placeholder="After months of hesitation, she finally made up her mind and gave it up."></textarea>
+      <div class="a-actions">
+        <button class="btn btn--primary">分析 Analyze</button>
+        <label class="a-toggle"><input type="checkbox" id="possible"> 也显示不太确定的短语 Also phrases that may be literal</label>
+      </div>
+    </form>
+  </div>
+  <main class="container results" id="out" aria-live="polite"></main>
+</body>
+</html>

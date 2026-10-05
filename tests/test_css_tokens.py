@@ -27,8 +27,11 @@ CSS = _css(ROOT / "site" / "style.css")
 STYLESHEETS = {"site/tokens.css": TOKENS, "site/style.css": CSS,
                "scripts/lookup_ui/lookup.css": _css(ROOT / "scripts" / "lookup_ui" / "lookup.css")}
 ALL_CSS = "\n".join(STYLESHEETS.values())
-HTML = {p: (ROOT / p).read_text() for p in ("site/index.html", "scripts/lookup_ui/index.html")}
-JS = {p: (ROOT / p).read_text() for p in ("site/app.js", "site/view.js", "site/tabs.js", "scripts/lookup_ui/lookup.js", "scripts/lookup_ui/render.js")}
+HTML = {p: (ROOT / p).read_text() for p in ("site/index.html", "scripts/lookup_ui/index.html",
+                                             "scripts/lookup_ui/analyze.html")}
+JS = {p: (ROOT / p).read_text() for p in ("site/app.js", "site/view.js", "site/tabs.js", "scripts/lookup_ui/lookup.js",
+                                         "scripts/lookup_ui/render.js", "scripts/lookup_ui/analyze.js",
+                                         "scripts/lookup_ui/analysis.js")}
 
 DECLARATION = re.compile(r"(--[\w-]+|[a-z-]+)\s*:\s*([^;{}]+?)\s*(?=;|})")
 NUMBER = re.compile(r"(?<![\w#.-])-?\d*\.?\d+[a-z%]*")

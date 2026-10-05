@@ -89,3 +89,25 @@
 .hit { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); }
 .hit__word { font-family: var(--font-serif); font-size: var(--fs-lg); font-weight: var(--fw-bold); }
 .hit__meta { font-size: var(--fs-xs); color: var(--c-text-muted); }
+
+/* ---- text analysis (/analyze) ----------------------------------------------------------- */
+.a-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); }
+.a-input { width: 100%; padding: var(--space-xs) var(--space-sm); font: inherit; color: var(--c-text);
+  background: var(--c-surface); border: var(--border) solid var(--c-border); border-radius: var(--radius-md); resize: vertical; }
+.a-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-md); }
+.a-toggle { display: inline-flex; align-items: center; gap: var(--space-2xs); font-size: var(--fs-sm); color: var(--c-text-muted); }
+.a-text { margin: 0; line-height: var(--lh-base); overflow-wrap: anywhere; }
+.a-text mark { color: inherit; background: none; }
+/* marks in the text, and the same marks on each chip's words, so the chips double as a legend */
+.a-text .a-phrase, .a-chip--phrase .a-chip__words { background: var(--c-accent-soft); border-radius: var(--radius-sm); }
+.a-text .a-colloc, .a-chip--colloc .a-chip__words { text-decoration: underline solid var(--c-accent);
+  text-decoration-thickness: var(--ring); text-underline-offset: var(--space-2xs); }
+.a-text .a-possible, .a-chip--possible .a-chip__words { background: none;
+  text-decoration: underline dashed var(--c-text-muted); text-underline-offset: var(--space-2xs); }
+.a-text .a-word { text-decoration: underline dotted var(--c-text-muted); text-underline-offset: var(--space-2xs); }
+.a-chips { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); margin: 0; padding: 0;
+  list-style: none; font-size: var(--fs-sm); }
+.a-chip { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2xs) var(--space-xs); min-width: 0; }
+.a-chip__words { font-style: italic; overflow-wrap: anywhere; }
+.a-chip__meta, .a-chip__look { font-size: var(--fs-xs); color: var(--c-text-muted); }
+.a-chip__possible { font-style: italic; }

@@ -249,5 +249,52 @@ class ServerSocket(unittest.TestCase):
                 server.server_close()
 
 
+class AnalyzeRoute(unittest.TestCase):
+    """POST /api/analyze, with the analyzer replaced: the route's own rules."""
+
+    def app(self, analyzer=lambda text: {"echo": text}):
+        return App(Path("/nonexistent.db"), None, analyzer)
+
+    def post(self, body, content_type="application/json", path="/api/analyze", **kw):
+        return self.app(**kw).handle_post(path, content_type, body if isinstance(body, bytes) else body.encode())
+
+    def test_json_in_json_out(self):
+        status, headers, body = self.post(json.dumps({"text": "She gave it up."}))
+        self.assertEqual((status, json.loads(body)), (200, {"echo": "She gave it up."}))
+        self.assertTrue(headers["Content-Type"].startswith("application/json"))
+
+    def test_only_json_so_other_sites_cannot_post_plain_text(self):
+        self.assertEqual(self.post("She gave it up.", content_type="text/plain")[0], 415)
+        self.assertEqual(self.post(json.dumps({"text": "x"}), content_type="application/json; charset=utf-8")[0], 200)
+
+    def test_malformed_requests(self):
+        self.assertEqual(self.post("not json")[0], 400)
+        self.assertEqual(self.post(json.dumps({"words": "x"}))[0], 400)
+        self.assertEqual(self.post(json.dumps({"text": 5}))[0], 400)
+        self.assertEqual(self.post(json.dumps({"text": "x"}), path="/api/elsewhere")[0], 404)
+
+    def test_size_and_build_errors_are_reported(self):
+        self.assertEqual(self.post(b'{"text": "' + b"a" * 1_000_001 + b'"}')[0], 413)
+
+        def unbuilt(text):
+            raise FileNotFoundError("analyzer.db is missing: run analyzer/build.py")
+        status, _, body = self.post(json.dumps({"text": "x"}), analyzer=unbuilt)
+        self.assertEqual(status, 503)
+        self.assertIn(b"analyzer/build.py", body)
+
+    def test_over_http(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(self.app()))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{server.server_address[1]}/api/analyze",
+                                         data=json.dumps({"text": "hi"}).encode(),
+                                         headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req) as resp:
+                self.assertEqual(json.loads(resp.read()), {"echo": "hi"})
+        finally:
+            server.shutdown()
+            server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()
