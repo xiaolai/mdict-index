@@ -1,0 +1,2560 @@
+{
+ "010e20c4b3be": {
+  "name": "[英-汉] ◆英语同义词辨析词典（第5.1版、合作版）【版本日期20090315】",
+  "staged_sha256": "8f68097ae1894797d809ab1ecbb7795db36d1d48463c84a9814115303b5d3a94",
+  "n": 4,
+  "flagged": 1,
+  "reviewed": 1,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "0307f8630c11": {
+  "name": "xsjhy20oct2",
+  "staged_sha256": "73623f3e3e3c2dcbea05f99feac864c2006d82083493b7735a9ca5eb2a671f33",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "034c2633e321": {
+  "name": "AHD3",
+  "staged_sha256": "79e7ac9522fb5c632f9bd74f3b63e9ea92aec4a36bd781a73d992d9d1eb25a90",
+  "n": 59,
+  "flagged": 23,
+  "reviewed": 5,
+  "bad": 3,
+  "precision": 0.6440677966101696
+ },
+ "0499f1cbbc30": {
+  "name": "[英-汉] Lexisnexis英汉法律辞典",
+  "staged_sha256": "cbfa8acdee43fb0b2ce4e81bce223dcf389e317cb490f7d97bb973f2662e7c53",
+  "n": 56,
+  "flagged": 55,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.017857142857142905
+ },
+ "04be71061413": {
+  "name": "[汉-汉] 英语文法基础,20090305v1.1GBK2",
+  "staged_sha256": "236a90e879ebbc1b1207b50acff29a8b3a14e9e18d925ec8f7c80a953844afde",
+  "n": 58,
+  "flagged": 30,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.48275862068965514
+ },
+ "04dc4384469d": {
+  "name": "☆☆☆☆☆",
+  "staged_sha256": "cce81924231390ca5c036769f52015d24b3b2b8925d1e10e62f24fee23b63586",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "0526b238bb35": {
+  "name": "文馨英漢辭典",
+  "staged_sha256": "c644e43546b0e6021832106075581f46e9119e754036f6a5c79c6572a2329a99",
+  "n": 57,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 2,
+  "precision": 0.9649122807017544
+ },
+ "061bb55e284a": {
+  "name": "[英-汉] ◆美国传统词典第3版（英汉带图例）【freegut原创】【版本日期20091218】",
+  "staged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "n": 0,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.0,
+  "note": "no accepted pairs to audit"
+ },
+ "07269b8ffd98": {
+  "name": "[英-汉] 牛津高阶第七版双解在线取词版",
+  "staged_sha256": "693e32f8a7a54707d8d5bc987fddb31b3950bc8ab727a450648ea57ab62a04e5",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "07ca33e471c3": {
+  "name": "yuyanxue",
+  "staged_sha256": "fcbafa676104dd332e0728a1dace4258c2a7894789c741f6260bf45fd2598772",
+  "n": 48,
+  "flagged": 48,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "080e5fb79ecc": {
+  "name": "[英-汉] 10语法 词典 连夜 发布kouyu",
+  "staged_sha256": "a36937038b053043e1fbcd1e45f983035cb6c737533c4786dea0031486428ff4",
+  "n": 59,
+  "flagged": 21,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.6779661016949152
+ },
+ "0b42cf98c139": {
+  "name": "[英汉-汉英] 简明英汉汉英、现代英汉汉英 & 金山词霸牛津系列【20110808 Remastered】 牛津英语搭配词典",
+  "staged_sha256": "11d441980ae8c8cd5ff29da32b351faf460687f2cf98307ff125abe28bbe6cff",
+  "n": 50,
+  "flagged": 2,
+  "reviewed": 1,
+  "bad": 0,
+  "precision": 0.98
+ },
+ "0bb0fc01eb76": {
+  "name": "[英-汉] 英汉法律缩略语词典[27239]",
+  "staged_sha256": "59bd7e188a83d42bfabd8390fa6d4364d74e947d36c4d3934ae91959c5bc121e",
+  "n": 60,
+  "flagged": 60,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "0bbc2485336b": {
+  "name": "沪江新世纪英汉",
+  "staged_sha256": "7e3ae2e9da8f525c73aac033d6783403dc59bc1ceccf8d66402643ca07fa6273",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "0c86c5dc9b50": {
+  "name": "牛津同义词词词典",
+  "staged_sha256": "e10ca60f807ce56a6537b5bfbbc60233875638b1fe8ea63e5e39b43515daa1f5",
+  "n": 11,
+  "flagged": 10,
+  "reviewed": 1,
+  "bad": 1,
+  "precision": 0.09090909090909094
+ },
+ "0c92e95f4f8e": {
+  "name": "牛津高阶英汉双解词典(第8版)",
+  "staged_sha256": "093a33496b22cc5acadfe995c062921c2c87f97a2c57926a53693b6ee5c7490a",
+  "n": 58,
+  "flagged": 8,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.8793103448275862
+ },
+ "0d4bdde138f4": {
+  "name": "[英-汉] ◆常用英语短语词典【Zhu1234原创】【版本日期20071111】",
+  "staged_sha256": "43bd78d7e03aeb60e91e3cb726a61fe56d7c72bbbdfee9de9372bc605ddbc082",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "0fac455cedb4": {
+  "name": "biaoxianwenxing",
+  "staged_sha256": "7710eccb3770ffc7ba9f58277aabbdba0d36108503ef9d67353188438ddfc9c3",
+  "n": 60,
+  "flagged": 58,
+  "reviewed": 58,
+  "bad": 58,
+  "precision": 0.033333333333333326
+ },
+ "1285b316f7f1": {
+  "name": "牛津英語搭配詞典 第二版 英漢雙解",
+  "staged_sha256": "9f80c28caf150b61c86b05c073f3778935d40706a5654d88faf402ac60dc4751",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "12b1265193b5": {
+  "name": "英文文法基础v1.1GBK2",
+  "staged_sha256": "236a90e879ebbc1b1207b50acff29a8b3a14e9e18d925ec8f7c80a953844afde",
+  "n": 59,
+  "flagged": 28,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.5254237288135593
+ },
+ "15438b0ce798": {
+  "name": "新世纪汉英大词典",
+  "staged_sha256": "f0166247d37d14e22a81cb2fd60738eb8e50d554ce9498f97ee98bc50d07398c",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "1576fb8f5f4e": {
+  "name": "[英-汉] 剑桥高阶英汉双解词典（第3版简体版）7.3最后更新",
+  "staged_sha256": "c32e22c6de4f83bc7ee284c1c844858ace418a40032afae5734d398e8604f4f5",
+  "n": 60,
+  "flagged": 11,
+  "reviewed": 11,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "15be9219eb40": {
+  "name": "21世纪大英汉词典",
+  "staged_sha256": "50e9a8c32f6884bce01ebb9d5c5432a7a5fff6102bf1d70961e61be6cefd8bd5",
+  "n": 50,
+  "flagged": 37,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.26
+ },
+ "16ee2e391796": {
+  "name": "CESCD",
+  "staged_sha256": "680f32ce382f6129b804f27a9ea7a0b080132cb198f9669b427cdeb61438ac60",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "1777cc58deaa": {
+  "name": "[英-汉] ◆英中医学辞海【版本日期20081223】",
+  "staged_sha256": "5958c17e7953d85092f41ff6a5686efd2054c75106f53aca32297b43beafc722",
+  "n": 55,
+  "flagged": 55,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "17e4a40ad39d": {
+  "name": "简明英汉汉英词典",
+  "staged_sha256": "569da0621f866f8d19524c69cbf8f80ee4d77fa72950893450aa11621cf4b0f3",
+  "n": 57,
+  "flagged": 52,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.08771929824561409
+ },
+ "18bae1dc9b64": {
+  "name": "21世纪英汉汉英双向词典 （简体版）",
+  "staged_sha256": "56e604e0f786cd74330530a9ed6e63c2189ac2f90aefd27ee8790544dde92416",
+  "n": 6,
+  "flagged": 1,
+  "reviewed": 1,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "190c07f24b1b": {
+  "name": "AHD4in1",
+  "staged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "n": 0,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.0,
+  "note": "no accepted pairs to audit"
+ },
+ "1a1a09f6ceae": {
+  "name": "★☆☆☆☆",
+  "staged_sha256": "51cf139a0994c492d8cb6a814e87c6064263d869b172f0c8547caa28db498d24",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "1b985c229cc5": {
+  "name": "优词英语词源词典",
+  "staged_sha256": "9b3eae07c12c78e31db7244aa253d4b3cbb4324ab6be34e067a9ae4c340eee2b",
+  "n": 60,
+  "flagged": 60,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "1ba9a77b04e5": {
+  "name": "英汉辞书(简体)同义词",
+  "staged_sha256": "6651ff51e31c6741cfa83e5ac118eed6c4d2e6b5005cdbc93650062913c855a7",
+  "n": 59,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "1c735ce987ae": {
+  "name": "Macmillan British English 2019",
+  "staged_sha256": "bae8af47acd3a1969dd5302e09d7426222e1452f1399ee216133df22b733dfa0",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "1c83a62bb6c8": {
+  "name": "[英汉-汉英] 经济学人中文版论坛精选（中英文）201011",
+  "staged_sha256": "4392258d8f8063d00188ece28e06d35f8d98a4cef1fc74dedcfa74c9f47d105c",
+  "n": 58,
+  "flagged": 45,
+  "reviewed": 12,
+  "bad": 4,
+  "precision": 0.3620689655172413
+ },
+ "1cd180f4d7cb": {
+  "name": "OALD4 原始图片编号",
+  "staged_sha256": "f4329cfde1bcee023219ea4099ffb9b2dd030e7391067bd220eb06a937c72374",
+  "n": 56,
+  "flagged": 8,
+  "reviewed": 6,
+  "bad": 3,
+  "precision": 0.9107142857142857
+ },
+ "1cff12808e50": {
+  "name": "牛津英语习语词典",
+  "staged_sha256": "72bf72eca4c9bda82184d235d0bb272ef86daec6e86a8a2c9d6d5d4d3726cb33",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "1d5e9ae90649": {
+  "name": "柯林斯COBUILD高阶英汉双解学习词典",
+  "staged_sha256": "7a287a684aacbcef2a72f5b542da42a717de26dd6773a4e3aa82669a06a9d27b",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "1d5fcb1faeb4": {
+  "name": "[汉-汉] 《圣经新约中英对照版》己修正br(應網友tong8071要求制作)",
+  "staged_sha256": "60c364bdc314fc6ae6c9cb60638ce56d5c778d8e281104b32bd2c43a14b67286",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 7,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "1eea3ae1a7fb": {
+  "name": "圣经典故辞典",
+  "staged_sha256": "eb10c6d04a3135053192dabe7f1061fa9451496bd07bab3f76e370fe1100fa71",
+  "n": 60,
+  "flagged": 33,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.4666666666666667
+ },
+ "1f557aae721a": {
+  "name": "Collins COBUILD (CN)",
+  "staged_sha256": "ca4d8958e3adb931a9d42a4b2555f1650204ba119e07697483feb09754629cf5",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "1f6142920404": {
+  "name": "[英-汉] 《词根记忆词典》[12060](090529)",
+  "staged_sha256": "51c8eed93e3798f855a4a954d26f34d1a035ceac8b7a8ad5ba0993540a93d19b",
+  "n": 60,
+  "flagged": 18,
+  "reviewed": 18,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "20c12dac9a29": {
+  "name": "牛津英语搭配词典（第2版 汉英反查）",
+  "staged_sha256": "9c3191e71181a3bb932ab979f937dc7ddd1d051040f9bc24c96864f25eac7c17",
+  "n": 60,
+  "flagged": 59,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.01666666666666672
+ },
+ "2174880e27b5": {
+  "name": "现代汉语词典(2002增补本)(汉英双语)",
+  "staged_sha256": "c6476401d016adaf6c9e4fa05dbde454f836c20fe68912adcd28089d503f9a82",
+  "n": 58,
+  "flagged": 57,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.03448275862068961
+ },
+ "21ed2159ccd6": {
+  "name": "[英汉-汉英] ◆牛津英汉双解词典【wh_cxh原创】【版本日期20031030】",
+  "staged_sha256": "cf8b7ecd4f4dbfb34578cba9a15acd5f9c415d01066e7361a534ee1faef9fff7",
+  "n": 60,
+  "flagged": 9,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "23fb6067a4e2": {
+  "name": "[英-汉] ◆【新牛津英汉双解大词典】【孤雷排版】【2011.8.29】",
+  "staged_sha256": "216761738b75738718dfd12b9b43a98ee4db1ec56cce9cb7870766c4f88c878d",
+  "n": 60,
+  "flagged": 16,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.7333333333333334
+ },
+ "252558250d9e": {
+  "name": "现代英汉汉英综合大辞典",
+  "staged_sha256": "900177ba92a2b76a7f15fe7fb9bbea7d0d3f5f8e46942e030428c4d8c50705f7",
+  "n": 60,
+  "flagged": 48,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.19999999999999996
+ },
+ "26205e94d410": {
+  "name": "TFD-TheFreeDictionary",
+  "staged_sha256": "e6f61832899b3b68e72dd572787fea57ff06aa84c329614e9f37003621b5ee0b",
+  "n": 60,
+  "flagged": 59,
+  "reviewed": 59,
+  "bad": 59,
+  "precision": 0.01666666666666672
+ },
+ "26490c3b3775": {
+  "name": "oxfordPrimary",
+  "staged_sha256": "461d8512d41d0c43ca2481afad92d69b9df6b8fe19d3094ddc974c8d0c32c374",
+  "n": 60,
+  "flagged": 14,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.7666666666666666
+ },
+ "2676a64282ba": {
+  "name": "LSC4",
+  "staged_sha256": "3f61fb1bd3f8683746d05f07cb4c5f3a6189ac1ad9e434eccbd67b018387002e",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "26ece27b33e5": {
+  "name": "Oxford Chinese Dictionary",
+  "staged_sha256": "b6b48edac1522be1b6988ea5f1a9afdf8a6591ba43fce6f13413cf445e047a66",
+  "n": 60,
+  "flagged": 23,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.6166666666666667
+ },
+ "27e8c560b10a": {
+  "name": "有道词语辨析",
+  "staged_sha256": "6da451c0729093cfdfe7c30499fe810b6ff916942cf088b9bb62a675bad3ae58",
+  "n": 60,
+  "flagged": 15,
+  "reviewed": 15,
+  "bad": 5,
+  "precision": 0.9166666666666666
+ },
+ "28d4245f7a0b": {
+  "name": "[英汉-汉英] ◆21世纪英汉汉英双向词典【QS9055原创】【版本日期20050207】",
+  "staged_sha256": "45e2e140421b0d198a3b743c589d58610233c479ac839f2a43c1e38b84a7964d",
+  "n": 9,
+  "flagged": 1,
+  "reviewed": 1,
+  "bad": 1,
+  "precision": 0.8888888888888888
+ },
+ "29024f5251f1": {
+  "name": "[英汉-汉英] [3合1] ODE2新牛津双解简明汉英【2011.6.19】",
+  "staged_sha256": "cf42131a54442a120faf5709ff69a07a5aa002c7de60f21d06e1f36650b2cc89",
+  "n": 60,
+  "flagged": 15,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.7833333333333333
+ },
+ "2a8f8a822c65": {
+  "name": "金山词霸2009现代英汉综合大辞典,superfan,20090126",
+  "staged_sha256": "125a6941fbf910a771b0077ac2607e9b13b3ff2e9d711e1fd44e8419a3b7bb96",
+  "n": 54,
+  "flagged": 14,
+  "reviewed": 6,
+  "bad": 3,
+  "precision": 0.7962962962962963
+ },
+ "2ba03db34f8f": {
+  "name": "xsjhy20oct",
+  "staged_sha256": "1a11cda223bd35c774717eac2972e8dc569665448282d54189c03687962a4889",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "2bb64d3c8ce7": {
+  "name": "21世纪英汉汉英双向词典",
+  "staged_sha256": "45e2e140421b0d198a3b743c589d58610233c479ac839f2a43c1e38b84a7964d",
+  "n": 8,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "2c5251c2ecb8": {
+  "name": "[英-汉] ◆考点900词典【匿名原创】【版本日期未注明】",
+  "staged_sha256": "c981c19902b817477d898538737669d2d1faca77fc7769904f2e21c163a9beeb",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "2c797c51074f": {
+  "name": "[其他语种] 《泰文释英及汉辞典》小语种系列第一炮[29889](090303)",
+  "staged_sha256": "eca730593b7556e17ff84e8272910699f74a6b70d199ae9e77e1ac9602452eb5",
+  "n": 49,
+  "flagged": 35,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.30612244897959184
+ },
+ "2d8d4cae07e7": {
+  "name": "[英-汉] 《英漢雙解路透金融詞典》[3618](090822)",
+  "staged_sha256": "e3eccbf9f46faa4f67585c5194a5392228e7e3c0916b094d96e917db593f3bc6",
+  "n": 59,
+  "flagged": 59,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "2fe3482252ad": {
+  "name": "朗文英汉双解活用词典（第3版）",
+  "staged_sha256": "0f35254cf9442bf7e6a79885a3a52c76a7b39c3380113eb805c630d6324326e8",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "30b8f30f2833": {
+  "name": "汉英词典（第三版）",
+  "staged_sha256": "7804886e428fea3d62c3f720b9bf0e30d268d3db2e20c1f5c9d91c952ce0fb5e",
+  "n": 60,
+  "flagged": 15,
+  "reviewed": 15,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "30dcd15ad161": {
+  "name": "[英-汉] ◆英汉句典v0.2【版本日期2009.2.20】",
+  "staged_sha256": "598ed1ebe513215c963f3a9ae3204662d4adfae16c624cc188eb55373b9953fb",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "3191372b3b76": {
+  "name": "[英汉-汉英] 简明英汉汉英、现代英汉汉英 & 金山词霸牛津系列【20110808 Remastered】 现代英汉汉英综合大辞典",
+  "staged_sha256": "900177ba92a2b76a7f15fe7fb9bbea7d0d3f5f8e46942e030428c4d8c50705f7",
+  "n": 60,
+  "flagged": 53,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.1166666666666667
+ },
+ "323c37dde972": {
+  "name": "Oxford Collocations English-Chinese Dictionary",
+  "staged_sha256": "b2495bd67a1304d716a3847fe2d35518ecee6867ed299186d8283f5ee36f5521",
+  "n": 46,
+  "flagged": 21,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.5434782608695652
+ },
+ "32787ebaa55e": {
+  "name": "Online Etymology DictionaryPLUS",
+  "staged_sha256": "b56eabd2bfc30ba791edc983055edab1fe5b2030d2fd69f0de9b4b9d1e5e5601",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "3530eb63cff2": {
+  "name": "Collins COBUILD (CN)",
+  "staged_sha256": "8861dc9aa7d853271148bdd61a4d058fe1eebc158721e5b31cdc323fe934362f",
+  "n": 59,
+  "flagged": 3,
+  "reviewed": 3,
+  "bad": 1,
+  "precision": 0.9830508474576272
+ },
+ "36629e3b8679": {
+  "name": "英汉大词典（第二版）陆谷孙",
+  "staged_sha256": "4837e6fdd14b6e10b764c1be008530aef34fd334016f13f80c4694dfce424e01",
+  "n": 40,
+  "flagged": 8,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.8
+ },
+ "39f8a756e6af": {
+  "name": "[英汉-汉英] 21世纪大英汉词典",
+  "staged_sha256": "295c5c31b462623d0c5c8fa2cb7b5d8f85745d1d0d3a495638963671fb5f628c",
+  "n": 50,
+  "flagged": 26,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.48
+ },
+ "3a3b1d394b73": {
+  "name": "Collins COBUILD Advanced Learner's EN-CN Dictionary . 8th Edition",
+  "staged_sha256": "d9bea4ccee666d9103af91d917e4ab13cb3a1779291a48708dd512001ec05130",
+  "n": 60,
+  "flagged": 15,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.7666666666666666
+ },
+ "3c1f59977c2b": {
+  "name": "美国传统双解词典",
+  "staged_sha256": "99549a5c263d9bc2a3632caa01219991e10980b79d52de400fe8118fb5765a04",
+  "n": 60,
+  "flagged": 20,
+  "reviewed": 20,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "3cf21d6e52f0": {
+  "name": "金山词霸2009牛津英语搭配词典,superfan,20090126",
+  "staged_sha256": "708c365ab2ca6b1c8225afe2b566a584df28c8c36bce9f9970adc6c241587d99",
+  "n": 59,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "3e10be170510": {
+  "name": "Microsoft Bing Dictionary",
+  "staged_sha256": "7fec096821e63a485bc2992b0627cc620ac6e8921a76967701a3d0d0a495b3d4",
+  "n": 60,
+  "flagged": 22,
+  "reviewed": 18,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "3e3213217f69": {
+  "name": "英汉辞书(简体)商务2",
+  "staged_sha256": "c8f258b5740d46d45a5a7e90ef675e7a8d6960bf68236f6685e2b1b9cac31a33",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "3f0d70d125e5": {
+  "name": "Oxford-FLTRP English-Chinese Chinese-English Dictionary",
+  "staged_sha256": "69f4841b8ae4a3cd0629fa988c60345666683579d53894416122805efbda9e5b",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "3f3dcba59e29": {
+  "name": "Oxford Thesaurus and The New Oxford En-Cn Dictionary",
+  "staged_sha256": "06fde350e07c80adb37ff95f66d5f4ee2b0d4ef271fc9c9e586ebb554124d859",
+  "n": 59,
+  "flagged": 22,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.6949152542372881
+ },
+ "3f8fd17e0490": {
+  "name": "葛传椝英语惯用法词典",
+  "staged_sha256": "7675872ffeff4ac628269ab9c957b6ec5b4dbb94d37b7695fbea966e0d96ee09",
+  "n": 54,
+  "flagged": 38,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.2962962962962963
+ },
+ "419b2546589f": {
+  "name": "[汉-汉] 徐小平TXT 南辞原创（教育）献给需要学习的朋友",
+  "staged_sha256": "48b036c38c57d836bd57b00f52c14db5d0241893593e1d928dc8a37ac1816bab",
+  "n": 60,
+  "flagged": 45,
+  "reviewed": 45,
+  "bad": 45,
+  "precision": 0.25
+ },
+ "428fd292d1ad": {
+  "name": "牛津短语动词词典",
+  "staged_sha256": "a04b29d3dedf5794e9f49631f1e6a11a335dc6854bb815683111e6c0237e5064",
+  "n": 57,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.9473684210526316
+ },
+ "42957faf7014": {
+  "name": "简明英汉字典增强版",
+  "staged_sha256": "6ad88485c3415c24a75341c17c076c7ad66cf67eed10cf0fa5f5341923a18926",
+  "n": 47,
+  "flagged": 19,
+  "reviewed": 12,
+  "bad": 3,
+  "precision": 0.7872340425531915
+ },
+ "435dfc9c03a0": {
+  "name": "[英-汉] 【2012.7.1】牛津高阶学习词典英汉双解第7版【OALD 8风格重新排版】",
+  "staged_sha256": "6988367b18b0dede1fbb8e1e9e15842380029c4644b3dc503761a2ccb6e5d760",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "4408b296c4a9": {
+  "name": "cambridge4",
+  "staged_sha256": "758a6e8f6f999cae969899322180aa1678155f684b7bd51d902ce3a33e84b252",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "44343fb7266b": {
+  "name": "[英-汉]发两个很好的数据文档，看看能不能做成词典！ ◆英文谚语辞典【版本日期20090222】",
+  "staged_sha256": "d937af7cd80f9dba7dce128f806a9f8c83d7429482e0401679275862855f76de",
+  "n": 58,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 2,
+  "precision": 0.9655172413793104
+ },
+ "46519cf856da": {
+  "name": "[英汉-汉英] 简明英汉汉英、现代英汉汉英 & 金山词霸牛津系列【20110808 Remastered】 新牛津英汉双解大词典",
+  "staged_sha256": "648ed32a48a45eafc6f12bfe688430c3be7a874addc410e8228ee2c5928aec90",
+  "n": 60,
+  "flagged": 12,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.8166666666666667
+ },
+ "48bbbaa123af": {
+  "name": "LDOCE4双解-Modified",
+  "staged_sha256": "51a4e9a9604e94676280f295baf4822763e24294ad199ee7c59236a01606ee19",
+  "n": 60,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "49290fe080f5": {
+  "name": "[英-汉] ◆GRE词汇精选【zhaohongxin原创】【版本日期未注明】",
+  "staged_sha256": "7d70d81f2c191d88ac90dc39d6fb1ec9bd3375e3245ca664633dd9289664cf04",
+  "n": 21,
+  "flagged": 19,
+  "reviewed": 2,
+  "bad": 2,
+  "precision": 0.09523809523809523
+ },
+ "4b56e23fe136": {
+  "name": "葛传椝英语惯用法词典",
+  "staged_sha256": "9378c9757eda0adc30314c023199c67b0d56090ec525f46dc9119e4b92525386",
+  "n": 51,
+  "flagged": 43,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.1568627450980392
+ },
+ "4c42fdea36c7": {
+  "name": "牛津高階英漢雙解詞典 第八版",
+  "staged_sha256": "ca16d17e8dd9af97fd73c3d2ed61edcf425a8c6c72add4ba34ad3072ee8eed3e",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "4d360f63bc0d": {
+  "name": "Longman Language Activator (en-ch)",
+  "staged_sha256": "305a5e9c728888d59bd463dd5dae303c6f904f319be30b7326d41346f1572bae",
+  "n": 60,
+  "flagged": 11,
+  "reviewed": 9,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "4e60670c14cb": {
+  "name": "[英-汉] 《英语常用短语词典》2011.12.07 修订第三版",
+  "staged_sha256": "6e35c58f912c2728c468588129c7383c1b168a416409aad05fbcf1c1a76dee58",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "4ea5c206111e": {
+  "name": "[英-汉] ◆大学生四级考点词典【匿名原创】【版本日期未注明】",
+  "staged_sha256": "a8e12a923497e951a30fab70d7a4fdee1b4df8b50257c2137619053c10f3a111",
+  "n": 60,
+  "flagged": 40,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.3666666666666667
+ },
+ "4f6ebb51c63b": {
+  "name": "[英-汉] 10语法 词典 连夜 发布cihui",
+  "staged_sha256": "379675bd17ed68f688e8e918c39de8dc8e7552f0665eea534e524214acf14d28",
+  "n": 59,
+  "flagged": 30,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.4915254237288136
+ },
+ "506d8f7acd90": {
+  "name": "譯典通英漢雙向字典",
+  "staged_sha256": "cd21e1aa2d5b7cf28f9e25b1eb9c082752eeb1b39585c1e1a40d17bba82170e3",
+  "n": 51,
+  "flagged": 43,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.1568627450980392
+ },
+ "5193070304a0": {
+  "name": "ahd3",
+  "staged_sha256": "e31688e368f9180f7b7d19e4f6d6d4acc44e1e1862e2d7d4dac1796410ccdd07",
+  "n": 60,
+  "flagged": 21,
+  "reviewed": 21,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "531b9ae070fe": {
+  "name": "[英汉-汉英] 《英汉汉英航海词典》[416974](090524)",
+  "staged_sha256": "0b5b513b88d2365152a53c14885bc4bf3e7fcea5f38dc76f27b2bf9a3ef18dda",
+  "n": 60,
+  "flagged": 50,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.16666666666666663
+ },
+ "59224c31311c": {
+  "name": "牛津高阶英汉双解词典(第8版)",
+  "staged_sha256": "093a33496b22cc5acadfe995c062921c2c87f97a2c57926a53693b6ee5c7490a",
+  "n": 56,
+  "flagged": 13,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.7857142857142857
+ },
+ "5a1a4a246bb7": {
+  "name": "牛津高阶英汉双解 第7版 （OALD8风格排版）",
+  "staged_sha256": "6988367b18b0dede1fbb8e1e9e15842380029c4644b3dc503761a2ccb6e5d760",
+  "n": 59,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9322033898305084
+ },
+ "5ac61b199027": {
+  "name": "[英汉-汉英] ◆译典通Dr.eye【Yesgundam原创】【版本日期20060901】Dr.eye第五版",
+  "staged_sha256": "6a9e42d4b3640d8a65ddeb7770207c3ba8b7517a34ef608a7741908cdc434a9e",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "5b449ffb679e": {
+  "name": "译典通英汉双向字典",
+  "staged_sha256": "9c5cd798f90b5b39bd93a5cda59a83aa4dff22f3d948ab743053297f53d6600d",
+  "n": 57,
+  "flagged": 42,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.26315789473684215
+ },
+ "5b516cc90ce9": {
+  "name": "[英汉-汉英] ◆新牛津英汉双解大词典(修订版)(金山词霸2009)【zhu1234原创】【版本日期20081212】急大家之所需，花了大把时间，重新修正美化这个东东。",
+  "staged_sha256": "9b8f3d2a0ddb9ec52d799b5e2cc589d6d822c04258518eaf2d5bf7992bbf1096",
+  "n": 59,
+  "flagged": 21,
+  "reviewed": 7,
+  "bad": 4,
+  "precision": 0.6949152542372881
+ },
+ "5c0a0d278875": {
+  "name": "xsjhy20oct",
+  "staged_sha256": "1a11cda223bd35c774717eac2972e8dc569665448282d54189c03687962a4889",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "5c3b66d315bb": {
+  "name": "语法Ⅰ",
+  "staged_sha256": "d184fb3ff569e9d2da5794d51902363bed57d75e60d9395f61d30bfb3d7cb2b9",
+  "n": 58,
+  "flagged": 20,
+  "reviewed": 10,
+  "bad": 4,
+  "precision": 0.7586206896551724
+ },
+ "5fa619fd9d55": {
+  "name": "牛津高阶双解OALD7zh",
+  "staged_sha256": "272f4f014a7c0a67f493726fdda34f19bfcabef7174ed0f885c12361e1c49b17",
+  "n": 60,
+  "flagged": 12,
+  "reviewed": 9,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "605bc805cef5": {
+  "name": "OALD4 深绿编号和高亮",
+  "staged_sha256": "78b0653291ca0b7c7a2e864e044e29b3da3e4ca7c747a9a2a1591e446e12069e",
+  "n": 53,
+  "flagged": 9,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.8301886792452831
+ },
+ "618622a18d22": {
+  "name": "最终的短语测试牛津英汉汉英词典",
+  "staged_sha256": "2f0fdf3fbf0a9a74ef33d0953d9fa64f33c88c3ae679756243de74c1355cfaeb",
+  "n": 60,
+  "flagged": 48,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.21666666666666667
+ },
+ "626d79826a19": {
+  "name": "AHD4-Huge Mod",
+  "staged_sha256": "2438a4dd28515163d5f7b0b1262c8ac1fd891cccaacde3f462739d076106afb5",
+  "n": 60,
+  "flagged": 22,
+  "reviewed": 22,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "63340ec2e39a": {
+  "name": "[英-汉] 【2012.7.1】朗文当代英语词典英汉双解第4版【LDOCE 5风格重新排版】",
+  "staged_sha256": "b57e64ece6387742365ca21fa78af796921c86c2f0ee450001e7eb2fd1488875",
+  "n": 60,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "633816630f69": {
+  "name": "collinsec",
+  "staged_sha256": "5bbfc69a083593e3a9dfc18fd4228e155c92d158171b5d5b2e34cb5d296c6d53",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "6344d78e5613": {
+  "name": "Oxford Advanced Learner's En-Ch Dictionary",
+  "staged_sha256": "36c5b871bf66961c69ffc287eaa60cb2c29db43b6d41e5636374f530aeda7fb1",
+  "n": 59,
+  "flagged": 4,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.9322033898305084
+ },
+ "63e35f351d8f": {
+  "name": "新浪博客 博客 李开复网文（南辞）首发",
+  "staged_sha256": "3e2dc1272b771fe95ac77855fbe4d04b99439138aaa915e0806881cd06ec35aa",
+  "n": 60,
+  "flagged": 21,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.65
+ },
+ "650ae021cfdb": {
+  "name": "金山词霸2009牛津同义词词典,superfan,20090126",
+  "staged_sha256": "3dec7a52b7c60a9a39238b29c3c3d5edc33fd980da1fd0c530657eb0c4235634",
+  "n": 45,
+  "flagged": 23,
+  "reviewed": 19,
+  "bad": 3,
+  "precision": 0.8444444444444444
+ },
+ "65706804a407": {
+  "name": "柯林斯高阶英汉双解学习词典",
+  "staged_sha256": "f6afe04f361b3c8fff5b0a1c69c43809dc478b318f7281596851773c78d75828",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "657635f95b51": {
+  "name": "OxfordDE-词汇",
+  "staged_sha256": "4800d6fe238d29f558e62dfa672a41b039a9e6cfed2a35b0af0372a56322ae73",
+  "n": 60,
+  "flagged": 13,
+  "reviewed": 11,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "65cb90d32107": {
+  "name": "[英-汉] 《Lexisnexis英汉法律辞典》yru網友要求的!",
+  "staged_sha256": "cbfa8acdee43fb0b2ce4e81bce223dcf389e317cb490f7d97bb973f2662e7c53",
+  "n": 59,
+  "flagged": 59,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "675f0febf108": {
+  "name": "[英-汉] 英语相关词语辨异词典",
+  "staged_sha256": "28ba24a602e00c9a4bdba863186d53b3e1eed292bea999f0b0dbe0b82c2927c6",
+  "n": 60,
+  "flagged": 27,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.5833333333333333
+ },
+ "685f97a2cd3b": {
+  "name": "边侃边译新新词汉英词典",
+  "staged_sha256": "dda894c6d6e72f46508c0888eb089e48b877c30d959229679d3c08688f31cb88",
+  "n": 42,
+  "flagged": 42,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.0
+ },
+ "6897707f3b0c": {
+  "name": "[英-汉] 《元照英美法词典》(重新排版)[48440](111004)",
+  "staged_sha256": "86bfae2cb43b282d38a11e31508482e25881be500d0a01b37cecd890b63c9b35",
+  "n": 7,
+  "flagged": 3,
+  "reviewed": 1,
+  "bad": 1,
+  "precision": 0.5714285714285714
+ },
+ "689804980d6f": {
+  "name": "英汉活用图解词典",
+  "staged_sha256": "5897bbebc6e221f6b3a788fb26f6e929f5a89393362db7d0aecaf25484bbd186",
+  "n": 21,
+  "flagged": 5,
+  "reviewed": 4,
+  "bad": 2,
+  "precision": 0.8571428571428572
+ },
+ "6a455f3c709a": {
+  "name": "LDOCE5++",
+  "staged_sha256": "fc5c1c6a5fa4fb07a5e1c96537e95fceb743ac11341ae6fe677dbef079656f5b",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "6c99e91d0f41": {
+  "name": "谜语大全",
+  "staged_sha256": "dafebf5dcd9c1b4074b82b634ff5442d2f33b14144ddd7b6d9776e70c70fadc9",
+  "n": 4,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "6cc29dfa11ba": {
+  "name": "[英汉-汉英] 简明英汉汉英、现代英汉汉英 & 金山词霸牛津系列【20110808 Remastered】 牛津英语习语词典",
+  "staged_sha256": "72bf72eca4c9bda82184d235d0bb272ef86daec6e86a8a2c9d6d5d4d3726cb33",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "6d2bb5dc5d32": {
+  "name": "朗文当代高级英语辞典",
+  "staged_sha256": "fae25be5b2f4a3b03d6dd0f666239096f9602f5f850be91da28316dd21fc8a75",
+  "n": 59,
+  "flagged": 5,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.9152542372881356
+ },
+ "6de4ea878993": {
+  "name": "英语习语双语例句词典",
+  "staged_sha256": "77dbaf22d8ef7bf12208935578bd70268a3f40d03a3872bff89034b18af6dea4",
+  "n": 59,
+  "flagged": 53,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.10169491525423724
+ },
+ "6eed752a7022": {
+  "name": "英语常用疑难词用法",
+  "staged_sha256": "e0bc4c5012b5865a42688bdfdd064e1960d38b5c7abcca17e83beeb2698f9c22",
+  "n": 54,
+  "flagged": 13,
+  "reviewed": 5,
+  "bad": 3,
+  "precision": 0.7962962962962963
+ },
+ "706aa605414c": {
+  "name": "O7",
+  "staged_sha256": "44ddd0f3bbccd9495a84e13800ffe25e37e706bbc764cf8a18fcec58aa566d0d",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "712676faed8e": {
+  "name": "ODECN",
+  "staged_sha256": "5e2d0d7f0bf313ed4a5b8d2cbb460423b68ede5aaae46e3a02175fd4a79ac497",
+  "n": 60,
+  "flagged": 13,
+  "reviewed": 13,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "71e02995b170": {
+  "name": "ODE 3e 20191231M",
+  "staged_sha256": "449c8b77c03fd425d1ec7a97b56d9d47f379daea93d8da44382ab9a58f431f9d",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "722ef49906e9": {
+  "name": "zhwikibooks-20171001",
+  "staged_sha256": "565b527a329b5eb791c5e2e08b7c98918cbaaf58e24ab5d5383c09856f2ef5b5",
+  "n": 60,
+  "flagged": 50,
+  "reviewed": 50,
+  "bad": 49,
+  "precision": 0.18333333333333335
+ },
+ "72b7ad3613b6": {
+  "name": "[英汉-汉英] 21世纪大英汉词典&新汉英大词典【1181更新】21",
+  "staged_sha256": "295c5c31b462623d0c5c8fa2cb7b5d8f85745d1d0d3a495638963671fb5f628c",
+  "n": 48,
+  "flagged": 33,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.33333333333333337
+ },
+ "7483fdf5247b": {
+  "name": "金山词霸2009简明英汉汉英词典,superfan,20090127",
+  "staged_sha256": "1d761729caaa82a9149b3183f3c4d86d2397704a88cf534bce2a98cb9842b46e",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "752bad5312f6": {
+  "name": "xsjhy20sep",
+  "staged_sha256": "86f4c6dd9ed1503eea01932151673b8c34864c7a2a8e1b0ede663addb9a3d79b",
+  "n": 60,
+  "flagged": 12,
+  "reviewed": 12,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "75387896f2a0": {
+  "name": "牛津高阶第七版双解版（音标非图片版）",
+  "staged_sha256": "8879351d2445fd6644ff4dd35cc447dbf53b98ce2a3d4a609caefc611f7bb9ed",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "76fd38748f02": {
+  "name": "[英汉-汉英] ◆新牛津英汉双解大词典(修订版)(金山词霸2009)【zhu1234原创】【版本日期20081212】(Tahoma字体) ",
+  "staged_sha256": "9b8f3d2a0ddb9ec52d799b5e2cc589d6d822c04258518eaf2d5bf7992bbf1096",
+  "n": 60,
+  "flagged": 20,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.6666666666666667
+ },
+ "79a236e6f212": {
+  "name": "柯林斯双解",
+  "staged_sha256": "d9bea4ccee666d9103af91d917e4ab13cb3a1779291a48708dd512001ec05130",
+  "n": 59,
+  "flagged": 9,
+  "reviewed": 7,
+  "bad": 3,
+  "precision": 0.9152542372881356
+ },
+ "7a11b869b84f": {
+  "name": "英汉大词典（第2版）",
+  "staged_sha256": "f49fb2d7ce74f2c6a789afd789ba17fed6b50019b077ab88faf35088f8c4fac6",
+  "n": 54,
+  "flagged": 17,
+  "reviewed": 17,
+  "bad": 1,
+  "precision": 0.9814814814814815
+ },
+ "7a4fba1e1344": {
+  "name": "col",
+  "staged_sha256": "b15e1fbcdb34651b8c8dd00bed860fe069e36e6fe6b5df5bd8fb93c001ed1a5b",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "7b684b9fcb8f": {
+  "name": "The American Heritage English-Chinese Dictionary 3rd",
+  "staged_sha256": "040150074031b393ad8f0cdfc2e5c61e6c42b2a6e6f8cad1692e1ed41d330457",
+  "n": 58,
+  "flagged": 22,
+  "reviewed": 20,
+  "bad": 3,
+  "precision": 0.9137931034482758
+ },
+ "7eed9dd63de1": {
+  "name": "[英汉-汉英][4合1]郎文英英5版双解4版Extra5版+简明汉英",
+  "staged_sha256": "cfc84319b24fd50def3b3e6e8f3a344ac09fa379f75ed00b1e80eae672272f20",
+  "n": 60,
+  "flagged": 9,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "7f9124284403": {
+  "name": "英汉大词典（第2版）",
+  "staged_sha256": "cdf8cdb6f64513de2d28178cf8a2fd1baa179d6377fe767e7a3384f22bacc222",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "83acb0ad1b1d": {
+  "name": "cambridge4",
+  "staged_sha256": "5742acea067279c5833f34d929ae7a7b98ee027de57069348c95d8a6123292af",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "845188022e62": {
+  "name": "21世纪大英汉词典",
+  "staged_sha256": "2593f36ad2963c4353a954459e1f1dbcd598e06d608d5b6dd17f4e36fcadd672",
+  "n": 58,
+  "flagged": 14,
+  "reviewed": 10,
+  "bad": 4,
+  "precision": 0.8620689655172413
+ },
+ "846053ca2b3f": {
+  "name": "牛津英语同义词学习词典",
+  "staged_sha256": "b7a274ba7028e428950fcebf983dba5da5e2def85ca6771c629b58f9e44f9452",
+  "n": 59,
+  "flagged": 15,
+  "reviewed": 15,
+  "bad": 1,
+  "precision": 0.9830508474576272
+ },
+ "8623679808a8": {
+  "name": "美国传统英语词典英汉双解第4版 mod",
+  "staged_sha256": "e31688e368f9180f7b7d19e4f6d6d4acc44e1e1862e2d7d4dac1796410ccdd07",
+  "n": 60,
+  "flagged": 22,
+  "reviewed": 22,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "862724aed9a1": {
+  "name": "牛津高阶英汉双解词典插图版 by yru",
+  "staged_sha256": "769c32cecb79baf67c259ad530d78a8af424341c355d5847fead31170cb09d02",
+  "n": 55,
+  "flagged": 11,
+  "reviewed": 8,
+  "bad": 3,
+  "precision": 0.8909090909090909
+ },
+ "863f2b90fbb0": {
+  "name": "[英-汉] 牛津高阶英汉双解词典插图修订版［20090706］再次修订（第四版）yru",
+  "staged_sha256": "88fca948f37c59f13b77eb4fcd3ba5a6eeff8a00e53bf8c6696f6647e6dc56d6",
+  "n": 51,
+  "flagged": 7,
+  "reviewed": 7,
+  "bad": 2,
+  "precision": 0.9607843137254902
+ },
+ "8680e68bf149": {
+  "name": "ABC汉英大词典  ZH-EN",
+  "staged_sha256": "7942bdd897ed239c5ce01ca2a451a50400e594ccd4bc9a070a1d982aa5130336",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "86a64289342b": {
+  "name": "新世纪英汉大词典(修)",
+  "staged_sha256": "786bc4b56d2e154dd89f9de54b2c6b3af141e3e0bff82a101df6d455980d1faf",
+  "n": 57,
+  "flagged": 10,
+  "reviewed": 10,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "899a443db26e": {
+  "name": "中学英汉双解多功能学习词典",
+  "staged_sha256": "0ff3404572d9cb110e4868d6fed0d183fdfa0eba4609903fa3ffa85f2b6c5f83",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "899b0a22aeef": {
+  "name": "英汉辞书(简体)搭配2",
+  "staged_sha256": "14b5e5dd42f1a3a2770a451823236bd8dbea28ab23bd49cd5cebbd0cd3d65291",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "8ac75f4c76a3": {
+  "name": "[英-汉] 习语词典 英汉 牛津 柯林斯等集合双语例句  扫描ocr识别的 11000左右词条",
+  "staged_sha256": "77dbaf22d8ef7bf12208935578bd70268a3f40d03a3872bff89034b18af6dea4",
+  "n": 59,
+  "flagged": 54,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0847457627118644
+ },
+ "8b23a1ab9150": {
+  "name": "[英汉-汉英] 简明英汉汉英、现代英汉汉英 & 金山词霸牛津系列【20110808 Remastered】 现代汉英综合大辞典",
+  "staged_sha256": "80e9b0247a22f6980627971f6e52307297c57c236f0923331a5cfbdb4f9a394d",
+  "n": 60,
+  "flagged": 45,
+  "reviewed": 45,
+  "bad": 45,
+  "precision": 0.25
+ },
+ "8d3a56432361": {
+  "name": "NO3in1 新牛津英英 + 新牛津双解 + 简明汉英",
+  "staged_sha256": "cf42131a54442a120faf5709ff69a07a5aa002c7de60f21d06e1f36650b2cc89",
+  "n": 60,
+  "flagged": 18,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.7
+ },
+ "8d6ffc954491": {
+  "name": "新浪读书频道",
+  "staged_sha256": "978df57bd6070f1b1cb81e51e179cb0eba0ac4a68392db4bee1bc8400aff0cab",
+  "n": 53,
+  "flagged": 53,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.018867924528301883
+ },
+ "8d8c098c5c7a": {
+  "name": "牛津高阶双解(第9版)_V3.1.2版",
+  "staged_sha256": "bd6c3c6a3a5e6d2c3c02aea938c7533ff8afec8f44dab86b592bf002fdb780f3",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "8e05d21576b0": {
+  "name": "[英-汉] 牛津高阶英语词典(第7版 双解版)",
+  "staged_sha256": "6a75eee85fece250da62b9fafc9702322c48eb72508ca7dd0abc87378a50d19b",
+  "n": 59,
+  "flagged": 3,
+  "reviewed": 3,
+  "bad": 1,
+  "precision": 0.9830508474576272
+ },
+ "8e7b1e237b77": {
+  "name": "★★★★☆",
+  "staged_sha256": "29f38bc5ba7d4116c10d4c0b4bed819c86526fabae923a368728e2591714b831",
+  "n": 59,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "8f192f7c0e57": {
+  "name": "新牛津英汉双解大词典 第2版",
+  "staged_sha256": "648ed32a48a45eafc6f12bfe688430c3be7a874addc410e8228ee2c5928aec90",
+  "n": 60,
+  "flagged": 12,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "8f53aa505c4d": {
+  "name": "[en_cn]OLCC四合一词典",
+  "staged_sha256": "64743a107a211ac393415357a516e3b974e66e93b9ade7104ae9aa7e9acd57f3",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "91e7df20b037": {
+  "name": "英汉双解美国习语词典4th",
+  "staged_sha256": "2dc05033791ec0f55196b244a89c48c315847f63022fce2db5fc1b38d28f0ebe",
+  "n": 60,
+  "flagged": 31,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.4833333333333333
+ },
+ "93f6a3cf57f9": {
+  "name": "南辞书库2（3000本电子书）",
+  "staged_sha256": "544d2f02e887aea238391845bf54ec0ae634f0426c80881cebcd25c38e8a85ba",
+  "n": 60,
+  "flagged": 45,
+  "reviewed": 45,
+  "bad": 45,
+  "precision": 0.25
+ },
+ "952071cd616c": {
+  "name": "[英-汉] 《可林斯高阶英汉双解第三版???》[16121](11.8.15)",
+  "staged_sha256": "6ee63163521132192869a0c42f7066b2ae71047f54401f7e77c64a537b27ef4b",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "96dd99f0c0f8": {
+  "name": "[英-汉] 10语法 词典 连夜 发布yufa",
+  "staged_sha256": "d184fb3ff569e9d2da5794d51902363bed57d75e60d9395f61d30bfb3d7cb2b9",
+  "n": 60,
+  "flagged": 21,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.6833333333333333
+ },
+ "971e406066d4": {
+  "name": "OALD4 红色编号和高亮",
+  "staged_sha256": "78b0653291ca0b7c7a2e864e044e29b3da3e4ca7c747a9a2a1591e446e12069e",
+  "n": 58,
+  "flagged": 9,
+  "reviewed": 7,
+  "bad": 3,
+  "precision": 0.9137931034482758
+ },
+ "988ebf1d2014": {
+  "name": "[英-汉] 原创 - 同义词辨析 - 网上搜集",
+  "staged_sha256": "7fc75a07512a9347dfc5336c097fc9794e95aa7d08cfa0151782be9bf83f325c",
+  "n": 60,
+  "flagged": 17,
+  "reviewed": 17,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "994284f32494": {
+  "name": "[英-汉] 10语法 词典 连夜 发布tongyici",
+  "staged_sha256": "80e6df05be557e61bbaa318ab856cec11b16e17cb4717c57d64be581887be702",
+  "n": 60,
+  "flagged": 21,
+  "reviewed": 21,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "9ad8df204df4": {
+  "name": "★★★★★",
+  "staged_sha256": "5b0d7552986df24073bcd90c16412c1d768c55f1541a9c66dc582bc25816dd6a",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "9b7363a6d77c": {
+  "name": "oald4",
+  "staged_sha256": "8d3940f2b957ad81079f0efb49af31366d7616107cf29be81f093fd3cc8dba48",
+  "n": 53,
+  "flagged": 13,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.7735849056603774
+ },
+ "9b9934bc2da0": {
+  "name": "[英-汉] ◆同义词辨析词典（第2，2.5版）【版本日期20090313】",
+  "staged_sha256": "712d1ea82e257fd835ab3b8c02e16720b395a76cbfbfff33f7f3556fef8f592f",
+  "n": 4,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "9bc19b1d0c31": {
+  "name": "[英-汉] 【20120423更新】美国传统英汉双解词典",
+  "staged_sha256": "08341933686f2c80f199ba16c74f0b0a30e2b64b1c66882490cb205b1aeda6ab",
+  "n": 60,
+  "flagged": 23,
+  "reviewed": 20,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "9c2fea4b5082": {
+  "name": "韦氏高阶英汉双解词典",
+  "staged_sha256": "74b2e561de8e2b65bdc788543c15783143c7abbc23b39c6604f70b69ec28ae73",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "9debf8031dfb": {
+  "name": "[英-汉] ◆美国传统词典双解【Bowang原创】【版本日期20080326】",
+  "staged_sha256": "c3e9fea4988c5f774821dd72bf73a738fe2c31b0efb456d43abd68eb7b8f8c44",
+  "n": 60,
+  "flagged": 29,
+  "reviewed": 12,
+  "bad": 4,
+  "precision": 0.65
+ },
+ "9defd28d9bcf": {
+  "name": "[英-汉] 计算机英汉双解词典",
+  "staged_sha256": "cf124511bdcc4724351c83e83c4f43b02fd3d399542b2f826164dcd2b8190d62",
+  "n": 51,
+  "flagged": 51,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.0
+ },
+ "9df3cabb7049": {
+  "name": "[英-汉] 6万多个句子飞跃6.0句库导出（附源文件）",
+  "staged_sha256": "8cddb3e59c4b6bd0cc036c531d09b07552da484bde3c371622d2ef155772d7f8",
+  "n": 60,
+  "flagged": 9,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "9ea827e1933b": {
+  "name": "[英-汉] ◆LstECStd带音标例句最小英汉学习词典【周乐奕原创】【版本日期20060921】",
+  "staged_sha256": "1b55a45d47f0111bf7c405393f273e070ecfdf67a3be598c6076bb39b6e35fa2",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "9f8bcb682fdc": {
+  "name": "L6mp3",
+  "staged_sha256": "13248c4fbe9d4b10a3ee4b0ce730cfb179af0e2c4066faf0bdc282a144453d4b",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "9fe192aeb4f2": {
+  "name": "简明英汉汉英词典",
+  "staged_sha256": "6a82ba8641b946d9fa59356ec449779325a7d8271f3d42c9ad533e0d444cc15e",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "a0a3393e3247": {
+  "name": "不择手段背单词.红宝书",
+  "staged_sha256": "972d1209e0d42c12e4b6438ac3e9adc6c8f32a6c84807a2325768693912f4332",
+  "n": 56,
+  "flagged": 8,
+  "reviewed": 5,
+  "bad": 3,
+  "precision": 0.8928571428571429
+ },
+ "a1e3d4101940": {
+  "name": "OALD8C",
+  "staged_sha256": "408ebfd70305cc5e1037f4fae83241dbbfac77b61a9a9b809109715baa4d3d99",
+  "n": 60,
+  "flagged": 10,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.85
+ },
+ "a2165545a187": {
+  "name": "Oxford Dictionaries Multilingual",
+  "staged_sha256": "46afa9ebacf6b98828e3a4b55e887ef4188eb4a216209c703ac74bd70c63b44c",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "a33fa02244b8": {
+  "name": "麦克米伦高级英英英汉词典",
+  "staged_sha256": "9078f9c0f0bfdb953f435023e18ac0239b21cbdb0992f97ff34bd4db4b532044",
+  "n": 58,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 2,
+  "precision": 0.9655172413793104
+ },
+ "a406c316641c": {
+  "name": "[英-汉] 美国传统英汉双解词典",
+  "staged_sha256": "e31688e368f9180f7b7d19e4f6d6d4acc44e1e1862e2d7d4dac1796410ccdd07",
+  "n": 59,
+  "flagged": 21,
+  "reviewed": 16,
+  "bad": 3,
+  "precision": 0.864406779661017
+ },
+ "a4e27ae61e63": {
+  "name": "AHD4-Asicsfree",
+  "staged_sha256": "67154c7542d48772ab87afccbd41bee0537fb4ff1fd14fa1a45be3a9b644d132",
+  "n": 59,
+  "flagged": 25,
+  "reviewed": 10,
+  "bad": 3,
+  "precision": 0.6949152542372881
+ },
+ "a7445fa34f22": {
+  "name": "[英-汉] ◆美国传统词典2007版【Likeabc原创】【版本日期未注明】",
+  "staged_sha256": "0394e1fac7749f5c11732ba998128e07554b31144d57dec2dd94a7be3e127083",
+  "n": 60,
+  "flagged": 23,
+  "reviewed": 23,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "a8afa1d1a66a": {
+  "name": "英汉双解莎士比亚大词典续编",
+  "staged_sha256": "b6e1f78454163b90ad9536d9287c66b6b86264ae10002ee41806bd4f7256b0d9",
+  "n": 60,
+  "flagged": 54,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.09999999999999998
+ },
+ "a9bc6ab1b991": {
+  "name": "[英-汉] 10语法 词典 连夜 发布yingyumingzhu",
+  "staged_sha256": "52352141ba09ed3edce02f2c399fbc2414b15d8c666e3bdfd1f4050d186b28d4",
+  "n": 59,
+  "flagged": 21,
+  "reviewed": 11,
+  "bad": 4,
+  "precision": 0.7627118644067796
+ },
+ "a9e7a65b58b5": {
+  "name": "Oxford Idioms English-Chinese Dictionray",
+  "staged_sha256": "061fc2c03185f3ecdec51b092842ea31cf9818ed22cf42d8902b9145201f4bfa",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9166666666666666
+ },
+ "ace458c029a4": {
+  "name": "美国传统双解词典",
+  "staged_sha256": "c3e9fea4988c5f774821dd72bf73a738fe2c31b0efb456d43abd68eb7b8f8c44",
+  "n": 60,
+  "flagged": 18,
+  "reviewed": 16,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "ad17a9010a5e": {
+  "name": "朗文当代高级英语辞典（汉英+同义词+例句反查）",
+  "staged_sha256": "309c8157655611dd49e0933a2ba47536c6d54228d5442897cc9cc5134309c102",
+  "n": 60,
+  "flagged": 9,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "ad315034f10e": {
+  "name": "新牛津英汉双解第2版 douglascm",
+  "staged_sha256": "03b1046383d75949765f966dae71933ad4d34acea9686451f5db8db2e9f5ce06",
+  "n": 60,
+  "flagged": 16,
+  "reviewed": 7,
+  "bad": 4,
+  "precision": 0.7833333333333333
+ },
+ "ad3514b8ea70": {
+  "name": "柯林斯高阶英汉双解学习词典（汉英+同义词+例句反查）",
+  "staged_sha256": "e7e84ea11bce340149d46301310ed76bd8c0cb94246dffe8177cdcfbfe598319",
+  "n": 60,
+  "flagged": 13,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.8166666666666667
+ },
+ "ad779cfbdd3f": {
+  "name": "[英-汉] 10语法 词典 连夜 发布yufa2",
+  "staged_sha256": "e06336d6791ead25b650d23a1f78e79bf6c836c98771f15069dcf8f442f5af38",
+  "n": 58,
+  "flagged": 39,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.3620689655172413
+ },
+ "adab52c8df1c": {
+  "name": "[英-汉] ◆【牛津高阶学习词典英汉双解第7版】【全新孤雷排版】【2011.7.31】",
+  "staged_sha256": "df848d8164c140f6a760e2e6871252983971a33df58821b924b3685b0a56d13e",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "ae5c7812fc6c": {
+  "name": "牛津高阶英汉双解词典第4版插图版.by.yru",
+  "staged_sha256": "769c32cecb79baf67c259ad530d78a8af424341c355d5847fead31170cb09d02",
+  "n": 53,
+  "flagged": 12,
+  "reviewed": 11,
+  "bad": 3,
+  "precision": 0.9245283018867925
+ },
+ "aea41fb35cf9": {
+  "name": "新英汉词典",
+  "staged_sha256": "a335b2dfad16966e7a13654c5e96d3bcc6d1f0a2d2a17def4d7f6afb4b05d1a8",
+  "n": 57,
+  "flagged": 39,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.33333333333333337
+ },
+ "af892f4307dd": {
+  "name": "现代汉英综合大辞典",
+  "staged_sha256": "80e9b0247a22f6980627971f6e52307297c57c236f0923331a5cfbdb4f9a394d",
+  "n": 60,
+  "flagged": 48,
+  "reviewed": 48,
+  "bad": 47,
+  "precision": 0.21666666666666667
+ },
+ "b0e99cb8a817": {
+  "name": "OxfordDE-英汉",
+  "staged_sha256": "cc57d9a694575ae514d691248df634d885f669f2fe4f95d23315b76b91c201a5",
+  "n": 59,
+  "flagged": 15,
+  "reviewed": 9,
+  "bad": 4,
+  "precision": 0.8305084745762712
+ },
+ "b5011a86d3d0": {
+  "name": "英语常用短语词典",
+  "staged_sha256": "6e35c58f912c2728c468588129c7383c1b168a416409aad05fbcf1c1a76dee58",
+  "n": 60,
+  "flagged": 0,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "b67b6bd5c815": {
+  "name": "[英汉-汉英] ◆zhu1234的浮动窗口词典【zhu1234原创】【版本日期20080420】",
+  "staged_sha256": "0ae77542bd6a22422a7aa80d5e25d85c2c8537e3a589b0597f5b15bea75d0ff7",
+  "n": 56,
+  "flagged": 56,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.0
+ },
+ "b68e46417769": {
+  "name": "牛津高阶英汉双解词典第7版 繁体版",
+  "staged_sha256": "5acc4c975fd457fd264204bb46b28707dcc590471e3a582ca02ba869b9fed065",
+  "n": 60,
+  "flagged": 10,
+  "reviewed": 6,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "b72b8c84f095": {
+  "name": "[英-汉] ◆英语词组双解【wzl1976原创】【版本日期未注明】",
+  "staged_sha256": "5556f70d1f99b923aa40aa9e3373924ef861f38882b0f5fe76195b9552462f5f",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "b90c992a7859": {
+  "name": "[英-汉] WINDOWS API查询词典2259个API",
+  "staged_sha256": "612a9cbaba4937d045bc8a173acb6ba8319d45ccdeece6b5e04a984aaea14afb",
+  "n": 46,
+  "flagged": 46,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.0
+ },
+ "baca1744d4d2": {
+  "name": "LD4in1u8",
+  "staged_sha256": "cfc84319b24fd50def3b3e6e8f3a344ac09fa379f75ed00b1e80eae672272f20",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "bd45e54c3ccc": {
+  "name": "牛津现代英汉双解词典(第9版)",
+  "staged_sha256": "afd689f55709079a7eb705bbae2c0055e0b5c28a43046bf80df39c08e01860ad",
+  "n": 50,
+  "flagged": 46,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.07999999999999996
+ },
+ "bdea79ffb5bb": {
+  "name": "LDOCE6++ En-Cn V2-19",
+  "staged_sha256": "7e46d44982d191f5f794dbedb73840f05e7c3b077ddc565695d96bbbd445887c",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "be6df8b34184": {
+  "name": "[英-汉] 英汉法律词典[62863](090823)",
+  "staged_sha256": "7348f462a2f9cb915a67a48f3104b1df07defe9821506f39ed8982f23334f0b7",
+  "n": 59,
+  "flagged": 14,
+  "reviewed": 11,
+  "bad": 4,
+  "precision": 0.8813559322033898
+ },
+ "c01400b52157": {
+  "name": "NO3in1",
+  "staged_sha256": "cf42131a54442a120faf5709ff69a07a5aa002c7de60f21d06e1f36650b2cc89",
+  "n": 60,
+  "flagged": 13,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.8
+ },
+ "c1d96de580b4": {
+  "name": "英语相关词语辨异词典",
+  "staged_sha256": "28ba24a602e00c9a4bdba863186d53b3e1eed292bea999f0b0dbe0b82c2927c6",
+  "n": 60,
+  "flagged": 23,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.6166666666666667
+ },
+ "c38495120391": {
+  "name": "牛津英语同义词英汉双解",
+  "staged_sha256": "588734ffa7a951065d47838e6673a346c0d45576a4beecd39986437d2fe2e645",
+  "n": 54,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9814814814814815
+ },
+ "c6236a174cb1": {
+  "name": "金山词霸2009牛津短语动词词典,superfan,20090126",
+  "staged_sha256": "fbb22b6445d7f4e1f5831ff18c6da66d81f8e8ba6e4d23aba9237306dd337d4e",
+  "n": 57,
+  "flagged": 1,
+  "reviewed": 1,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "c6d5b3ed314b": {
+  "name": "百词斩图解词典",
+  "staged_sha256": "c322d27b0fec6a631b5521c17aedf63ce840dd3e712e7bdea9a3e63ad8146037",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "c8689f43ebd1": {
+  "name": "oald9",
+  "staged_sha256": "c2a123749199d93913b5e4e4e414fe8d4e120761948ac5886c1fb3f7feb33bb1",
+  "n": 60,
+  "flagged": 18,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.7166666666666667
+ },
+ "c961a09792fa": {
+  "name": "[英-汉] ◆红宝书和不择手段词汇【wh_cxh原创】【版本日期20060701】",
+  "staged_sha256": "972d1209e0d42c12e4b6438ac3e9adc6c8f32a6c84807a2325768693912f4332",
+  "n": 56,
+  "flagged": 12,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.8035714285714286
+ },
+ "ca8a0b3bc334": {
+  "name": "新世纪英汉大词典",
+  "staged_sha256": "85722b2a2bf3ae187571eafb6b22c002154cd16b9bcfe47ccd85839c94ee5823",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "cb0d0708178a": {
+  "name": "[英汉-汉英] ◆21世纪电脑英汉汉英双向辞典【beesnow原创】【版本日期20080921】",
+  "staged_sha256": "9bc4372c0483cf957905af92bd9ac618282b58bd05df6fffacc1756326553f60",
+  "n": 12,
+  "flagged": 1,
+  "reviewed": 1,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "cc99a61d634e": {
+  "name": "英汉辞书(简体)牛津8",
+  "staged_sha256": "aa842b6038dfead3736bee01dbe01aed00e6e266114cd2fb8c466a0567317fbf",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "cd36d5a698ca": {
+  "name": "牛津高阶英汉双解词典(第9版)_V3.1.2版",
+  "staged_sha256": "d22128ab93651932fd746ad354799b8d131769ff921eff3baf8ec379f40280af",
+  "n": 59,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "cee53e9ce4ed": {
+  "name": "美国传统英语词典英汉双解第3版",
+  "staged_sha256": "67154c7542d48772ab87afccbd41bee0537fb4ff1fd14fa1a45be3a9b644d132",
+  "n": 60,
+  "flagged": 24,
+  "reviewed": 24,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "cef2d16f4147": {
+  "name": "[英-汉] 剑桥高阶英汉双解词典（第3版繁体版）7.3最后更新",
+  "staged_sha256": "72131fa41ef12cd9b730853a33ad06309bbc8da1be8806016017173dd85b3eef",
+  "n": 60,
+  "flagged": 11,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ },
+ "cf448877d930": {
+  "name": "英语词组双解",
+  "staged_sha256": "5556f70d1f99b923aa40aa9e3373924ef861f38882b0f5fe76195b9552462f5f",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 8,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "cffafa210103": {
+  "name": "The New Oxford Dictionary of English 2nd (CN)",
+  "staged_sha256": "a016ca4bbf1f8b62de2e38f3a9083429a14b91e64a2cdd75545effc453643753",
+  "n": 58,
+  "flagged": 21,
+  "reviewed": 6,
+  "bad": 3,
+  "precision": 0.6896551724137931
+ },
+ "d0c8521d4c83": {
+  "name": "朗文当代英汉双解词典第4版",
+  "staged_sha256": "cfc84319b24fd50def3b3e6e8f3a344ac09fa379f75ed00b1e80eae672272f20",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.9333333333333333
+ },
+ "d0d789df937c": {
+  "name": "[汉-汉] 东方文化西方语 南辞博客原创（军事）",
+  "staged_sha256": "8d8ebc73c2963e76acccace386fdea519471343ad935923f242ab604289bf226",
+  "n": 55,
+  "flagged": 55,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "d27fc099be7d": {
+  "name": "[英汉-汉英] [5合1]米国传统系列组合",
+  "staged_sha256": "dcbbba980077d52e19fc30c4de3c24a092781cb7fb4022189972eb8215be2a97",
+  "n": 59,
+  "flagged": 59,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.0
+ },
+ "d32e4049fe14": {
+  "name": "OALD4 黑色编号和高亮",
+  "staged_sha256": "78b0653291ca0b7c7a2e864e044e29b3da3e4ca7c747a9a2a1591e446e12069e",
+  "n": 53,
+  "flagged": 10,
+  "reviewed": 10,
+  "bad": 3,
+  "precision": 0.9433962264150944
+ },
+ "d42ca8b4c681": {
+  "name": "Oxford Dictionary of English, 3rd",
+  "staged_sha256": "225a792979572ed82ec7180ca96632476bac24a8d83ae5de0f62ce7385892454",
+  "n": 57,
+  "flagged": 55,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.03508771929824561
+ },
+ "d467223c70c9": {
+  "name": "The New Oxford Dictionary of English 2nd (CN)",
+  "staged_sha256": "a016ca4bbf1f8b62de2e38f3a9083429a14b91e64a2cdd75545effc453643753",
+  "n": 56,
+  "flagged": 16,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.7321428571428572
+ },
+ "d510dbde8c09": {
+  "name": "新华字典(汉英双语版)",
+  "staged_sha256": "2f60a5c27d2115d5cacaa7b6fafed0a83c16b54fbf9c865b3ea8e8df71d11867",
+  "n": 50,
+  "flagged": 50,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.0
+ },
+ "d56da79e4f5a": {
+  "name": "朗文英汉双解活用词典",
+  "staged_sha256": "0f35254cf9442bf7e6a79885a3a52c76a7b39c3380113eb805c630d6324326e8",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "d592a9cd4293": {
+  "name": "CollinsCOBUILDOverhaul V 2-30",
+  "staged_sha256": "69c8d1a7f4fa87be556ed7840b9bfc4463c4a8d89fb804d92fa1dafe330a8393",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "d5fa4e25fa88": {
+  "name": "[英-汉] ◆英语谚语【Zdi原创】【版本日期未注明】",
+  "staged_sha256": "9b4b8418becc6ce5eed0d7123dc8b44a90b1ad6f117745156403016db38cefe5",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "d6696200c298": {
+  "name": "金山词霸2009牛津英语习语词典,superfan,20090126",
+  "staged_sha256": "ad63eb8ac8abe95ce537205d2184c3edeac41dae5be8af828b5fd9468d1c532b",
+  "n": 60,
+  "flagged": 10,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "d680fb5f3099": {
+  "name": "外教社·柯林斯汉英大词典",
+  "staged_sha256": "8e182506f1a48e44dbb44f92a51b391d1aaca9ee6828d77c71edc458a3ae1ea3",
+  "n": 60,
+  "flagged": 11,
+  "reviewed": 11,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "d6d1fb63bc71": {
+  "name": "现代汉语词典(汉英双语)",
+  "staged_sha256": "998077fe10b7c36b8e73ca379019f3dbffc96364467cef3425834ee6565b105c",
+  "n": 60,
+  "flagged": 29,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.5333333333333333
+ },
+ "d6e93579fd0f": {
+  "name": "英华大词典（修订第三版）",
+  "staged_sha256": "3013087fc024983fca0f451dbf47682b808e8db0ddf4a0398a56d4bcfe69e1c7",
+  "n": 58,
+  "flagged": 31,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.48275862068965514
+ },
+ "d86ef509e384": {
+  "name": "要你命3000",
+  "staged_sha256": "6803597a6bb93ee8091510f9bbc4973d15845473077f08b31bc406273d96dbd6",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 7,
+  "bad": 5,
+  "precision": 0.9166666666666666
+ },
+ "d96127fbd76d": {
+  "name": "[汉-汉] 《圣经旧约中英对照版》己重新排序090214",
+  "staged_sha256": "877975fc4123418d2ffb386f719cb568dc51c9c97b106b43a284bb46e0922ac1",
+  "n": 60,
+  "flagged": 9,
+  "reviewed": 9,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "d9a013aba78f": {
+  "name": "[英-汉] 新牛津英汉双解（提取自freegut 3in1版本）ODE2双解(from3in1)",
+  "staged_sha256": "2ab152a8dd77bb6867178341dc9a5c26e83c37645b3f20129fcb71f8c9fa491f",
+  "n": 60,
+  "flagged": 21,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.65
+ },
+ "d9d1df3ce991": {
+  "name": "麦克米伦高阶英汉双解词典",
+  "staged_sha256": "f8a90c3a23ca10aca0ce6316de14b3d4877dc61b8ae9584d61fba3bc0f0ccfe0",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "d9e62d3665e6": {
+  "name": "[英-汉] 10语法 词典 连夜 发布richangkouyu",
+  "staged_sha256": "f5f4df5b2248d9aabd9239edee73a9aa05afa42ce0116b50b1ec1a5e394ef132",
+  "n": 58,
+  "flagged": 16,
+  "reviewed": 8,
+  "bad": 4,
+  "precision": 0.7931034482758621
+ },
+ "dbf71dacfbac": {
+  "name": "英语介词用法词典",
+  "staged_sha256": "87d765be3f3e70dc45f0b4565ca7d1d3b18bca17d15e494af1ad6b9f069ad38e",
+  "n": 60,
+  "flagged": 58,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.033333333333333326
+ },
+ "dc55a858a854": {
+  "name": "英文谚语辞典",
+  "staged_sha256": "d937af7cd80f9dba7dce128f806a9f8c83d7429482e0401679275862855f76de",
+  "n": 58,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9827586206896551
+ },
+ "dd6353b03cc1": {
+  "name": "★★★☆☆",
+  "staged_sha256": "ad3716d738f0eb24274d0e04eeaad5c45ab15e8a4460b03509a30d2c245a5f06",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "de42b466eb0a": {
+  "name": "TLD",
+  "staged_sha256": "3d0abfe32791b2e698479566e2dfd8d39eb4a338b72ad920963587b5755cd5b2",
+  "n": 53,
+  "flagged": 24,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.5660377358490566
+ },
+ "de8ffe6c95b7": {
+  "name": "dicts_combiner_X Advanced Learner 6in1",
+  "staged_sha256": "5f028b0efd8f56229952b1245ce88f2f833fd3e9537f724ecde83f1d84ecb791",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "df609458253f": {
+  "name": "牛津英語搭配詞典 第二版 英漢雙解",
+  "staged_sha256": "7e1a127a703ebe866d64e5cd1225327d3acdbc52436790f643f5b4facabc33a0",
+  "n": 60,
+  "flagged": 2,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9666666666666667
+ },
+ "dfb3c42d2432": {
+  "name": "兵器宝典",
+  "staged_sha256": "ef26f36f72ae3e0f6ac348bf45fd9391f249bdeca51d5070012c004dac8991c9",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "e0d1b03e4f6f": {
+  "name": "新时代汉英大词典",
+  "staged_sha256": "b97038a078bad46ad3c0db0b306c670dceb98e2f6e0075f20d086873820b307b",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "e235e2774453": {
+  "name": "牛津英語同義詞學習詞典 英漢雙解",
+  "staged_sha256": "75bca34fd6186a2b82b32d850f8176dabe8e465e74d4526a2d9732d79ebf583a",
+  "n": 59,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 2,
+  "precision": 0.9661016949152542
+ },
+ "e2fa659ae725": {
+  "name": "A Modern Chinese English Dictionary",
+  "staged_sha256": "107efad1c397fa77e481ab0e77eee5944113e6a2a979c5ec768f04680a151970",
+  "n": 60,
+  "flagged": 37,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.4
+ },
+ "e3041b57494e": {
+  "name": "[英汉-汉英] 简明英汉汉英、现代英汉汉英 & 金山词霸牛津系列【20110808 Remastered】 简明英汉汉英词典",
+  "staged_sha256": "569da0621f866f8d19524c69cbf8f80ee4d77fa72950893450aa11621cf4b0f3",
+  "n": 59,
+  "flagged": 49,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.1694915254237288
+ },
+ "e38f5f480961": {
+  "name": "熟词生义",
+  "staged_sha256": "f5f90ac7b6b831b8706b5d80299e980ff0ba09a9826cc2c06cc2b857c0cf776d",
+  "n": 34,
+  "flagged": 34,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.0
+ },
+ "e4ece655780e": {
+  "name": "新世纪汉英大词典（第二版）-2018-01-18",
+  "staged_sha256": "3f95df59a1b62ce8cffa8c13a7e37a9c120a6a659a41d2df8583d5d181d57f67",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "e51f8fd8276a": {
+  "name": "Oxford·FLTRP EC-CE Dictionary",
+  "staged_sha256": "a2a776309211d7afd2faa0e53817890cddce82e01d720df9ae7ed61e53755eea",
+  "n": 60,
+  "flagged": 14,
+  "reviewed": 10,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "e584e7d8f3ec": {
+  "name": "oald9",
+  "staged_sha256": "c2a123749199d93913b5e4e4e414fe8d4e120761948ac5886c1fb3f7feb33bb1",
+  "n": 60,
+  "flagged": 12,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.8166666666666667
+ },
+ "e61a79f711ad": {
+  "name": "★★☆☆☆",
+  "staged_sha256": "b03aff64fcfc4851187e6fbdfc8699d54ea77cf4e4d644de48806479cdeea825",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "e798255e437d": {
+  "name": "[英-汉] 10语法 词典 连夜 发布dianjin",
+  "staged_sha256": "b0a62f64e6e0f5baa277f9906f878b77f06fa1d2cfebb963a5fc800a0a99cc35",
+  "n": 60,
+  "flagged": 48,
+  "reviewed": 7,
+  "bad": 4,
+  "precision": 0.25
+ },
+ "e880bea5c38f": {
+  "name": "新牛津",
+  "staged_sha256": "cf0a887f82acb8e330ed9785f6b85219f7a60382f46bb76fef244dd8970fa84b",
+  "n": 60,
+  "flagged": 15,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.75
+ },
+ "e97c4154a6a4": {
+  "name": "韋氏高階英漢雙解詞典_2019",
+  "staged_sha256": "ebd26e88efa3a212223251b17c0d0dcfcda72d11ce8c7a3ae10711c47691b18f",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "e99ed01a3c48": {
+  "name": "21世紀電腦英漢漢英雙向辭典",
+  "staged_sha256": "1ddf36095d7d15e109af4e0ce62c609879964312bf02e89e83c6899463a4ecc7",
+  "n": 5,
+  "flagged": 2,
+  "reviewed": 1,
+  "bad": 1,
+  "precision": 0.6
+ },
+ "eacf174ebb0c": {
+  "name": "外研社《现代汉英词典·现代英汉词典》新版二合一",
+  "staged_sha256": "52692542ec7f6ab89ce9ee0fa2340049da7cf009e0b391da1728f13b08bc5e14",
+  "n": 51,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9803921568627451
+ },
+ "eb2121112454": {
+  "name": "21世纪大英汉词典",
+  "staged_sha256": "2e0fd1d04cb5532e01b4b9cb84bafe61133ee22ef9abc4a469beec6579cd024c",
+  "n": 60,
+  "flagged": 10,
+  "reviewed": 10,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "ebc4ca5ff3f1": {
+  "name": "语法Ⅱ",
+  "staged_sha256": "e06336d6791ead25b650d23a1f78e79bf6c836c98771f15069dcf8f442f5af38",
+  "n": 58,
+  "flagged": 44,
+  "reviewed": 9,
+  "bad": 4,
+  "precision": 0.3275862068965517
+ },
+ "ec062df37fd4": {
+  "name": "英汉辞书(简体)同义词",
+  "staged_sha256": "6651ff51e31c6741cfa83e5ac118eed6c4d2e6b5005cdbc93650062913c855a7",
+  "n": 58,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9827586206896551
+ },
+ "ec26f150c6f9": {
+  "name": "新东方考研词汇 词根+联想 记忆法",
+  "staged_sha256": "63243ff6cb66c4d1c84b15875808cccec086771e587a4c191d228f5e75bee4ff",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "ed54f4a473f6": {
+  "name": "New Oxford English-Chinese Dictionary, 2nd",
+  "staged_sha256": "d123806f2b726786f363618baea14b3046114cd810a6d4b5cf46a6d395810e70",
+  "n": 57,
+  "flagged": 17,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.7192982456140351
+ },
+ "ef6b6b5e9e54": {
+  "name": "英语常见问题解答大词典1998_完美",
+  "staged_sha256": "c8381b726bc7777045536be10319971149f24abec5881b4ff8661b0584809ff1",
+  "n": 50,
+  "flagged": 16,
+  "reviewed": 3,
+  "bad": 3,
+  "precision": 0.6799999999999999
+ },
+ "efe8afac7e4e": {
+  "name": "[英-汉] ◆不择手段背单词【匿名原创】【版本日期未注明】",
+  "staged_sha256": "c0410cd9b7c8fdfbf38717f8bdad3c49bdee63a71900b8936f07e5ba9e71632a",
+  "n": 59,
+  "flagged": 14,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.7796610169491526
+ },
+ "efe9ace33332": {
+  "name": "[英汉-汉英] ◆四合一大词典，Niubility Dictionary Ultimate【Wncable原创】【版本日期20080328】",
+  "staged_sha256": "086beb0d1b983547116b5303eac0587920cddfb4db41a74b3f390f9556dcf15c",
+  "n": 60,
+  "flagged": 39,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.3666666666666667
+ },
+ "f050aa0bad57": {
+  "name": "[汉-汉] 《新约旧约圣经中英对照版》（macli建议的方式）(090220)",
+  "staged_sha256": "10dc2d2ab9ccf90f5ff3887619619633a56e8deef6f9df2dae3c274155479e6d",
+  "n": 60,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "f07fdec4c4ab": {
+  "name": "牛津商務英語詞典 英漢雙解第二版",
+  "staged_sha256": "4d067fd16ccbef4fb7862d5338ef6e54a59c8115adba9a18be5d11c809565ce6",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "f09d141e95bf": {
+  "name": "新牛津Beta_V2.4",
+  "staged_sha256": "d123806f2b726786f363618baea14b3046114cd810a6d4b5cf46a6d395810e70",
+  "n": 60,
+  "flagged": 23,
+  "reviewed": 23,
+  "bad": 19,
+  "precision": 0.6833333333333333
+ },
+ "f0eb09391467": {
+  "name": "[英-汉] 剑乔双解第三版???(32500)[110811]",
+  "staged_sha256": "9f2e166485182dff40f67a19a52d872e924997c168baec2b28dc383c00a5fcdd",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9
+ },
+ "f1e5d25b5fa4": {
+  "name": "[英-汉] 《新概念英語句典》[5486](090523)",
+  "staged_sha256": "061fc9cb496e35c9ab96406b0ce0da671a0c47131a87cfe6b5d55d491f1ad8fe",
+  "n": 60,
+  "flagged": 15,
+  "reviewed": 15,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "f36d849fd6a6": {
+  "name": "三维英词",
+  "staged_sha256": "77f18c44a8ee9b0d2222e24cce288a203e80dd7a34293203b5e398f8431e4ebb",
+  "n": 60,
+  "flagged": 8,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.8666666666666667
+ },
+ "f41b9537e448": {
+  "name": "电影资料大全2011有图版",
+  "staged_sha256": "fb54a79db0dfd97b6272bda4d66b5f7ca2dc9451aebb01532be27af57b87c232",
+  "n": 60,
+  "flagged": 53,
+  "reviewed": 15,
+  "bad": 4,
+  "precision": 0.30000000000000004
+ },
+ "f53eb32746ca": {
+  "name": "[英-汉] 新东方词根词缀词典(應网友要求)[12120](090528)",
+  "staged_sha256": "b5ca6f6c837725086ee5ad6ee26d67c61670415175f04eee17537065d859cf88",
+  "n": 60,
+  "flagged": 9,
+  "reviewed": 9,
+  "bad": 2,
+  "precision": 0.9666666666666667
+ },
+ "f77d28818d34": {
+  "name": "[英-汉] toefl詞滙表[38872](090314)",
+  "staged_sha256": "53644d34a93595abcc022af7ee774b199e1b2110cd52bfb96f588ad39d9062ab",
+  "n": 57,
+  "flagged": 6,
+  "reviewed": 6,
+  "bad": 2,
+  "precision": 0.9649122807017544
+ },
+ "f8652302d9c1": {
+  "name": "[英-汉] ◆金山词霸2006美国传统词典双解【doublelee原创】【版本日期20060413】",
+  "staged_sha256": "25096c8a1d5ad1106930ee78e0457d1de615c7281f82898ffe887f89195cfa5b",
+  "n": 60,
+  "flagged": 25,
+  "reviewed": 25,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "f8e4ad3a772c": {
+  "name": "[英-汉] ◆懒虫牛津字典【懒虫原创】【版本日期20060801】",
+  "staged_sha256": "1ceec0ea2b804e7660a08085663b8f0a328f0c8c62c3ed7ded4aea53531efe5d",
+  "n": 56,
+  "flagged": 5,
+  "reviewed": 5,
+  "bad": 1,
+  "precision": 0.9821428571428571
+ },
+ "f8f633cbe5dd": {
+  "name": "牛津中阶英汉双解词典",
+  "staged_sha256": "6931412d07121aed8ff78917be9daba62eb04ff414bc9ea0e408c00778a3abb5",
+  "n": 60,
+  "flagged": 3,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.95
+ },
+ "f997b38457a8": {
+  "name": "[英-汉] ◆考研核心词典【匿名原创】【版本日期未注明】",
+  "staged_sha256": "6668d49953b766fdf694e8f7fffbb46f19c4914aed1a900ed4c7af37d08252d0",
+  "n": 59,
+  "flagged": 3,
+  "reviewed": 3,
+  "bad": 0,
+  "precision": 1.0
+ },
+ "fc8bc6ef0f6e": {
+  "name": "LDOCE5++ V 2-15",
+  "staged_sha256": "fc5c1c6a5fa4fb07a5e1c96537e95fceb743ac11341ae6fe677dbef079656f5b",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 3,
+  "precision": 0.95
+ },
+ "fc95a8c72810": {
+  "name": "[英-汉] ◆【朗文当代英语词典英汉双解第4版】【孤雷排版-庆大运专版】【2011.8.12】已小改2011.8.15",
+  "staged_sha256": "51a4e9a9604e94676280f295baf4822763e24294ad199ee7c59236a01606ee19",
+  "n": 60,
+  "flagged": 1,
+  "reviewed": 0,
+  "bad": 0,
+  "precision": 0.9833333333333333
+ },
+ "fcb0160e2f8b": {
+  "name": "OALD4_Ex",
+  "staged_sha256": "dc66bab4caece1d78612fa54bdeb32dc1646bcc5cbdad849d3978dc7857ba996",
+  "n": 60,
+  "flagged": 6,
+  "reviewed": 5,
+  "bad": 4,
+  "precision": 0.9166666666666666
+ },
+ "fd262c697750": {
+  "name": "牛津商務英語詞典 第二版 英漢雙解",
+  "staged_sha256": "15be228c38b49431bdedc90211ef41fe14f8ef8d483cf3c63d7ab2daee865db1",
+  "n": 60,
+  "flagged": 4,
+  "reviewed": 4,
+  "bad": 1,
+  "precision": 0.9833333333333333
+ },
+ "ffb60c89b4be": {
+  "name": "CollinsCobuild",
+  "staged_sha256": "f49ae1758173ad7faada48ddb2b7ff91964fc4b3b082bd51dc232c851cfb5a73",
+  "n": 60,
+  "flagged": 7,
+  "reviewed": 4,
+  "bad": 4,
+  "precision": 0.8833333333333333
+ }
+}

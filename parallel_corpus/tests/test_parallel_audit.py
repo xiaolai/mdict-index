@@ -127,6 +127,7 @@ class Main(unittest.TestCase):
         (self.data / "selected.json").write_text(json.dumps([{"id": "d", "name": "dict d", "keep": True}]))
         self.stage(GOOD[:20])
         for patch in (mock.patch.object(audit, "PARALLEL", self.data),
+                      mock.patch.object(audit, "jev_installed", lambda: True),
                       mock.patch.object(audit, "jev", lambda r: scores(0.2 if r["en"].split()[4] == "3" else 0.9))):
             patch.start()
             self.addCleanup(patch.stop)
@@ -139,6 +140,7 @@ class Main(unittest.TestCase):
         stage(iter(records), self.data / "staged" / "d.jsonl.gz")
 
     def run_main(self, *args):
+        args = ("--verdicts", str(self.data / "verdicts.json"), *args)
         with mock.patch.object(sys, "argv", ["audit.py", *args]), contextlib.redirect_stdout(io.StringIO()) as out, \
                 contextlib.redirect_stderr(io.StringIO()):
             audit.main()
@@ -159,6 +161,50 @@ class Main(unittest.TestCase):
         self.assertEqual((self.results()["d"]["n"], self.results()["d"]["precision"]), (0, 0.0))
         self.assertIn("note", self.results()["d"])
         self.assertFalse((self.data / "audit" / "d.review.json").exists())
+
+    def test_a_shared_verdict_on_the_same_pairs_needs_no_jev(self):
+        self.run_main()                                    # our audit, with jev
+        self.run_main("--export-verdicts")
+        ours = self.results()["d"]
+        (self.data / "audit.json").unlink()                # a user's machine: same pairs, no audit, no jev
+        for f in (self.data / "audit").iterdir():
+            f.unlink()
+        with mock.patch.object(audit, "jev_installed", lambda: False), \
+                mock.patch.object(audit, "jev", lambda r: self.fail("jev must not be asked")):
+            self.run_main()
+        theirs = self.results()["d"]
+        self.assertEqual({k: theirs[k] for k in audit.SUMMARY}, {k: ours[k] for k in audit.SUMMARY})
+        self.assertEqual(theirs["from"], "verdicts.json")
+
+    def test_a_verdict_for_other_pairs_is_refused_and_without_jev_the_dictionary_is_left_out(self):
+        self.run_main()
+        self.run_main("--export-verdicts")
+        (self.data / "audit.json").unlink()
+        for f in (self.data / "audit").iterdir():
+            f.unlink()
+        self.stage(GOOD[:19])                              # one pair fewer: not the pairs the verdict measured
+        with mock.patch.object(audit, "jev_installed", lambda: False), \
+                mock.patch.object(audit, "jev", lambda r: self.fail("jev must not be asked")):
+            self.run_main()
+        self.assertFalse((self.data / "audit.json").exists() and "d" in self.results())
+
+    def test_a_verdict_for_other_pairs_is_refused_and_with_jev_they_are_screened(self):
+        self.run_main()
+        self.run_main("--export-verdicts")
+        (self.data / "audit.json").unlink()
+        for f in (self.data / "audit").iterdir():
+            f.unlink()
+        self.stage(GOOD[:19])
+        self.run_main()
+        self.assertNotIn("from", self.results()["d"])      # measured here, not taken from the file
+        self.assertEqual(self.results()["d"]["n"], 19)
+
+    def test_exported_verdicts_hold_no_text(self):
+        self.run_main()
+        self.run_main("--export-verdicts")
+        verdict = json.loads((self.data / "verdicts.json").read_text())["d"]
+        self.assertEqual(set(verdict), {"name", "staged_sha256", *audit.SUMMARY})
+        self.assertNotIn("window", json.dumps(verdict))
 
     def test_a_malformed_jev_answer_fails_the_run(self):
         with mock.patch.object(audit, "jev", lambda r: scores(float("not a number"))):

@@ -17,13 +17,26 @@ Precision is conservative: 1 - (bad + flagged but not yet reviewed) / n. A dicti
 few enough flags passes without review; reviews can only raise the figure. Judgments are
 kept in parallel_corpus/data/audit/<id>.jsonl, the summaries in parallel_corpus/data/audit.json, which
 the build reads (parallel/build.py admits a dictionary at MIN_PRECISION).
+
+Shared verdicts. parallel_corpus/verdicts.json (committed: numbers only, no dictionary text)
+holds the verdict our build used for each dictionary, pinned to the SHA-256 of its staged
+pairs. A dictionary with no local audit takes its verdict from there when its staged pairs are
+byte for byte the ones the verdict was measured on; that needs no jev. Otherwise it is
+screened with jev, and without jev it is left unaudited, which the build excludes, and the
+run says so. `--export-verdicts` rewrites the file from the local audit.
+
+The docket is parallel_corpus/jev/parallel-pair.json, passed to jev through JEV_HOME, so the
+questions are versioned with the code that relies on them.
 """
 from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 import json
+import os
 import random
+import shutil
 import subprocess
 import sys
 from collections.abc import Callable
@@ -38,6 +51,9 @@ from parallel.corpus import clean, clean_en, clean_zh, judge  # noqa: E402
 from parallel import DATA as PARALLEL  # noqa: E402
 QUESTIONS = ("usable", "aligned", "residue")  # `usable` decides; the others help the reviewer
 SCREEN = 0.5
+JEV_HOME = ROOT / "parallel_corpus" / "jev"  # dockets/parallel-pair.json
+VERDICTS = ROOT / "parallel_corpus" / "verdicts.json"
+SUMMARY = ("n", "flagged", "reviewed", "bad", "precision")
 
 Judge = Callable[[dict], dict[str, float]]
 
@@ -72,7 +88,7 @@ def jev(record: dict) -> dict[str, float]:
     if record.get("hw"):
         state += f"\nHEADWORD: {clean(record['hw'])}"
     out = subprocess.run(["jev", "docket", "parallel-pair", "--json", "--retries", "5", "--state", state],
-                         capture_output=True, text=True, timeout=120)
+                         capture_output=True, text=True, timeout=120, env={**os.environ, "JEV_HOME": str(JEV_HOME)})
     if out.returncode != 0:
         raise RuntimeError(f"jev exited {out.returncode}: {out.stderr.strip()[:300]}")
     answers = json.loads(out.stdout)["answers"]
@@ -132,6 +148,40 @@ def import_labels(labels: dict[str, dict[str, str]], folder: Path) -> int:
     return n
 
 
+def jev_installed() -> bool:
+    return shutil.which("jev") is not None
+
+
+def staged_sha256(path: Path) -> str:
+    """The hash of a dictionary's staged pairs, decompressed (gzip headers carry a timestamp)."""
+    digest = hashlib.sha256()
+    with gzip.open(path, "rb") as f:
+        while chunk := f.read(1 << 20):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def from_verdict(verdicts: dict, id: str, staged: Path) -> dict | None:
+    """The shared verdict for this dictionary if it was measured on exactly these staged pairs."""
+    v = verdicts.get(id)
+    if v is None or v["staged_sha256"] != staged_sha256(staged):
+        return None
+    return {**{k: v[k] for k in SUMMARY}, "name": v["name"], "from": "verdicts.json",
+            **({"note": v["note"]} if "note" in v else {})}
+
+
+def export_verdicts(results: dict, kept: list[dict], staged_dir: Path) -> dict:
+    """verdicts.json from the local audit: each audited, staged dictionary's summary and hash."""
+    out = {}
+    for c in sorted(kept, key=lambda c: c["id"]):
+        r, path = results.get(c["id"]), staged_dir / f"{c['id']}.jsonl.gz"
+        if r is None or not path.exists():
+            continue
+        out[c["id"]] = {"name": c["name"], "staged_sha256": staged_sha256(path), **{k: r[k] for k in SUMMARY},
+                        **({"note": r["note"]} if "note" in r else {})}
+    return out
+
+
 def _review(id: str) -> dict[str, str]:
     path = PARALLEL / "audit" / f"{id}.review.json"
     return json.loads(path.read_text()) if path.exists() else {}
@@ -157,6 +207,8 @@ def main() -> None:
     ap.add_argument("--redo", action="store_true", help="screen again (drops earlier reviews of those dictionaries)")
     ap.add_argument("--queue", action="store_true", help="print the flagged pairs whose review could change a verdict")
     ap.add_argument("--import-labels", type=Path, nargs="+", help="reviewers' label files to merge before summarising")
+    ap.add_argument("--verdicts", type=Path, default=VERDICTS, help="shared verdicts (committed)")
+    ap.add_argument("--export-verdicts", action="store_true", help="write the shared verdicts from the local audit")
     args = ap.parse_args()
     only = set(filter(None, args.only.split(",")))
     results = json.loads(args.out.read_text()) if args.out.exists() else {}
@@ -172,6 +224,14 @@ def main() -> None:
                     for i, j in enumerate(judged) if j["flagged"] and str(i) not in skip}}
         print(json.dumps(queue, ensure_ascii=False, indent=1))
         return
+    if args.export_verdicts:
+        verdicts = export_verdicts(results, kept, PARALLEL / "staged")
+        args.verdicts.write_text(json.dumps(verdicts, ensure_ascii=False, indent=1) + "\n")
+        print(f"{len(verdicts)} verdicts written to {args.verdicts}", file=sys.stderr)
+        return
+    verdicts = json.loads(args.verdicts.read_text()) if args.verdicts.exists() else {}
+    has_jev = jev_installed()
+    left_out = []
     (PARALLEL / "audit").mkdir(exist_ok=True)
     for f in args.import_labels or []:
         print(f"{import_labels(json.loads(f.read_text()), PARALLEL / 'audit'):,} labels from {f}", file=sys.stderr)
@@ -180,7 +240,17 @@ def main() -> None:
         if not path.exists():
             print(f"not extracted yet: {c['name']}", file=sys.stderr)
             continue
-        if args.redo or not (PARALLEL / "audit" / f"{c['id']}.jsonl").exists():
+        local = (PARALLEL / "audit" / f"{c['id']}.jsonl").exists()
+        if not local and not args.redo and (shared := from_verdict(verdicts, c["id"], path)):
+            results[c["id"]] = shared
+            args.out.write_text(json.dumps(results, ensure_ascii=False, indent=1) + "\n")
+            print(f"{shared['precision']:.3f} (shared verdict) {c['name'][:60]}", file=sys.stderr)
+            continue
+        if not has_jev and (args.redo or not local):
+            left_out.append(c["name"])
+            print(f"UNAUDITED (no matching shared verdict, no jev): {c['name'][:60]}", file=sys.stderr)
+            continue
+        if args.redo or not local:
             try:
                 judged = screen(path, c["id"], args.n, jev, args.jobs)
             except NothingToAudit:  # an empty sample replaces the old one, which no later run may reuse
@@ -196,6 +266,9 @@ def main() -> None:
         args.out.write_text(json.dumps(results, ensure_ascii=False, indent=1) + "\n")  # after each: resumable
         print(f"{summary['precision']:.3f} ({summary['flagged']} flagged, {summary['reviewed']} reviewed, "
               f"{summary['bad']} bad of {summary['n']}) {c['name'][:60]}", file=sys.stderr)
+    if left_out:
+        print(f"{len(left_out)} dictionaries left unaudited, so the build will exclude them: their staged pairs "
+              f"match no shared verdict and jev is not installed", file=sys.stderr)
 
 
 if __name__ == "__main__":

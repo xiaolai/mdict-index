@@ -82,6 +82,24 @@ dictionary counts and every pair's list of sources were not. The probe now drops
 id has left the index, and `choose.py` refuses a file kept under two ids. The weighted
 precision moved from 97.34% to 97.35%, which rounds to 97.4%.
 
+## Without jev
+
+The audit's screen asks jev, which you may not have. `parallel_corpus/verdicts.json`
+(committed; numbers only) holds every chosen dictionary's verdict, pinned to the SHA-256 of
+its staged pairs. When `audit.py` finds no local audit for a dictionary and your staged pairs
+hash the same, it takes that verdict and asks nothing; extraction is deterministic, so the same
+dictionary file gives the same pairs (checked by re-extracting all 115 dictionaries of the
+2026-10-04 build). When they differ, it screens with jev if it can, and otherwise leaves the
+dictionary unaudited, which the build excludes, and says so. After a new audit,
+`audit.py --export-verdicts` rewrites the file. The jev questions are in
+`parallel_corpus/jev/dockets/parallel-pair.json`, so they are versioned with this code.
+
+Deliberately excluded: phrase templates with placeholders (`sb`, `sth`, `~`)
+and notation for alternatives (`X. or Y.`, `(or with)`). Of the 16 American
+Heritage English–Chinese editions, 7 pass the audit; 7 fail it on
+mistranslations and synonym-note text, and 2 print no English–Chinese
+example pairs.
+
 ## Layout
 
 | Path | What |

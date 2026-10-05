@@ -1,0 +1,29 @@
+{
+  "description": "Audit one English-Chinese pair extracted from a dictionary for a parallel corpus of usage examples. State: 'EN: <english>' and 'ZH: <chinese>' on two lines, optionally 'HEADWORD: <word>'.",
+  "questions": {
+    "usable": {
+      "type": "noul",
+      "instructions": "Decide whether this pair can go into an English-Chinese parallel corpus of usage examples exactly as it stands. Judge meaning and leftovers only, not style. Normal and acceptable: short phrases ('a sharp knife', 'fresh bread') translated concisely; free or idiomatic translation; small slips such as a pronoun's gender; examples that begin or end with '...'; quotation marks, apostrophes, numbers, names, dashes; alternatives written in parentheses on both sides.",
+      "criteria": {
+        "true": "EN is language in use (a sentence or a phrase) and ZH is a translation of it; the text on both sides is ordinary text",
+        "false": "ZH translates something different or only part of EN; EN defines or explains a word instead of using it; or either side carries dictionary apparatus such as a grammar label ('[with object]:', '(as adjective broken)'), an explanatory gloss ('(= a person who repairs shoes)'), a usage label ('〈俚〉', '〈旧〉'), a placeholder such as '~' for the headword, pronunciation, or a cross-reference"
+      }
+    },
+    "aligned": {
+      "type": "noul",
+      "instructions": "ZH is a translation of EN. A concise rendering of a short phrase, a free or idiomatic translation, and small slips (a pronoun's gender, a number format) all count as translations.",
+      "criteria": {
+        "true": "ZH expresses what EN says",
+        "false": "ZH says something different, adds or drops a substantial part, or belongs to another sentence"
+      }
+    },
+    "residue": {
+      "type": "noul",
+      "instructions": "Either side contains dictionary apparatus that is not part of the example itself. Ordinary punctuation, '...', quotation marks, apostrophes, numbers and names are NOT apparatus.",
+      "criteria": {
+        "true": "A grammar label ('[with object]:', '(as adjective broken)', '[V n]'), an explanatory gloss ('(= ...)'), a usage label ('〈俚〉', '〈旧〉', '<美>'), a '~' placeholder, pronunciation, a cross-reference arrow, or text from another entry",
+        "false": "Both sides are plain example text"
+      }
+    }
+  }
+}
