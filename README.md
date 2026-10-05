@@ -4,6 +4,21 @@ A searchable index of the MDict dictionaries listed at
 <https://downloads.freemdict.com/>, published as a static GitHub Pages site.
 The site links to freemdict; it hosts no dictionary files.
 
+## What's here
+
+| Part | What you get | Where it runs |
+|---|---|---|
+| [Dictionary finder](#how-it-works) | search the ~3,500 dictionaries on freemdict by name, alias, language and brand; recommendations; monthly change log | public website |
+| [Unified dictionary](#unified-dictionary-database-local-only) | 25 dictionaries in one layout with audio; Chinese-to-English lookup; search by definition | your machine |
+| [Lexical inventories](inventories/README.md) | inflections, phrases, collocations, labels, levels, word families, stress, misspellings, confusable words | your machine |
+| [Parallel corpus](parallel_corpus/README.md) | 1.7 million English–Chinese example pairs, exportable as JSONL, TSV or TMX | your machine |
+| [Text analyzer](analyzer/README.md) | paste English: its phrasal verbs, idioms, collocations, word levels and likely mistakes | your machine |
+
+Only the finder is published. Everything else is built from the dictionaries
+you download and stays on your machine ([From zero](#from-zero-building-the-local-tools)
+shows how): the dictionaries are mostly commercial, so nothing built from them is
+ever committed.
+
 ## How it works
 
 | Step | File | Output |
@@ -40,11 +55,37 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # once
 PYTHONPATH=scripts .venv/bin/python -m unittest discover -s tests
 PYTHONPATH=scripts:parallel_corpus .venv/bin/python -m unittest discover -s parallel_corpus/tests -t parallel_corpus/tests
 PYTHONPATH=scripts:inventories .venv/bin/python -m unittest discover -s inventories/tests -t inventories/tests
+PYTHONPATH=scripts:analyzer .venv/bin/python -m unittest discover -s analyzer/tests -t analyzer/tests
 node --test tests/*.test.mjs
 ```
 
 Tests marked "corpus" run only when `corpus/unified.db` exists locally; on
 GitHub they skip, because the dictionaries are never in the repository.
+
+## From zero: building the local tools
+
+Everything below runs on your machine and builds data that is never committed.
+A complete build needs about 67 GB of disk and several hours, most of it
+downloading and parsing.
+
+```sh
+python3 scripts/doctor.py                     # what is missing, and how to fix it
+python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python scripts/doctor.py            # again, with the project's Python: should say "ready"
+PYTHONPATH=scripts .venv/bin/python scripts/build_corpus.py   # download and build the unified dictionary
+.venv/bin/python inventories/build.py         # the lexical inventories (add --without-jev if jev is missing)
+.venv/bin/python parallel_corpus/build.py     # the parallel corpus
+.venv/bin/python analyzer/build.py            # the text analyzer's lexicon
+PYTHONPATH=scripts .venv/bin/python scripts/serve_unified.py  # http://127.0.0.1:8766/ and /analyze
+```
+
+Two steps ask `jev`, a command-line client for TypeSafe's calibrated-judgment
+model that you may not have. Without it the
+inventories build with `--without-jev`, which tags every stress contrast
+"uncertain" and records that in the database. The parallel corpus does not need
+it: each dictionary's audit verdict is committed in `parallel_corpus/verdicts.json`,
+pinned to the exact pairs it was measured on, and is reused when your pairs are
+the same.
 
 ## Unified dictionary database (local only)
 
@@ -92,6 +133,12 @@ with the tools that build it, lives in [`parallel_corpus/`](parallel_corpus/READ
 
 Inflections, phrases, collocations, grammar patterns, word families and labels, built
 from the parsed dictionaries, live in [`inventories/`](inventories/README.md).
+
+## Text analyzer (local only)
+
+Paste English text and get its phrasal verbs, idioms, collocations, word levels, labels,
+spelling problems and likely confusions, from the inventories: [`analyzer/`](analyzer/README.md),
+and the Analyze page of the lookup server.
 
 ## Recommendations
 
