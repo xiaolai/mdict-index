@@ -175,8 +175,18 @@ goes without saying*, *not know what {sb} sees in {sb}*): 911, and one a pattern
 an independent reviewer judged 36 right; the four missed classes (a participle that is a
 headword, *strung out*; a leading *never*; *put before*; a generic *you*) were then fixed.
 
-The build of 2026-10-03 has 49,659 phrases from 275,991 records (35 unreadable): 37,253
-idioms, 7,633 phrasal verbs, 1,693 compounds, 1,578 names, 879 formulas, 623 patterns.
+The build of 2026-10-05 has 49,607 phrases from 275,980 records (35 unreadable): 37,213
+idioms, 7,629 phrasal verbs, 1,687 compounds, 1,578 names, 876 formulas, 624 patterns.
+
+Fixed on 2026-10-05, found by the text analyzer (`analyzer/`), which turns every variant into a
+pattern to match: a gloss glued to a phrase ("a quick buck(easy money)", NCECD) was read as
+optional words and run into the phrase ("a quick buckeasy money"); a semicolon between two
+alternatives ("do justice to sb; do sb justice") was not a separator, though a proverb's own one
+("to err is human; to forgive divine") stays; punctuation stayed glued to a slot ("{sb/sth}!"),
+and "someone/thing's" was no possessive slot; "(or around; also about)" was not split; and a
+headword's "etc." list was read as spellings ("in his/her/its, etc. (infinite) wisdom" gave
+"in wisdom"). 585 variant texts that were garbage went, 34 alternatives that had been fused
+came in; held-out notation went from 46/48 to 47/48.
 Notation accuracy is in Evaluation.
 
 ## Collocations
@@ -237,7 +247,7 @@ articles and possessives left out: OCD's `make ~` is LDOCE's `make a ~`. LDOCE's
 collocations from other entries do not say the base's part of speech. They join the typed
 row with the same pattern, or keep an empty `base_pos`.
 
-The build of 2026-10-03 has 516,578 collocations (19,866 untyped; 3,091 records
+The build of 2026-10-05 has 516,557 collocations (19,866 untyped; 3,091 records
 unreadable, mostly full collocations without their base). Accuracy is in Evaluation.
 
 ## Usage labels and grammar patterns

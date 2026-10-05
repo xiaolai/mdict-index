@@ -196,6 +196,45 @@ class Optional(unittest.TestCase):
         self.assertEqual(texts("half as big/much (etc.) as"), ["half as big as", "half as much as"])
 
 
+class GluedApparatus(unittest.TestCase):
+    """Shapes that once left words glued together or punctuation inside a variant."""
+
+    def variants(self, printed):
+        return [" ".join(v) for v in parse(printed).variants]
+
+    def test_a_gloss_glued_to_the_phrase_is_dropped(self):
+        self.assertEqual(self.variants("a fast buck or a quick buck(easy money)"), ["a fast buck", "a quick buck"])
+        self.assertEqual(self.variants("to get shot of sb/sth or to be shot of sb/sth(be rid of)"),
+                         ["get shot of {sb/sth}", "be shot of {sb/sth}"])
+
+    def test_a_glued_or_group_is_not_a_gloss(self):
+        self.assertIn("a needle in the haystack", self.variants("a needle in a(\u6216 the) haystack"))
+
+    def test_a_semicolon_separates_whole_alternatives(self):
+        self.assertEqual(self.variants("do justice to somebody/something; do somebody/something justice"),
+                         ["do justice to {sb/sth}", "do {sb/sth} justice"])
+        self.assertEqual(self.variants("to be on strike;to be out on strike"), ["be on strike", "be out on strike"])
+
+    def test_an_etc_list_in_the_headword_is_not_a_list_of_spellings(self):
+        printed = "in his/her/its, etc. (infinite) wisdom"
+        self.assertEqual([" ".join(v) for v in parse(printed, printed).variants],
+                         ["in {one's} wisdom", "in {one's} infinite wisdom"])
+
+    def test_or_group_alternatives_may_be_separated_by_a_semicolon_and_also(self):
+        self.assertEqual(self.variants("the other way round (or around; also about)"),
+                         ["the other way round", "the other way around", "the other way about"])
+
+    def test_a_proverbs_own_semicolon_is_not_a_separator(self):
+        self.assertTrue(all("divine" in v and "human" in v for v in self.variants("To err is human; to forgive, divine.")))
+
+    def test_nothing_stays_glued_to_a_slot(self):
+        self.assertEqual(self.variants("a pox on sb/sth!\u2026"), ["a pox on {sb/sth} {...}"])
+        self.assertEqual(self.variants("speak for myself/herself/himself, etc."), ["speak for myself", "speak for {oneself}"])
+
+    def test_a_slot_with_an_apostrophe_s_is_a_possessive(self):
+        self.assertEqual(self.variants("in someone/thing's (own) way"), ["in {sb's} way", "in {sb's} own way"])
+
+
 class Headword(unittest.TestCase):
     def test_a_tilde_stands_for_the_headword(self):
         self.assertEqual(texts("take a ~ at", headword="look"), ["take a look at"])

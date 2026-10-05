@@ -47,6 +47,12 @@ _OR_GROUP = re.compile("\\(\\s*(?:or\\s+|also\\s+|\u6216\\s*)([^()]*)\\)")  # "(
 _INNER_OR = re.compile("\\(([^()]*?)\\s*\u6216\\s*([^()]*)\\)")  # "(about it or that)": the end of an optional part
 _BRACKET_LABEL = re.compile("\u3014[^\u3015]*\u3015")  # odecn subject labels
 _NOTE = re.compile("\\((?!\\s*(?:or|also)\\b)(?![^()]*\u6216)[^()]*[\u3400-\u9fff][^()]*\\)")  # a note in Chinese
+# NCECD glosses a phrase in parentheses glued to its last word: "a quick buck(easy money)". Several
+# words, no space before, and not an "or" group: a gloss, not an optional part. (It also drops a rare
+# glued optional ending, "a word to the wise(is enough)", whose shorter reading stays.)
+_GLUED_GLOSS = re.compile("(?<=[\\w}])\\((?![^()]*(?:\u6216|\\bor\\b|\\balso\\b))[^()]*\\s[^()]*\\)")
+_SLOT_TAIL = re.compile(r"(\{[^}]*\})(.+)")  # "{sb/sth}'s", "{sb/sth}!": what is glued to a slot
+_POSSESSIVE_OF = {"{sb/sth}": "{sb's}", "{sb}": "{sb's}", "{sth}": "{sth's}"}
 _LEFTOVER = re.compile(r"[()\[\]<>|=~]|[\u3400-\u9fff]")
 _OPTIONAL = re.compile(r"\(([^()]*)\)")
 # NCECD's infinitive "to": dropped before a verb, kept before a noun phrase ("to (the best of) my knowledge",
@@ -107,8 +113,8 @@ def _or_groups(text: str) -> list[str]:
     before, after = text[:m.start()].rstrip(), text[m.end():]
     words = before.split()
     out = [before + after]
-    for alt in re.split("\\s*(?:\u6216|\\bor\\b|,)\\s*", m.group(1)):
-        alt_words = alt.replace("etc.", "").split()
+    for alt in re.split("\\s*(?:\u6216|\\bor\\b|,|;)\\s*", m.group(1)):  # "(or around; also about)"
+        alt_words = re.sub(r"^also\s+", "", alt.strip()).replace("etc.", "").split()
         if alt_words and len(alt_words) <= len(words):
             out.append(" ".join(words[:len(words) - len(alt_words)] + alt_words) + after)
         elif alt_words:  # longer than what precedes it: a whole alternative (do... justice (or do justice to...))
@@ -249,9 +255,25 @@ _PROTECTED = "{sb/sth}"
 _STAND_IN = "{sb\x00sth}"  # the slot's own slash must not be read as an alternative
 
 
+def _words(text: str):
+    """The words of a variant, punctuation stripped; a slot keeps only itself (its possessive if
+    "'s" is glued to it)."""
+    for w in text.replace(_STAND_IN, _PROTECTED).split():
+        m = _SLOT_TAIL.fullmatch(w)
+        if m and m.group(2) in ("'s", "\u2019s"):
+            yield _POSSESSIVE_OF.get(m.group(1), m.group(1))
+        elif m:
+            yield m.group(1)
+            if tail := m.group(2).strip(",;:!?.\u2026"):
+                yield tail
+        elif not w.startswith("{"):
+            yield w.strip(",;:!?")
+        else:
+            yield w
+
+
 def _tokens(text: str) -> tuple[str, ...]:
-    words = (w if w.startswith("{") else w.strip(",;:!?") for w in text.split())
-    return tuple(_SLOT_WORDS.get(w, w).replace(_STAND_IN, _PROTECTED) for w in words if w)
+    return tuple(_SLOT_WORDS.get(w, w) for w in _words(text) if w)
 
 
 def _score(variants: list[str], evidence) -> tuple[float, int]:
@@ -293,17 +315,42 @@ def _expand(wholes: list[str], evidence) -> list[str]:
     return out
 
 
+def _alike(a: list[str], b: list[str]) -> bool:
+    """Two sides that read as alternatives of one phrase: same first word, same last word, or
+    the same words."""
+    return bool(a and b) and (a[0] == b[0] or a[-1] == b[-1] or set(a) == set(b))
+
+
+def _semicolons(text: str) -> list[str]:
+    """OALD and NCECD separate alternatives with ";" ("do justice to sb; do sb justice", "to dial
+    999;to call 999"). A proverb's own ";" ("to err is human; to forgive divine") and one inside
+    parentheses stay."""
+    depth, cut = 0, None
+    for i, ch in enumerate(text):
+        depth += (ch == "(") - (ch == ")")
+        if ch == ";" and depth == 0:
+            cut = i
+            break
+    if cut is None:
+        return [text]
+    left, right = text[:cut], text[cut + 1:]
+    a, b = (_LEADING_TO.sub("", side.strip()).split() for side in (left, right))
+    return [left.strip(), *_semicolons(right.strip())] if _alike(a, b) else [text]
+
+
 def parse(printed: str, headword: str = "", evidence=None) -> Phrase:
     """The variants of a printed phrase, and whether it is a separable phrasal verb. With
     evidence (inventory/evidence.py), an ambiguous notation is read the way the examples attest."""
     text = _ZERO_WIDTH.sub("", printed.replace("~", headword)).strip().lower()
     text = text.replace("\u2019", "'").replace("\u2018", "'")
     forms = [f.strip() for f in headword.lower().split(",")]
-    if len(forms) >= 2 and all(forms) and ", ".join(forms) in text:  # yhdcd: "hit the bull's-eye, bullseye"
+    if len(forms) >= 2 and all(forms) and not any(f.startswith("etc") for f in forms) \
+            and ", ".join(forms) in text:  # yhdcd: "hit the bull's-eye, bullseye"; not "his/her/its, etc."
         text = text.replace(", ".join(forms), "/".join(forms))
     separable_mark = "\u2194" in text  # LDOCE marks separable phrasal verbs: use something <-> up
     text = _LABEL.sub("", text.replace("\u2194", " ")).replace("\uff08", "(").replace("\uff09", ")")
     text = _NOTE.sub("", _BRACKET_LABEL.sub("", text))
+    text = _GLUED_GLOSS.sub("", text)
     text = _POSSESSIVE_SLOT.sub(r"\1", text)  # AHD "work (one's) fingers": a slot, not an optional word
     text = _ETC_LIST.sub(lambda m: "/".join(w.strip() for w in m.group(1).split(",")), text)
     text = _ELLIPSIS.sub(" {...} ", text)
@@ -313,7 +360,7 @@ def parse(printed: str, headword: str = "", evidence=None) -> Phrase:
         text = re.sub(pattern, slot, text)
     text = text.replace(_PROTECTED, _STAND_IN)
     variants: list[tuple[str, ...]] = []
-    for piece in _WHOLE_OR.split(text):
+    for piece in (p for whole in _semicolons(text) for p in _WHOLE_OR.split(whole)):
         sides = piece.split(" or ")  # "a rap on the knuckles or a rap over the knuckles"; not "sink or swim"
         readings = [_expand([piece], evidence)]
         a, b = (side.split() for side in sides) if len(sides) == 2 else ([], [])
