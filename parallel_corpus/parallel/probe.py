@@ -159,6 +159,14 @@ def candidates() -> list[dict]:
     return out
 
 
+def current_rows(previous: list[dict], current_ids: set[str]) -> tuple[list[dict], list[dict]]:
+    """Earlier results whose dictionary is still in the index, and the rest. A record the index
+    re-identified (its id rules changed) would otherwise be probed again under its new id and kept
+    under both, so it would enter the corpus twice."""
+    kept = [r for r in previous if r["id"] in current_ids]
+    return kept, [r for r in previous if r["id"] not in current_ids]
+
+
 def run_one(c: dict, n_blocks: int, lexicon=None) -> dict:
     src = HttpRange(file_url(c["folder"], c["file"]))
     try:
@@ -202,6 +210,11 @@ def main() -> None:
     lexicon = _lexicon()  # loaded once, shared by the workers; first, so a missing one changes nothing
     args.out.parent.mkdir(parents=True, exist_ok=True)
     previous = [json.loads(line) for line in args.out.read_text().splitlines()] if args.out.exists() else []
+    index = candidates()
+    previous, stale = current_rows(previous, {c["id"] for c in index})
+    if stale:
+        print(f"{len(stale)} earlier results dropped: their ids are no longer in the index "
+              f"(re-identified or removed), e.g. {stale[0]['name'][:60]}", file=sys.stderr)
     redo = set(json.loads(args.redo.read_text())) if args.redo else set()
     # Results go to a journal beside the output, which is replaced once, when every probe is in:
     # a row asked for again stays until its replacement and all the others exist, and a run that
@@ -209,7 +222,7 @@ def main() -> None:
     journal = args.out.with_name(args.out.name + ".journal")
     again = {r["id"] for r in previous if r["id"] in redo or (args.retry_errors or redo) and r["status"] != "ok"}
     done = ({r["id"] for r in previous} - again) | {r["id"] for r in _journal_rows(journal)}
-    todo = [c for c in candidates() if c["id"] not in done]
+    todo = [c for c in index if c["id"] not in done]
     print(f"{len(done)} already probed, {len(todo)} to go", file=sys.stderr)
     with ThreadPoolExecutor(args.jobs) as pool, journal.open("a") as out:
         futures = [pool.submit(run_one, c, args.blocks, lexicon) for c in todo]

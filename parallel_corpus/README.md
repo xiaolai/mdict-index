@@ -49,16 +49,16 @@ What makes a pair (`parallel/corpus.py`, `parallel/text.py`):
   its representative); the same English with another translation (grouped as
   translation variants).
 
-Results of the build of 2026-10-04 (2,753 dictionaries probed):
+Results of the build of 2026-10-05 (2,713 dictionaries probed):
 
 | Stage | Count |
 |---|---|
-| dictionaries whose sampled pairs are English–Chinese translations | 287 (256 English first, 31 Chinese first) |
-| dictionaries admitted at audited precision ≥ 95% | 115 (all 8 parsed bilingual dictionaries and 7 American Heritage English–Chinese editions among them) |
+| dictionaries whose sampled pairs are English–Chinese translations | 284 (253 English first, 31 Chinese first) |
+| dictionaries admitted at audited precision ≥ 95% | 114 (all 8 parsed bilingual dictionaries and 7 American Heritage English–Chinese editions among them) |
 | distinct pairs | 1,736,913 (1,480,016 sentences, 256,897 phrases) |
 | clusters (one pair each in the exports) | 1,605,327 |
 | English sentences with more than one translation | 274,605 |
-| audited precision, weighted by contribution | 97.3% |
+| audited precision, weighted by each dictionary's accepted pairs | 97.4% (97.35%) |
 
 The audit counts pairs the jev screen did not flag as correct; a read of 150
 of them found 2 errors (about 1.3%), so the corpus's precision is estimated at
@@ -73,11 +73,14 @@ present from other Longman editions); the 8 newly chosen dictionaries all failed
 articles, wiki headings, term glosses, usage notes). The weighted precision of the first build,
 computed the same way, is also 97.3% (it had been reported as 97.6%).
 
-Deliberately excluded: phrase templates with placeholders (`sb`, `sth`, `~`)
-and notation for alternatives (`X. or Y.`, `(or with)`). Of the 16 American
-Heritage English–Chinese editions, 7 pass the audit; 7 fail it on
-mistranslations and synonym-note text, and 2 print no English–Chinese
-example pairs.
+Correction (2026-10-05): the build of 2026-10-04 reported 2,753 dictionaries probed, 287
+chosen and 115 admitted. The probe had kept the results of 40 index records whose ids the
+site's new record rules had changed, beside the same dictionaries under their new ids, so 3
+dictionaries were chosen twice and one, a Longman 4th edition, was admitted twice. It added no
+pairs the first time round, so the pairs, clusters and translation variants were right; the
+dictionary counts and every pair's list of sources were not. The probe now drops results whose
+id has left the index, and `choose.py` refuses a file kept under two ids. The weighted
+precision moved from 97.34% to 97.35%, which rounds to 97.4%.
 
 ## Layout
 

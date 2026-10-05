@@ -20,6 +20,7 @@ import argparse
 import json
 import math
 import sys
+from collections import Counter
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
@@ -115,6 +116,12 @@ def parsed_dictionaries() -> dict[str, str]:
             if item["id"] and item["key"] in parsers}
 
 
+def kept_twice(choices: list[Choice]) -> list[str]:
+    """Files kept under more than one id: each would enter the corpus twice."""
+    seen = Counter((c.folder, c.file) for c in choices if c.keep)
+    return sorted(f"{folder}/{file}" for (folder, file), n in seen.items() if n > 1)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--probe", type=Path, default=DATA / "probe.jsonl")
@@ -127,6 +134,8 @@ def main() -> None:
     parsed = parsed_dictionaries()
     overrides = extractor_overrides()
     choices = sorted((with_extractor(choose(r, parsed), overrides) for r in rows), key=lambda c: (not c.keep, -c.alignment))
+    if twice := kept_twice(choices):
+        sys.exit(f"{len(twice)} files kept under two ids (stale probe rows?), e.g. {twice[0]}")
     args.out.write_text(json.dumps([asdict(c) for c in choices], ensure_ascii=False, indent=1) + "\n")
     kept = [c for c in choices if c.keep]
     download = [c for c in kept if c.source == "download"]

@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "tests"))  # test_lzo1x: liblzo2 helpers
 
 from parallel.mdxformat import ProbeError, decode_block, layout, record_blocks
-from parallel.probe import pick_blocks, probe, signal
+from parallel.probe import current_rows, pick_blocks, probe, signal
 from parallel.ranges import BytesSource
 
 
@@ -170,6 +170,14 @@ class Signal(unittest.TestCase):
         wrong = "<p>Mira opened the attic window this morning.</p><p>他昨天买了一辆新车。</p>"
         self.assertEqual(signal(wrong, lexicon)["scores"]["en-zh"], [0.0])
         self.assertEqual(signal(en_zh)["scores"], {"en-zh": [], "zh-en": []})  # no lexicon, no scores
+
+
+class CurrentRows(unittest.TestCase):
+    def test_a_result_whose_id_left_the_index_is_dropped(self):
+        previous = [{"id": "old", "name": "Dict V2"}, {"id": "kept", "name": "Other"}]
+        kept, stale = current_rows(previous, {"kept", "new"})
+        self.assertEqual([r["id"] for r in kept], ["kept"])
+        self.assertEqual([r["id"] for r in stale], ["old"])
 
 
 class Sampling(unittest.TestCase):

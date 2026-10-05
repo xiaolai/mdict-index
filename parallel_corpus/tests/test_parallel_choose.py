@@ -1,7 +1,7 @@
 """Which probed dictionaries the parallel corpus is built from."""
 import unittest
 
-from parallel.choose import choose, parsed_dictionaries
+from parallel.choose import choose, kept_twice, parsed_dictionaries
 
 
 def row(**kw):
@@ -58,6 +58,18 @@ class Choose(unittest.TestCase):
         c = choose(row(status="unreadable", reason="truncated: the index needs 9 bytes, the file has 5"), {})
         self.assertFalse(c.keep)
         self.assertEqual(c.reason, "unreadable: truncated: the index needs 9 bytes, the file has 5")
+
+
+class KeptTwice(unittest.TestCase):
+    def test_one_file_under_two_ids_is_found(self):
+        old, new = choose(row(id="old", name="Dict V2"), {}), choose(row(id="new", name="Dict V2.4"), {})
+        self.assertEqual(kept_twice([old, new]), ["f/d.mdx"])
+        self.assertEqual(kept_twice([old, choose(row(id="other", file="e.mdx"), {})]), [])
+
+    def test_a_dropped_duplicate_is_no_duplicate(self):
+        dropped = choose(row(id="old", status="error", reason="x"), {})
+        self.assertFalse(dropped.keep)
+        self.assertEqual(kept_twice([dropped, choose(row(id="new"), {})]), [])
 
 
 class Extractors(unittest.TestCase):
