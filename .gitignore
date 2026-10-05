@@ -10,6 +10,8 @@ dev-docs/artifacts/
 parallel_corpus/data/
 # lexical inventories: built from copyrighted dictionaries, never committed
 inventories/data/
+# the text analyzer's lexicon (built from the inventories) and its local test texts
+analyzer/data/
 # audit tooling's working output: its findings quote dictionary text; never committed
 .cc-suite/
 # local tool settings (.local by convention)

@@ -1,0 +1,13 @@
+{
+ "description": "Judge one phrase or collocation that a text analyzer marked in running English. State: 'SENTENCE: <the sentence>', 'WORDS: <the marked words, ... where others come between>', 'PHRASE: <the dictionary phrase or collocation>', optionally 'MEANING: <one of its dictionary senses, for reference>'.",
+ "questions": {
+  "correct": {
+   "type": "noul",
+   "instructions": "Decide whether the marked words are used in this sentence together as the phrase or collocation named, in any of its senses: the analyzer marks phrases, it does not choose senses, so MEANING is only one sense, given for reference. A different form, tense or word order than PHRASE is fine (gave it up = give up; the decision she made = make a decision), and so is any object or possessive in place of a slot such as sb, sth or one's. For a phrasal verb or a verb with a preposition, a literal use counts when the verb and particle work together (went in = go in, entered).",
+   "criteria": {
+    "true": "The marked words work together as the phrase or collocation in this sentence",
+    "false": "The marked words only happen to occur together here: they belong to different parts of the sentence, or form another construction (for example a conversational formula such as 'I see' used as ordinary words inside a longer sentence)"
+   }
+  }
+ }
+}

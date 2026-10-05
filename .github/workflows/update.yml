@@ -50,6 +50,7 @@ jobs:
           PYTHONPATH=scripts .venv/bin/python -m unittest discover -s tests
           PYTHONPATH=scripts:parallel_corpus .venv/bin/python -m unittest discover -s parallel_corpus/tests -t parallel_corpus/tests
           PYTHONPATH=scripts:inventories .venv/bin/python -m unittest discover -s inventories/tests -t inventories/tests
+          PYTHONPATH=scripts:analyzer .venv/bin/python -m unittest discover -s analyzer/tests -t analyzer/tests
           node --test tests/*.test.mjs
 
       - name: Decide whether to crawl
