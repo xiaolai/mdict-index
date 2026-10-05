@@ -33,7 +33,9 @@ Build order: `inflections.py` first (the others use its lemmas and forms), then
 `evidence.py` (the example index phrases and collocations read ambiguous notation with) and
 `usage.py` (its grammar patterns correct some phrase kinds), then any of `phrases.py`,
 `collocations.py`, `levels.py`, `families.py`; `pronunciation.py` after `families.py`, then
-`sameword.py` (it asks Jev, caching the answers in `data/sameword_cache.json`), and
+`sameword.py` (it asks Jev, caching the answers in `data/sameword_cache.json`; with
+`--without-jev` it asks nothing, tags the unanswered contrasts "uncertain", and records that in
+`pronunciations.db`'s `build_info`, which `check.py` prints), and
 `confusables.py` (it needs `levels.db` and `pronunciations.db`). Last, `check.py` runs the
 invariants every inventory must hold (no empty fields, no dangling references, shares in
 range, known values on every axis, a stress row agreeing with its counts...) and exits 1 on

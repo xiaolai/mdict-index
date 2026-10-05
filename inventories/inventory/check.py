@@ -6,6 +6,8 @@ Each check is a query that must return no rows (or a condition that must hold). 
 a rebuild: a build that quietly writes empty fields, dangling references or impossible
 values passes its own run but fails here. So does one that writes nothing: an inventory's
 main tables must hold rows, or every query above them returns none and proves nothing.
+A step that ran degraded (sameword without jev) says so in its database's build_info table;
+those notes are printed, so a degraded build is valid but never mistaken for a full one.
 """
 from __future__ import annotations
 
@@ -136,6 +138,14 @@ def check_db(name: str, path: Path) -> list[str]:
     return failures
 
 
+def notes(path: Path) -> list[str]:
+    """How the steps that wrote this inventory ran, from its build_info table if it has one."""
+    with closing(sqlite3.connect(f"file:{path}?mode=ro", uri=True)) as con:
+        if con.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'build_info'").fetchone() is None:
+            return []
+        return [f"{key}: {value}" for key, value in con.execute("SELECT key, value FROM build_info ORDER BY key")]
+
+
 def main(data: Path = DATA) -> int:
     failures = 0
     for name, checks in CHECKS.items():
@@ -149,6 +159,8 @@ def main(data: Path = DATA) -> int:
             print(f"FAIL     {failure}")
         failures += len(found)
         print(f"checked  {name}: {len(CORE[name])} tables, {len(checks)} invariants")
+        for note in notes(path):
+            print(f"NOTE     {name}: {note}")
     print("all invariants hold" if not failures else f"{failures} invariant(s) violated")
     return 1 if failures else 0
 

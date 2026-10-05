@@ -20,11 +20,18 @@ error.
 
 Answers are cached in data/sameword_cache.json, so a rebuild asks only new questions.
 Adds word_relation, p_same and p_unrelated to pos_contrast.
+
+Without jev the step refuses to run unless given --without-jev. Then nothing is asked: cached
+answers are still used, every other contrast is tagged "uncertain", and the build_info table
+of pronunciations.db records how many contrasts went unasked, so a degraded build never passes
+for a full one.
 """
 from __future__ import annotations
 
+import argparse
 import concurrent.futures as cf
 import json
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -96,7 +103,32 @@ def ask_all(todo: list[tuple[str, str]], cache: dict[str, float], ask=ask) -> li
     return failures
 
 
+def to_ask(states: dict[int, str], cache: dict[str, float], without_jev: bool,
+           jev: str | None) -> tuple[list[tuple[str, str]], int]:
+    """The (question, state) pairs to put to jev, and how many go unasked. Without jev, and
+    without --without-jev, there is no build: the caller must choose to degrade."""
+    todo = [(q, s) for s in states.values() for q in (SAME, UNRELATED) if f"{q[:20]}|{s}" not in cache]
+    if without_jev:
+        return [], len(todo)
+    if todo and jev is None:
+        sys.exit(f"jev is not installed, and {len(todo)} questions are not cached. Install jev "
+                 "(with a TypeSafe API key), or pass --without-jev to tag those contrasts 'uncertain'.")
+    return todo, 0
+
+
+def record(con: sqlite3.Connection, unasked: int, questions: int) -> None:
+    """Say in the database how the step ran: the invariant check reports a degraded build."""
+    con.execute("CREATE TABLE IF NOT EXISTS build_info (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+    value = (f"without jev: {unasked} of {questions} questions unasked; their contrasts are 'uncertain'"
+             if unasked else "every question answered by jev (asked now or cached)")
+    con.execute("INSERT OR REPLACE INTO build_info VALUES ('sameword', ?)", (value,))
+
+
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--without-jev", action="store_true",
+                    help="ask nothing; tag every contrast without a cached answer 'uncertain'")
+    args = ap.parse_args()
     db = DATA / "pronunciations.db"
     cache_path = DATA / "sameword_cache.json"
     cache: dict[str, float] = json.loads(cache_path.read_text()) if cache_path.exists() else {}
@@ -108,7 +140,7 @@ def main() -> None:
         da, db_ = defs.get(word, {}).get(a), defs.get(word, {}).get(b)
         if da and db_:
             states[rowid] = f"WORD: {word}\n{a}: {' / '.join(da)}\n{b}: {' / '.join(db_)}"
-    todo = [(q, s) for s in states.values() for q in (SAME, UNRELATED) if f"{q[:20]}|{s}" not in cache]
+    todo, unasked = to_ask(states, cache, args.without_jev, shutil.which("jev"))
     try:
         failures = ask_all(todo, cache)
     finally:  # answers already paid for are kept even when a question fails
@@ -130,9 +162,10 @@ def main() -> None:
         tags[t] += 1
         con.execute("UPDATE pos_contrast SET word_relation = ?, p_same = ?, p_unrelated = ? WHERE rowid = ?",
                     (t, p_same, p_unrel, rowid))
+    record(con, unasked, 2 * len(states))
     con.commit()
     con.close()
-    print(json.dumps({"contrasts": len(rows), "asked": len(todo), "tags": dict(tags)}, indent=1))
+    print(json.dumps({"contrasts": len(rows), "asked": len(todo), "unasked": unasked, "tags": dict(tags)}, indent=1))
 
 
 if __name__ == "__main__":
