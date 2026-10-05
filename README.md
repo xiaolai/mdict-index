@@ -62,6 +62,9 @@ node --test tests/*.test.mjs
 Tests marked "corpus" run only when `corpus/unified.db` exists locally; on
 GitHub they skip, because the dictionaries are never in the repository.
 
+The 25 recommended dictionaries the local tools are built from, with their editions, the
+freemdict copy each build downloads, and its size: [`DICTIONARIES.md`](DICTIONARIES.md).
+
 ## From zero: building the local tools
 
 Everything below runs on your machine and builds data that is never committed.
